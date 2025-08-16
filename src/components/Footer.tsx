@@ -8,6 +8,28 @@ export default function Footer() {
   const { config, loading } = useConfig();
   const currentYear = new Date().getFullYear();
 
+  // Popular states for footer links
+  const popularStates = [
+    'Virginia', 'Maryland', 'North Carolina', 'Pennsylvania',
+    'West Virginia', 'Delaware', 'New Jersey', 'New York'
+  ];
+
+  // Major cities for footer links - focusing on Mid-Atlantic region
+  const majorCities = [
+    { name: 'Richmond', state: 'VA' },
+    { name: 'Virginia Beach', state: 'VA' },
+    { name: 'Norfolk', state: 'VA' },
+    { name: 'Alexandria', state: 'VA' },
+    { name: 'Ashburn', state: 'VA' },
+    { name: 'Baltimore', state: 'MD' },
+    { name: 'Washington', state: 'DC' },
+    { name: 'Charlotte', state: 'NC' },
+    { name: 'Raleigh', state: 'NC' },
+    { name: 'Philadelphia', state: 'PA' },
+    { name: 'Wilmington', state: 'DE' },
+    { name: 'Newark', state: 'NJ' }
+  ];
+
   if (loading || !config) {
     return (
       <footer className="bg-secondary text-secondary-foreground">
@@ -22,253 +44,214 @@ export default function Footer() {
     <footer className="bg-secondary text-secondary-foreground">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company Info */}
-          <div>
+          <div className="lg:col-span-1">
             <h3 className="text-2xl font-bold mb-4 text-primary">
               {config.businessName}
             </h3>
             <p className="text-sm mb-4 text-secondary-foreground/80">
-              {config.description || 'Connecting customers with trusted local service providers.'}
+              {config.description || 'Your trusted marketplace for dumpster rental and waste management services.'}
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2 mb-4">
-              <a href="tel:1-800-555-0123" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+              <a href="tel:1-855-DUMPSTER" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                 <Phone className="h-4 w-4" />
-                1-800-555-0123
+                1-855-DUMPSTER
               </a>
-              <a href="mailto:support@example.com" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+              <a href="mailto:support@dumpstermarketplace.com" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                 <Mail className="h-4 w-4" />
-                support@example.com
+                support@dumpstermarketplace.com
               </a>
+              <div className="flex items-center gap-2 text-sm text-secondary-foreground/80">
+                <MapPin className="h-4 w-4" />
+                Serving All 50 States
+              </div>
             </div>
 
             {/* Social Links */}
             <div className="flex gap-3">
               <a
                 href="https://facebook.com"
-                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Facebook"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                aria-label="Facebook"
               >
-                <Facebook className="h-5 w-5" />
+                <Facebook className="h-4 w-4" />
               </a>
               <a
                 href="https://twitter.com"
-                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Twitter"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                aria-label="Twitter"
               >
-                <Twitter className="h-5 w-5" />
+                <Twitter className="h-4 w-4" />
               </a>
               <a
                 href="https://linkedin.com"
-                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="LinkedIn"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                aria-label="LinkedIn"
               >
-                <Linkedin className="h-5 w-5" />
+                <Linkedin className="h-4 w-4" />
               </a>
               <a
                 href="https://instagram.com"
-                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Instagram"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="p-2 bg-secondary-foreground/10 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                aria-label="Instagram"
               >
-                <Instagram className="h-5 w-5" />
+                <Instagram className="h-4 w-4" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* For Customers */}
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <h4 className="font-semibold mb-4">For Customers</h4>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/directory"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Find Services
+                <Link href="/" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Get a Quote
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/how-it-works"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  How It Works
+                <Link href="/directory" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Find Providers
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/resources"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Resources & Guides
+                <Link href="/dumpster-sizes" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Dumpster Size Guide
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/trust-safety"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Trust & Safety
+                <Link href="/homeowners" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Homeowner Resources
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/about"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  About Us
+                <Link href="/commercial" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Commercial Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Pricing Guide
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* For Professionals */}
+          {/* For Business */}
           <div>
-            <h4 className="font-semibold mb-4">For Professionals</h4>
+            <h4 className="font-semibold mb-4">For Business</h4>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/for-business"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Join Our Network
+                <Link href="/for-business" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  List Your Business
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/claim"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
+                <Link href="/claim" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                   Claim Your Business
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/dealer-portal"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
+                <Link href="/signup?pro=true" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Pro Sign Up
+                </Link>
+              </li>
+              <li>
+                <Link href="/dealer-portal" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                   Dealer Portal
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/dealer-portal/subscription"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Pricing Plans
+                <Link href="/pricing/business" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Business Pricing
                 </Link>
               </li>
               <li>
-                <a
-                  href="mailto:business@example.com"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Business Support
-                </a>
+                <Link href="/advertising" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Advertising
+                </Link>
+              </li>
+              <li>
+                <Link href="/success-stories" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+                  Success Stories
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support & Legal */}
+          {/* Popular States */}
           <div>
-            <h4 className="font-semibold mb-4">Support</h4>
+            <h4 className="font-semibold mb-4">Popular States</h4>
             <ul className="space-y-2">
+              {popularStates.slice(0, 7).map(state => (
+                <li key={state}>
+                  <Link 
+                    href={`/${state.toLowerCase().replace(/\s+/g, '-')}`} 
+                    className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
+                  >
+                    {state}
+                  </Link>
+                </li>
+              ))}
               <li>
-                <Link
-                  href="/login"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Customer Login
+                <Link href="/locations" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+                  View All States →
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          {/* Major Cities */}
+          <div>
+            <h4 className="font-semibold mb-4">Major Cities</h4>
+            <ul className="space-y-2">
+              {majorCities.slice(0, 7).map(city => (
+                <li key={`${city.name}-${city.state}`}>
+                  <Link 
+                    href={`/${city.state.toLowerCase()}/${city.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                    className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
+                  >
+                    {city.name}, {city.state}
+                  </Link>
+                </li>
+              ))}
               <li>
-                <Link
-                  href="/signup"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Create Account
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="mailto:support@example.com"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Contact Support
-                </a>
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms"
-                  className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
-                >
-                  Terms of Service
+                <Link href="/locations" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+                  View All Cities →
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Newsletter Signup */}
-        <div className="mt-12 pt-8 border-t border-secondary-foreground/10">
-          <div className="max-w-md mx-auto text-center">
-            <h4 className="font-semibold mb-3">Stay Updated</h4>
-            <p className="text-sm text-secondary-foreground/80 mb-4">
-              Get tips, updates, and exclusive offers delivered to your inbox
-            </p>
-            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-secondary-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-secondary-foreground placeholder:text-secondary-foreground/50"
-              />
-              <button
-                type="submit"
-                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="bg-secondary-foreground/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-secondary-foreground/60">
-            <div>
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-secondary-foreground/20">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-secondary-foreground/60 text-center md:text-left">
               © {currentYear} {config.businessName}. All rights reserved.
             </div>
-            <div className="flex gap-4">
-              <Link href="/privacy" className="hover:text-primary transition-colors">
-                Privacy
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <Link href="/privacy" className="text-secondary-foreground/60 hover:text-primary transition-colors">
+                Privacy Policy
               </Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">
-                Terms
+              <Link href="/terms" className="text-secondary-foreground/60 hover:text-primary transition-colors">
+                Terms of Service
               </Link>
-              <Link href="/sitemap" className="hover:text-primary transition-colors">
+              <Link href="/sitemap" className="text-secondary-foreground/60 hover:text-primary transition-colors">
                 Sitemap
               </Link>
-              <Link href="/accessibility" className="hover:text-primary transition-colors">
+              <Link href="/accessibility" className="text-secondary-foreground/60 hover:text-primary transition-colors">
                 Accessibility
               </Link>
             </div>

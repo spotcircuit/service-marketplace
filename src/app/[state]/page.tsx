@@ -2,14 +2,18 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { MapPin, Star, CheckCircle, Phone, ArrowRight, Building2, Users } from 'lucide-react';
+import { MapPin, Star, CheckCircle, Phone, ArrowRight, Building2, Users, AlertCircle, Home, ChevronRight, Shield, Clock, Truck } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import BusinessDirectory from '@/components/BusinessDirectory';
+import LocationMap from '@/components/LocationMap';
+import CityClusterMap from '@/components/CityClusterMap';
+import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 // US States data
 const stateNames: Record<string, string> = {
   'alabama': 'Alabama', 'alaska': 'Alaska', 'arizona': 'Arizona', 'arkansas': 'Arkansas',
   'california': 'California', 'colorado': 'Colorado', 'connecticut': 'Connecticut',
-  'delaware': 'Delaware', 'florida': 'Florida', 'georgia': 'Georgia', 'hawaii': 'Hawaii',
+  'delaware': 'Delaware', 'district-of-columbia': 'District of Columbia', 'florida': 'Florida', 'georgia': 'Georgia', 'hawaii': 'Hawaii',
   'idaho': 'Idaho', 'illinois': 'Illinois', 'indiana': 'Indiana', 'iowa': 'Iowa',
   'kansas': 'Kansas', 'kentucky': 'Kentucky', 'louisiana': 'Louisiana', 'maine': 'Maine',
   'maryland': 'Maryland', 'massachusetts': 'Massachusetts', 'michigan': 'Michigan',
@@ -24,308 +28,525 @@ const stateNames: Record<string, string> = {
   'wisconsin': 'Wisconsin', 'wyoming': 'Wyoming'
 };
 
-// Major cities by state (sample data)
-const citiesByState: Record<string, string[]> = {
-  'texas': ['Houston', 'Dallas', 'Austin', 'San Antonio', 'Fort Worth', 'El Paso', 'Arlington', 'Corpus Christi'],
-  'california': ['Los Angeles', 'San Diego', 'San Jose', 'San Francisco', 'Fresno', 'Sacramento', 'Oakland', 'Long Beach'],
-  'florida': ['Miami', 'Tampa', 'Orlando', 'Jacksonville', 'St. Petersburg', 'Hialeah', 'Tallahassee', 'Fort Lauderdale'],
-  'new-york': ['New York City', 'Buffalo', 'Rochester', 'Yonkers', 'Syracuse', 'Albany', 'New Rochelle', 'Mount Vernon'],
-  // Add more states as needed
+// State coordinates for centering map
+const stateCoordinates: Record<string, {lat: number, lng: number}> = {
+  'virginia': { lat: 37.4316, lng: -78.6569 },
+  'maryland': { lat: 39.0458, lng: -76.6413 },
+  'north-carolina': { lat: 35.7596, lng: -79.0193 },
+  'pennsylvania': { lat: 41.2033, lng: -77.1945 },
+  'delaware': { lat: 38.9108, lng: -75.5277 },
+  'district-of-columbia': { lat: 38.9072, lng: -77.0369 },
+  'west-virginia': { lat: 38.5976, lng: -80.4549 }
 };
-
-interface Business {
-  id: string;
-  name: string;
-  category: string;
-  rating: number;
-  reviews: number;
-  city: string;
-  is_featured: boolean;
-  is_verified: boolean;
-  phone: string;
-}
 
 export default function StatePage() {
   const params = useParams();
   const stateSlug = params.state as string;
   const stateName = stateNames[stateSlug] || stateSlug;
-  const cities = citiesByState[stateSlug] || ['City 1', 'City 2', 'City 3', 'City 4', 'City 5', 'City 6'];
+  const isVirginia = stateSlug === 'virginia';
   
-  const [featuredBusinesses, setFeaturedBusinesses] = useState<Business[]>([]);
+  const [cities, setCities] = useState<{city: string; count: number}[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, cities: 0 });
+  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [mapCenter, setMapCenter] = useState<{lat: number, lng: number} | null>(null);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [customerType, setCustomerType] = useState<'all' | 'residential' | 'commercial'>('all');
+  const [modalInitialData, setModalInitialData] = useState<any>(null);
+  const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
+  const [showAllCities, setShowAllCities] = useState(false);
+  
+  // Map full state names to abbreviations
+  const STATE_NAME_TO_ABBR: Record<string, string> = {
+    'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+    'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+    'district-of-columbia': 'DC', 'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI',
+    'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA',
+    'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME',
+    'maryland': 'MD', 'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN',
+    'mississippi': 'MS', 'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE',
+    'nevada': 'NV', 'new-hampshire': 'NH', 'new-jersey': 'NJ', 'new-mexico': 'NM',
+    'new-york': 'NY', 'north-carolina': 'NC', 'north-dakota': 'ND', 'ohio': 'OH',
+    'oklahoma': 'OK', 'oregon': 'OR', 'pennsylvania': 'PA', 'rhode-island': 'RI',
+    'south-carolina': 'SC', 'south-dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX',
+    'utah': 'UT', 'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA',
+    'west-virginia': 'WV', 'wisconsin': 'WI', 'wyoming': 'WY'
+  };
+
+  // Quote form state
+  const [quoteForm, setQuoteForm] = useState({
+    zipcode: '',
+    size: '20-yard',
+    debrisType: 'general',
+    deliveryDate: 'asap',
+    phone: '',
+    email: '',
+    consent: false
+  });
 
   useEffect(() => {
-    // Fetch featured businesses for this state
-    fetchFeaturedBusinesses();
+    console.log('=== VIRGINIA PAGE LOADED ===');
+    console.log('State slug:', stateSlug);
+    console.log('State name:', stateName);
+    console.log('State abbreviation:', STATE_NAME_TO_ABBR[stateSlug]);
+    fetchStateData();
+    // Set initial map center to state center
+    const coords = stateCoordinates[stateSlug] || stateCoordinates['virginia'];
+    setMapCenter(coords);
   }, [stateSlug]);
 
-  const fetchFeaturedBusinesses = async () => {
+  const fetchStateData = async () => {
+    // Prepare abort controller and timeout outside try so we can clear in finally
+    let controller: AbortController | null = null;
+    let timeoutId: any = null;
     try {
-      // This would be an API call
-      // const response = await fetch(`/api/businesses?state=${stateSlug}&featured=true`);
-      // const data = await response.json();
-      
-      // Mock data for now
-      setFeaturedBusinesses([
-        {
-          id: '1',
-          name: 'Premium Dumpster Rentals',
-          category: 'Dumpster Rental',
-          rating: 4.8,
-          reviews: 124,
-          city: cities[0],
-          is_featured: true,
-          is_verified: true,
-          phone: '(555) 123-4567'
-        },
-        {
-          id: '2',
-          name: 'Quick Waste Solutions',
-          category: 'Junk Removal',
-          rating: 4.6,
-          reviews: 89,
-          city: cities[1],
-          is_featured: true,
-          is_verified: true,
-          phone: '(555) 234-5678'
-        },
-        {
-          id: '3',
-          name: 'Elite Construction Services',
-          category: 'Construction',
-          rating: 4.9,
-          reviews: 201,
-          city: cities[0],
-          is_featured: true,
-          is_verified: true,
-          phone: '(555) 345-6789'
-        }
-      ]);
+      // Convert state slug to abbreviation for API call
+      const stateAbbr = STATE_NAME_TO_ABBR[stateSlug] || stateSlug.toUpperCase();
+      const url = `/api/businesses/stats?state=${stateAbbr}`;
+      console.log('[StatePage] Fetching state stats', { slug: stateSlug, stateAbbr, url });
+      console.time('[StatePage] /api/businesses/stats');
+
+      // Use AbortController to avoid indefinite hangs
+      controller = new AbortController();
+      timeoutId = setTimeout(() => controller?.abort('timeout' as any), 10000);
+
+      // Use the state-specific endpoint; bypass any cache during debugging
+      const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      const statusInfo = { ok: response.ok, status: response.status, statusText: response.statusText };
+      console.log('[StatePage] Stats response status', statusInfo);
+
+      let data: any = null;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        console.error('[StatePage] Failed to parse JSON from stats response', jsonErr);
+      }
+      console.timeEnd('[StatePage] /api/businesses/stats');
+      console.log('[StatePage] Stats data summary', {
+        hasData: !!data,
+        total: data?.total,
+        citiesCount: Array.isArray(data?.cities) ? data.cities.length : 0,
+        sampleCities: Array.isArray(data?.cities) ? data.cities.slice(0, 3) : []
+      });
+
+      if (data?.cities && data.cities.length > 0) {
+        const normalizedCities = data.cities.map((c: any) => ({
+          city: c.city,
+          count: Number(c.count) || 0
+        }));
+        setCities(normalizedCities);
+        setStats({
+          total: Number(data.total) || 0,
+          cities: normalizedCities.length
+        });
+      } else {
+        console.warn('[StatePage] No cities returned for state', { slug: stateSlug, stateAbbr, url });
+        setCities([]);
+        setStats({ total: 0, cities: 0 });
+      }
     } catch (error) {
-      console.error('Error fetching businesses:', error);
+      if ((error as any)?.name === 'AbortError') {
+        console.warn('[StatePage] Stats request aborted due to timeout');
+      } else {
+        console.error('[StatePage] Error fetching state data', error);
+      }
+      setCities([]);
     } finally {
+      try { if (timeoutId) { clearTimeout(timeoutId); } } catch {}
       setLoading(false);
     }
   };
 
+  const handleCityClick = (city: string) => {
+    setSelectedCity(city);
+    // You could update map center to city coordinates here
+    // For now, we'll let the LocationMap handle filtering
+  };
+
+  const handleQuoteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quoteForm.consent) {
+      alert('Please agree to receive quotes');
+      return;
+    }
+    
+    // Prepare initial data for the modal
+    const initialData: any = {
+      customerType: customerType === 'commercial' ? 'commercial' : 'residential',
+      zipcode: quoteForm.zipcode,
+      dumpsterSize: quoteForm.size,
+      debrisType: quoteForm.debrisType,
+      email: quoteForm.email,
+      phone: quoteForm.phone,
+      state: stateName
+    };
+    
+    // Add delivery date if specified
+    if (quoteForm.deliveryDate !== 'asap') {
+      initialData.deliveryDate = quoteForm.deliveryDate;
+    }
+    
+    setModalInitialData(initialData);
+    setModalStartStep(1); // Start at step 1 (skip customer type selection)
+    setQuoteModalOpen(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-700 py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Find Service Providers in {stateName}
-            </h1>
-            <p className="text-xl text-blue-100">
-              Connect with verified professionals across {stateName}
-            </p>
-          </div>
-          
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-white">500+</div>
-              <div className="text-blue-100 text-sm">Service Providers</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-white">{cities.length}</div>
-              <div className="text-blue-100 text-sm">Cities Covered</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-white">4.7</div>
-              <div className="text-blue-100 text-sm">Average Rating</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-white">24/7</div>
-              <div className="text-blue-100 text-sm">Available Service</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Cities Grid */}
-      <section className="py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">
-            Popular Cities in {stateName}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {cities.map((city) => (
-              <Link
-                key={city}
-                href={`/${stateSlug}/${city.toLowerCase().replace(/\s+/g, '-')}`}
-                className="bg-white rounded-lg p-6 shadow hover:shadow-lg transition group"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <MapPin className="h-5 w-5 text-gray-400 mb-2" />
-                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600">
-                      {city}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      45+ providers
-                    </p>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition" />
-                </div>
-              </Link>
-            ))}
-          </div>
-          
-          <div className="mt-8 text-center">
-            <Link
-              href={`/${stateSlug}/all-cities`}
-              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
-            >
-              View all cities in {stateName}
-              <ArrowRight className="ml-2 h-4 w-4" />
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
+      <div className="bg-muted border-b">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center gap-1 text-sm">
+            <Link href="/" className="hover:text-primary flex items-center gap-1">
+              <Home className="h-4 w-4" />
+              <span>Home</span>
             </Link>
-          </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <Link href="/locations" className="hover:text-primary">Locations</Link>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <span className="text-foreground font-medium">{stateName}</span>
+          </nav>
         </div>
-      </section>
+      </div>
 
-      {/* Featured Businesses */}
-      <section className="py-12 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+      {/* Hero Section with Quote Form */}
+      <section className="hero-gradient-secondary text-white relative">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Left: Headlines */}
             <div>
-              <h2 className="text-3xl font-bold text-gray-900">
-                Featured Providers in {stateName}
-              </h2>
-              <p className="text-gray-600 mt-2">
-                Top-rated businesses ready to serve you
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                Dumpster Rental in {stateName}
+              </h1>
+              <p className="text-xl text-white/90 mb-6">
+                Compare quotes from {stats.total}+ verified providers across {stats.cities} cities. 
+                Same-day delivery available.
               </p>
-            </div>
-            <Link
-              href={`/${stateSlug}/all-providers`}
-              className="hidden md:inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
-            >
-              View all providers
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
+              
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  <span>Licensed & Insured</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  <span>Same-Day Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-current" />
+                  <span>4.7/5 Average Rating</span>
+                </div>
+              </div>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-2xl font-bold">{stats.total}</div>
+                  <div className="text-white/80 text-sm">Service Providers</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-2xl font-bold">{stats.cities}</div>
+                  <div className="text-white/80 text-sm">Cities Covered</div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredBusinesses.map((business) => (
-                <div key={business.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {business.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">{business.category}</p>
-                    </div>
-                    {business.is_featured && (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
-                        Featured
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center mb-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(business.rating)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {business.rating} ({business.reviews} reviews)
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-gray-600 mb-4">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {business.city}, {stateName}
-                    {business.is_verified && (
-                      <CheckCircle className="h-4 w-4 text-green-500 ml-2" />
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <a
-                      href={`tel:${business.phone}`}
-                      className="flex items-center text-blue-600 hover:text-blue-700"
-                    >
-                      <Phone className="h-4 w-4 mr-1" />
-                      Call Now
-                    </a>
-                    <Link
-                      href={`/business/${business.id}`}
-                      className="text-gray-600 hover:text-gray-900"
-                    >
-                      View Details →
-                    </Link>
+
+            {/* Right: Quick Quote Form */}
+            <div className="bg-white rounded-xl shadow-2xl p-6 text-gray-900">
+              <h2 className="text-2xl font-bold mb-4">Get Instant Quotes</h2>
+              
+              <form onSubmit={handleQuoteSubmit} className="space-y-4">
+                {/* ZIP Code */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">ZIP Code in {stateName}</label>
+                  <input
+                    type="text"
+                    value={quoteForm.zipcode}
+                    onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value})}
+                    placeholder="Enter ZIP"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    required
+                  />
+                </div>
+
+                {/* Size Selection */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Dumpster Size</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['10-yard', '20-yard', '30-yard', '40-yard'].map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => setQuoteForm({...quoteForm, size})}
+                        className={`p-2 border rounded-lg text-sm transition ${
+                          quoteForm.size === size 
+                            ? 'border-primary bg-primary/10 font-semibold' 
+                            : 'border-gray-300 hover:border-primary'
+                        }`}
+                      >
+                        {size.replace('-', ' ')}
+                        {size === '20-yard' && <span className="text-xs text-primary ml-1">Popular</span>}
+                      </button>
+                    ))}
                   </div>
                 </div>
+
+                {/* Contact */}
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="tel"
+                    placeholder="Phone"
+                    value={quoteForm.phone}
+                    onChange={(e) => setQuoteForm({...quoteForm, phone: e.target.value})}
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={quoteForm.email}
+                    onChange={(e) => setQuoteForm({...quoteForm, email: e.target.value})}
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    required
+                  />
+                </div>
+
+                {/* TCPA Consent */}
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    id="consent"
+                    checked={quoteForm.consent}
+                    onChange={(e) => setQuoteForm({...quoteForm, consent: e.target.checked})}
+                    className="mt-1"
+                    required
+                  />
+                  <label htmlFor="consent" className="text-xs text-gray-600">
+                    I agree to receive quotes via phone/text. Message rates may apply.
+                  </label>
+                </div>
+
+                {/* CTAs */}
+                <div className="space-y-2">
+                  <button
+                    type="submit"
+                    className="w-full py-3 btn-primary rounded-lg font-semibold"
+                  >
+                    Get Quotes from {stateName} Providers
+                  </button>
+                  <a
+                    href="tel:1-855-DUMPSTER"
+                    className="w-full py-2 btn-ghost-primary rounded-lg font-medium flex items-center justify-center gap-2"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Call: 1-855-DUMPSTER
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Cities Grid with Provider Counts */}
+        {cities.length > 0 && !isVirginia && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-6">Select a City in {stateName}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <button
+                onClick={() => setSelectedCity('')}
+                className={`p-3 rounded-lg border transition ${
+                  selectedCity === '' 
+                    ? 'border-primary bg-primary/10 font-semibold' 
+                    : 'border-gray-200 hover:border-primary bg-white'
+                }`}
+              >
+                <div className="text-sm font-medium">All Cities</div>
+                <div className="text-xs text-muted-foreground">{stats.total} providers</div>
+              </button>
+              {cities.map(cityData => (
+                <button
+                  key={cityData.city}
+                  onClick={() => handleCityClick(cityData.city)}
+                  className={`p-3 rounded-lg border transition text-left ${
+                    selectedCity === cityData.city 
+                      ? 'border-primary bg-primary/10 font-semibold' 
+                      : 'border-gray-200 hover:border-primary bg-white'
+                  }`}
+                >
+                  <div className="text-sm font-medium">{cityData.city}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {cityData.count} {cityData.count === 1 ? 'provider' : 'providers'}
+                  </div>
+                </button>
               ))}
             </div>
-          )}
-        </div>
-      </section>
+            {cities.length > 18 && (
+              <div className="text-center mt-4">
+                <Link
+                  href="#all-cities"
+                  className="text-primary hover:text-primary/80 font-medium text-sm"
+                >
+                  View all {cities.length} cities →
+                </Link>
+              </div>
+            )}
+          </section>
+        )}
 
-      {/* Service Categories */}
-      <section className="py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">
-            Popular Services in {stateName}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              'Dumpster Rental',
-              'Junk Removal',
-              'Construction',
-              'Demolition',
-              'Roofing',
-              'Plumbing',
-              'HVAC',
-              'Electrical'
-            ].map((service) => (
-              <Link
-                key={service}
-                href={`/${stateSlug}/service/${service.toLowerCase().replace(/\s+/g, '-')}`}
-                className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition text-center group"
-              >
-                <Building2 className="h-8 w-8 text-gray-400 mx-auto mb-2 group-hover:text-blue-600" />
-                <h3 className="font-medium text-gray-900 group-hover:text-blue-600">
-                  {service}
-                </h3>
-              </Link>
-            ))}
+        {/* Cities with Provider Counts - Like locations page */}
+        {cities.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-6">Cities We Serve in {stateName}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {cities.slice(0, 20).map(cityData => (
+                <Link
+                  key={cityData.city}
+                  href={`/${stateSlug}/${cityData.city.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="bg-white rounded-lg border hover:border-primary hover:shadow-lg transition-all p-4 group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-base group-hover:text-primary">{cityData.city}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {cityData.count} {cityData.count === 1 ? 'provider' : 'providers'}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary mt-1" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {cities.length > 20 && !showAllCities && (
+              <div className="text-center mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowAllCities(true)}
+                  className="text-primary hover:text-primary/80 font-medium inline-flex items-center gap-1"
+                >
+                  View all {cities.length} cities in {stateName}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Map Section - City Clusters */}
+        <section className="mb-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2">
+              Service Coverage in {stateName}
+            </h2>
+            <p className="text-muted-foreground">
+              Click on any city to view local providers and get instant quotes
+            </p>
           </div>
-        </div>
-      </section>
+          <div className="bg-card rounded-lg border overflow-hidden" style={{ height: '600px' }}>
+            <CityClusterMap
+              state={stateName}
+              stateSlug={stateSlug}
+              cities={cities}
+              mapCenter={mapCenter || stateCoordinates[stateSlug] || stateCoordinates['virginia']}
+              onCitySelect={(city) => {
+                const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+                // Navigate to city page instead of filtering
+                window.location.href = `/${stateSlug}/${citySlug}`;
+              }}
+            />
+          </div>
+        </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-4 bg-blue-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Find Your Service Provider?
+        {/* Business Directory - Shows All State Providers */}
+        <section>
+          <h2 className="text-2xl font-bold mb-6">
+            {selectedCity 
+              ? `All Providers in ${selectedCity}, ${stateName}` 
+              : `All Service Providers in ${stateName}`}
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Get free quotes from verified professionals in {stateName}
-          </p>
-          <Link
-            href="/"
-            className="inline-flex items-center px-8 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition"
-          >
-            Get Free Quotes
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </div>
-      </section>
+          <BusinessDirectory
+            initialState={STATE_NAME_TO_ABBR[stateSlug] || stateSlug.toUpperCase()}
+            initialCity={selectedCity}
+            showLocationSearch={false}
+            showCategoryFilter={true}
+            showSidebar={true}
+          />
+        </section>
+
+        {/* All Cities Section (if more than 18) */}
+        {showAllCities && cities.length > 0 && (
+          <section id="all-cities" className="mt-12 mb-12">
+            <h2 className="text-2xl font-bold mb-6">All Cities in {stateName}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {cities.map(cityData => (
+                <Link
+                  key={cityData.city}
+                  href={`/${stateSlug}/${cityData.city.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="bg-card rounded-lg border hover:border-primary hover:shadow-md transition p-3 group"
+                >
+                  <div className="text-sm font-semibold group-hover:text-primary">{cityData.city}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {cityData.count} {cityData.count === 1 ? 'provider' : 'providers'}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* SEO Content */}
+        <section className="mt-12">
+          <div className="prose prose-gray max-w-none">
+            <h2 className="text-2xl font-bold mb-4">
+              Dumpster Rental Services Throughout {stateName}
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              Finding the right dumpster rental company in {stateName} has never been easier. Our marketplace connects 
+              you with {stats.total} verified local providers across {stats.cities} cities, ensuring you get competitive 
+              pricing and reliable service for your project. Whether you need a 10-yard dumpster for a small home cleanout 
+              or a 40-yard container for major construction, our network of providers has you covered.
+            </p>
+            <p className="text-muted-foreground mb-4">
+              {stateName} contractors and homeowners trust our platform to deliver transparent pricing, same-day delivery 
+              options, and professional service. Every provider in our network is vetted for proper licensing and insurance, 
+              giving you peace of mind that your waste disposal needs are handled professionally and in compliance with 
+              local regulations.
+            </p>
+            <p className="text-muted-foreground">
+              Popular services in {stateName} include residential dumpster rentals for home renovations, commercial containers 
+              for business waste management, construction debris removal, and specialized disposal for roofing materials 
+              and concrete. Get instant quotes from multiple providers and choose the best option for your budget and timeline.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      {/* Quote Modal */}
+      <DumpsterQuoteModal
+        isOpen={quoteModalOpen}
+        onClose={() => {
+          setQuoteModalOpen(false);
+          setSelectedProvider(null);
+          setModalInitialData(null);
+          setModalStartStep(undefined);
+        }}
+        businessId={selectedProvider?.id}
+        businessName={selectedProvider?.name}
+        initialCustomerType={customerType === 'commercial' ? 'commercial' : 'residential'}
+        initialData={modalInitialData}
+        startAtStep={modalStartStep}
+      />
     </div>
   );
 }

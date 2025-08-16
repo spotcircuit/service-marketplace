@@ -14,7 +14,11 @@ import {
   Camera,
   Save,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Plus,
+  X,
+  Wrench,
+  Map
 } from 'lucide-react';
 
 interface BusinessProfile {
@@ -364,6 +368,110 @@ export default function BusinessProfilePage() {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Services Offered */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Wrench className="h-5 w-5" />
+              Services Offered
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Add the services your business provides. Customers will find you when searching for these services.
+            </p>
+            
+            <div className="space-y-3">
+              {formData.services && formData.services.map((service, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={service}
+                    onChange={(e) => {
+                      const newServices = [...formData.services];
+                      newServices[index] = e.target.value;
+                      setFormData({ ...formData, services: newServices });
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="e.g., Dumpster Rental, Junk Removal"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newServices = formData.services.filter((_, i) => i !== index);
+                      setFormData({ ...formData, services: newServices });
+                    }}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ 
+                    ...formData, 
+                    services: [...(formData.services || []), ''] 
+                  });
+                }}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary hover:text-primary transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                Add Service
+              </button>
+            </div>
+          </div>
+
+          {/* Service Areas */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Map className="h-5 w-5" />
+              Service Areas
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Specify the cities, ZIP codes, or regions where you provide services. You'll receive quotes from customers in these areas.
+            </p>
+            
+            <div className="space-y-3">
+              {formData.service_areas && formData.service_areas.map((area, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={area}
+                    onChange={(e) => {
+                      const newAreas = [...formData.service_areas];
+                      newAreas[index] = e.target.value;
+                      setFormData({ ...formData, service_areas: newAreas });
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="e.g., Houston, TX or 77001 or Greater Houston Area"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newAreas = formData.service_areas.filter((_, i) => i !== index);
+                      setFormData({ ...formData, service_areas: newAreas });
+                    }}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ 
+                    ...formData, 
+                    service_areas: [...(formData.service_areas || []), ''] 
+                  });
+                }}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary hover:text-primary transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                Add Service Area
+              </button>
             </div>
           </div>
 

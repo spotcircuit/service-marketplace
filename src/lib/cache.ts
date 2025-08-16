@@ -217,7 +217,10 @@ class BusinessCache {
         filtered = filtered.filter(b => b.category.toLowerCase() === filters.category!.toLowerCase());
       }
       if (filters.state) {
-        filtered = filtered.filter(b => b.state.toLowerCase() === filters.state!.toLowerCase());
+        // States are stored as uppercase abbreviations in the database (e.g., "VA")
+        // Compare both as uppercase to handle "VA", "va", "Va" etc.
+        const stateFilter = filters.state.toUpperCase();
+        filtered = filtered.filter(b => b.state === stateFilter);
       }
       if (filters.city) {
         filtered = filtered.filter(b => b.city.toLowerCase() === filters.city!.toLowerCase());
@@ -246,6 +249,64 @@ class BusinessCache {
     }
 
     return filtered;
+  }
+  
+  public getBusinessesWithTotal(filters?: {
+    category?: string;
+    state?: string;
+    city?: string;
+    featured?: boolean;
+    verified?: boolean;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): { businesses: Business[], total: number } {
+    if (!this.cache) {
+      console.warn('Cache not initialized, returning empty result');
+      return { businesses: [], total: 0 };
+    }
+
+    let filtered = [...this.cache.businesses];
+
+    if (filters) {
+      if (filters.category) {
+        filtered = filtered.filter(b => b.category.toLowerCase() === filters.category!.toLowerCase());
+      }
+      if (filters.state) {
+        const stateFilter = filters.state.toUpperCase();
+        filtered = filtered.filter(b => b.state === stateFilter);
+      }
+      if (filters.city) {
+        filtered = filtered.filter(b => b.city.toLowerCase() === filters.city!.toLowerCase());
+      }
+      if (filters.featured !== undefined) {
+        filtered = filtered.filter(b => b.is_featured === filters.featured);
+      }
+      if (filters.verified !== undefined) {
+        filtered = filtered.filter(b => b.is_verified === filters.verified);
+      }
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filtered = filtered.filter(b => 
+          b.name.toLowerCase().includes(searchLower) ||
+          b.description?.toLowerCase().includes(searchLower) ||
+          b.category.toLowerCase().includes(searchLower) ||
+          b.city.toLowerCase().includes(searchLower) ||
+          b.state.toLowerCase().includes(searchLower)
+        );
+      }
+
+      const total = filtered.length;
+
+      // Apply pagination after getting total
+      const offset = filters.offset || 0;
+      const limit = filters.limit || 50;
+      const paginated = filtered.slice(offset, offset + limit);
+      
+      return { businesses: paginated, total };
+    }
+
+    return { businesses: filtered, total: filtered.length };
   }
 
   public getBusinessById(id: string): Business | undefined {

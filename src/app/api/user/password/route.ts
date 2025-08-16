@@ -1,27 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { getCurrentUser } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { sql } from '@/lib/neon';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
 export async function PUT(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token');
+    const user = await getCurrentUser();
 
-    if (!token) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let userId: string;
-    try {
-      const decoded = jwt.verify(token.value, JWT_SECRET) as any;
-      userId = decoded.userId;
-    } catch {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const userId = user.id;
 
     const body = await request.json();
     const { current_password, new_password } = body;
@@ -37,16 +27,16 @@ export async function PUT(request: NextRequest) {
     }
 
     // Get current user password hash
-    const user = await sql`
-      SELECT id, password FROM users WHERE id = ${userId}
+    const userResult = await sql`
+      SELECT id, password_hash FROM users WHERE id = ${userId}
     `;
 
-    if (user.length === 0) {
+    if (userResult.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Verify current password
-    const isValidPassword = await bcrypt.compare(current_password, user[0].password);
+    const isValidPassword = await bcrypt.compare(current_password, userResult[0].password_hash);
     if (!isValidPassword) {
       return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
     }
@@ -58,7 +48,7 @@ export async function PUT(request: NextRequest) {
     await sql`
       UPDATE users 
       SET 
-        password = ${hashedPassword},
+        password_hash = ${hashedPassword},
         updated_at = NOW()
       WHERE id = ${userId}
     `;

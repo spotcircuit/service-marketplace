@@ -21,6 +21,10 @@ interface UserProfile {
   name: string;
   email: string;
   phone: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipcode?: string;
   role: string;
   created_at: string;
 }
@@ -38,7 +42,11 @@ export default function ProfilePage() {
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipcode: ''
   });
   
   const [passwordData, setPasswordData] = useState({
@@ -63,7 +71,11 @@ export default function ProfilePage() {
       setProfileData({
         name: data.user.name || '',
         email: data.user.email || '',
-        phone: data.user.phone || ''
+        phone: data.user.phone || '',
+        address: data.user.address || '',
+        city: data.user.city || '',
+        state: data.user.state || '',
+        zipcode: data.user.zipcode || ''
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -255,6 +267,66 @@ export default function ProfilePage() {
                     placeholder="(555) 123-4567"
                     className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Address Information</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Street Address
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.address}
+                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                      placeholder="123 Main Street"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.city}
+                        onChange={(e) => setProfileData({ ...profileData, city: e.target.value })}
+                        placeholder="City"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData.state}
+                        onChange={(e) => setProfileData({ ...profileData, state: e.target.value })}
+                        placeholder="State"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      ZIP Code
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.zipcode}
+                      onChange={(e) => setProfileData({ ...profileData, zipcode: e.target.value })}
+                      placeholder="12345"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
                 </div>
               </div>
 

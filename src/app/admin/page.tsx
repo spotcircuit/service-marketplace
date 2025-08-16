@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Settings, Palette, Globe, Layout, Save, RefreshCw, Eye, Database, Download, Upload, LogOut } from 'lucide-react';
 import Link from 'next/link';
@@ -17,18 +17,7 @@ export default function AdminPage() {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (config) {
-      setLocalConfig(JSON.parse(JSON.stringify(config)));
-      setSelectedNiche(config.niche || 'general');
-    }
-  }, [config]);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/me');
       if (!response.ok) {
@@ -46,7 +35,20 @@ export default function AdminPage() {
     } finally {
       setAuthLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (config) {
+      setLocalConfig(JSON.parse(JSON.stringify(config)));
+      setSelectedNiche(config.niche || 'general');
+    }
+  }, [config]);
+
+  
 
   const handleLogout = async () => {
     try {

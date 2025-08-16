@@ -123,7 +123,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create quote in database
+    // Extract service address and location details
+    const serviceAddress = body.serviceAddress || body.service_address || '';
+    const serviceCity = body.city || '';
+    const serviceState = body.state || '';
+    const serviceArea = [serviceCity, serviceState].filter(Boolean).join(', ') || body.service_area || '';
+
+    // Create quote in database - note: business_id can be null for general quotes
     const result = await sql`
       INSERT INTO quotes (
         customer_id,
@@ -131,6 +137,10 @@ export async function POST(request: NextRequest) {
         customer_email,
         customer_phone,
         customer_zipcode,
+        service_address,
+        service_city,
+        service_state,
+        service_area,
         business_id,
         business_name,
         service_type,
@@ -148,11 +158,15 @@ export async function POST(request: NextRequest) {
         ${email},
         ${phone || null},
         ${body.zipcode || null},
-        ${body.business_ids?.[0] || null},
+        ${serviceAddress || null},
+        ${serviceCity || null},
+        ${serviceState || null},
+        ${serviceArea || null},
+        ${body.businessId || null},
         ${body.businessName || null},
         ${service_type},
         ${body.project_description || null},
-        ${body.timeline || 'flexible'},
+        ${body.timeline || body.deliveryDate || 'flexible'},
         ${body.budget || 'not_sure'},
         'new',
         ${body.source || 'website'},
@@ -165,17 +179,20 @@ export async function POST(request: NextRequest) {
 
     const quote = result[0];
 
-    // If specific businesses were selected, create notifications for them
-    if (body.business_ids && body.business_ids.length > 0) {
-      // In a real app, you'd send email notifications here
-      console.log(`Quote ${quote.id} sent to businesses:`, body.business_ids);
+    // If a specific business was selected, update their new lead count
+    if (body.businessId) {
+      // In a real app, you'd send email notification here
+      console.log(`Quote ${quote.id} sent to business:`, body.businessId);
       
-      // Update businesses' new lead count (for notification badges)
+      // Update business's new lead count (for notification badges)
       await sql`
         UPDATE businesses 
         SET new_leads_count = COALESCE(new_leads_count, 0) + 1
-        WHERE id = ANY(${body.business_ids})
+        WHERE id = ${body.businessId}
       `;
+    } else {
+      // General quote - available for all businesses to browse
+      console.log(`General quote ${quote.id} created - available for all businesses`);
     }
 
     // If user is logged in, link this quote to their account

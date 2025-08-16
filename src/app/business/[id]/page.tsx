@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from 'react';
 import { Star, MapPin, Phone, Globe, Mail, Clock, Shield, Award, CheckCircle, Calendar, DollarSign, Users, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import QuoteRequestModal from '@/components/QuoteRequestModal';
+import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 export default function BusinessProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -11,6 +11,8 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
   const [similarBusinesses, setSimilarBusinesses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [modalInitialData, setModalInitialData] = useState<any>(null);
+  const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     fetchBusiness();
@@ -179,7 +181,17 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={() => setShowQuoteModal(true)}
+                  onClick={() => {
+                    const initialData: any = {
+                      customerType: 'residential',
+                      city: business.city,
+                      state: business.state,
+                      zipcode: business.zipcode || undefined,
+                    };
+                    setModalInitialData(initialData);
+                    setModalStartStep(1);
+                    setShowQuoteModal(true);
+                  }}
                   className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium"
                 >
                   Get Free Quote
@@ -191,7 +203,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
                   Call Now
                 </a>
                 {!business.is_claimed && (
-                  <Link href="/claim" className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 font-medium">
+                  <Link href={`/claim?businessId=${resolvedParams.id}&businessName=${encodeURIComponent(business.name)}`} className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 font-medium">
                     Claim This Business
                   </Link>
                 )}
@@ -418,7 +430,17 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
                 Get a free quote from {business.name} today!
               </p>
               <button
-                onClick={() => setShowQuoteModal(true)}
+                onClick={() => {
+                  const initialData: any = {
+                    customerType: 'residential',
+                    city: business.city,
+                    state: business.state,
+                    zipcode: business.zipcode || undefined,
+                  };
+                  setModalInitialData(initialData);
+                  setModalStartStep(1);
+                  setShowQuoteModal(true);
+                }}
                 className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium"
               >
                 Request Free Quote
@@ -454,12 +476,17 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
       </div>
 
       {/* Quote Request Modal */}
-      <QuoteRequestModal
+      <DumpsterQuoteModal
         isOpen={showQuoteModal}
-        onClose={() => setShowQuoteModal(false)}
-        businessIds={[business.id]}
+        onClose={() => {
+          setShowQuoteModal(false);
+          setModalInitialData(null);
+          setModalStartStep(undefined);
+        }}
+        businessId={business.id}
         businessName={business.name}
-        category={business.category}
+        initialData={modalInitialData}
+        startAtStep={modalStartStep}
       />
     </div>
   );

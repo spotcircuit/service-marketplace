@@ -6,7 +6,10 @@
       "Bash(npm --version)",
       "Bash(npm install)",
       "Bash(cd:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "WebSearch",
+      "Bash(grep:*)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": [],

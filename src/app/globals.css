@@ -67,16 +67,125 @@
     @apply py-12 md:py-16 lg:py-20;
   }
 
-  .gradient-primary {
-    @apply bg-gradient-to-r from-primary to-accent;
+  /* Hero Gradients */
+  .hero-gradient-primary {
+    background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgba(255, 140, 0, 0.85) 100%);
+  }
+  
+  .hero-gradient-secondary {
+    background: linear-gradient(135deg, rgb(44, 62, 80) 0%, rgba(44, 62, 80, 0.85) 100%);
+  }
+  
+  .hero-gradient-accent {
+    background: linear-gradient(135deg, rgb(139, 195, 74) 0%, rgba(139, 195, 74, 0.85) 100%);
+  }
+  
+  .hero-gradient-mixed {
+    background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(139, 195, 74) 100%);
   }
 
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90 transition-all duration-200 font-semibold;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary/90 transition-all duration-200 font-semibold;
+  }
+  
+  .btn-accent {
+    @apply bg-accent text-white hover:bg-accent/90 transition-all duration-200 font-semibold;
+  }
+  
+  .btn-ghost-primary {
+    @apply border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-200 font-semibold;
+  }
+  
+  .btn-ghost-secondary {
+    @apply border-2 border-secondary text-secondary hover:bg-secondary/10 transition-all duration-200 font-semibold;
+  }
+
+  /* Badge Styles */
+  .badge-popular {
+    @apply bg-primary text-white px-3 py-1 text-xs rounded-full font-semibold;
+  }
+  
+  .badge-commercial {
+    @apply bg-secondary text-white px-3 py-1 text-xs rounded-full font-semibold;
+  }
+  
+  .badge-success {
+    @apply bg-accent text-white px-3 py-1 text-xs rounded-full font-semibold;
+  }
+  
+  .badge-available {
+    @apply bg-accent/10 text-accent border border-accent/20 px-3 py-1 text-xs rounded-full font-semibold;
+  }
+
+  /* Card Styles */
+  .card-featured {
+    @apply border-2 border-primary shadow-lg ring-2 ring-primary/20;
+  }
+  
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/50;
   }
 
+  /* Text Gradients */
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+  }
+  
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70;
+  }
+  
+  .text-gradient-secondary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary to-secondary/70;
+  }
+
+  /* Form Elements */
+  .input-primary {
+    @apply border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .select-primary {
+    @apply border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .checkbox-primary {
+    @apply text-primary focus:ring-primary/20;
+  }
+
+  /* Section Backgrounds */
+  .section-primary {
+    @apply bg-primary/5;
+  }
+  
+  .section-secondary {
+    @apply bg-secondary/5;
+  }
+  
+  .section-accent {
+    @apply bg-accent/5;
+  }
+
+  /* Status Indicators */
+  .status-active {
+    @apply text-accent font-semibold;
+  }
+  
+  .status-pending {
+    @apply text-primary font-semibold;
+  }
+  
+  .status-inactive {
+    @apply text-secondary font-semibold;
+  }
+
+  /* Original styles preserved */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary to-accent;
   }
 
   .hero-overlay {

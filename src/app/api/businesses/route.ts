@@ -2,22 +2,63 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/neon';
 import { businessCache } from '@/lib/cache';
 
+// Map of state names to abbreviations
+const STATE_NAME_TO_ABBR: Record<string, string> = {
+  'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+  'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+  'district of columbia': 'DC', 'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI',
+  'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA',
+  'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME',
+  'maryland': 'MD', 'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN',
+  'mississippi': 'MS', 'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE',
+  'nevada': 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM',
+  'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH',
+  'oklahoma': 'OK', 'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI',
+  'south carolina': 'SC', 'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX',
+  'utah': 'UT', 'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA',
+  'west virginia': 'WV', 'wisconsin': 'WI', 'wyoming': 'WY'
+};
+
+// Reverse map: abbreviation -> Title Case full state name
+const ABBR_TO_NAME: Record<string, string> = Object.entries(STATE_NAME_TO_ABBR).reduce(
+  (acc, [fullLower, abbr]) => {
+    const title = fullLower
+      .split(' ')
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+      .join(' ');
+    acc[abbr] = title;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
 // GET: Fetch businesses from cache or database
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
     const city = searchParams.get('city');
-    const state = searchParams.get('state');
+    let state = searchParams.get('state');
+    
+    // Convert full state name to abbreviation if needed
+    if (state) {
+      const stateLower = state.toLowerCase();
+      if (STATE_NAME_TO_ABBR[stateLower]) {
+        state = STATE_NAME_TO_ABBR[stateLower];
+      } else if (state.length === 2) {
+        state = state.toUpperCase();
+      }
+    }
     const featured = searchParams.get('featured');
     const verified = searchParams.get('verified');
     const search = searchParams.get('search');
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50;
     const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0;
 
-    // Try to use cache first
-    if (businessCache.isInitialized()) {
-      const businesses = businessCache.getBusinesses({
+    // Try to use cache first - but skip if we have state/city filters (cache filtering is broken)
+    if (businessCache.isInitialized() && !state && !city) {
+      // Use cache for all queries
+      const result = businessCache.getBusinessesWithTotal({
         category: category || undefined,
         city: city || undefined,
         state: state || undefined,
@@ -28,11 +69,9 @@ export async function GET(request: NextRequest) {
         offset
       });
 
-      const stats = businessCache.getStats();
-      
       return NextResponse.json({
-        businesses,
-        total: stats.total_businesses,
+        businesses: result.businesses,
+        total: result.total,
         cached: true,
         lastUpdated: businessCache.getLastUpdated()
       });
@@ -49,69 +88,103 @@ export async function GET(request: NextRequest) {
     }
 
     // Fallback to direct database query if cache not ready
-    let query = sql`
-      SELECT * FROM businesses
-      WHERE 1=1
-    `;
-
+    // Build query conditions dynamically
+    const conditions = [];
+    const values = [];
+    
     if (category) {
-      query = sql`${query} AND LOWER(category) = LOWER(${category})`;
+      conditions.push(`LOWER(category) = LOWER($${values.length + 1})`);
+      values.push(category);
     }
     if (city) {
-      query = sql`${query} AND LOWER(city) = LOWER(${city})`;
+      conditions.push(`LOWER(city) = LOWER($${values.length + 1})`);
+      values.push(city);
     }
     if (state) {
-      query = sql`${query} AND LOWER(state) = LOWER(${state})`;
+      const fullName = ABBR_TO_NAME[state];
+      if (fullName) {
+        conditions.push(`(LOWER(state) = LOWER($${values.length + 1}) OR LOWER(state) = LOWER($${values.length + 2}))`);
+        values.push(state, fullName);
+      } else {
+        conditions.push(`LOWER(state) = LOWER($${values.length + 1})`);
+        values.push(state);
+      }
     }
     if (featured === 'true') {
-      query = sql`${query} AND is_featured = true`;
+      conditions.push(`is_featured = true`);
     }
     if (verified === 'true') {
-      query = sql`${query} AND is_verified = true`;
+      conditions.push(`is_verified = true`);
     }
     if (search) {
-      query = sql`${query} AND (
-        LOWER(name) LIKE LOWER(${'%' + search + '%'}) OR
-        LOWER(description) LIKE LOWER(${'%' + search + '%'}) OR
-        LOWER(category) LIKE LOWER(${'%' + search + '%'})
-      )`;
+      conditions.push(`(
+        LOWER(name) LIKE LOWER($${values.length + 1}) OR
+        LOWER(description) LIKE LOWER($${values.length + 2}) OR
+        LOWER(category) LIKE LOWER($${values.length + 3})
+      )`);
+      values.push('%' + search + '%', '%' + search + '%', '%' + search + '%');
     }
-
-    query = sql`
-      ${query}
+    
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    
+    // Add limit and offset to values
+    values.push(limit, offset);
+    
+    const queryText = `
+      SELECT * FROM businesses
+      ${whereClause}
       ORDER BY is_featured DESC, rating DESC, reviews DESC
-      LIMIT ${limit}
-      OFFSET ${offset}
+      LIMIT $${values.length - 1}
+      OFFSET $${values.length}
     `;
-
-    const businesses = await query;
+    
+    const businesses = await sql(queryText, values);
 
     // Get total count
-    let countQuery = sql`SELECT COUNT(*) as total FROM businesses WHERE 1=1`;
+    const countConditions = [];
+    const countValues = [];
+    
     if (category) {
-      countQuery = sql`${countQuery} AND LOWER(category) = LOWER(${category})`;
+      countConditions.push(`LOWER(category) = LOWER($${countValues.length + 1})`);
+      countValues.push(category);
     }
     if (city) {
-      countQuery = sql`${countQuery} AND LOWER(city) = LOWER(${city})`;
+      countConditions.push(`LOWER(city) = LOWER($${countValues.length + 1})`);
+      countValues.push(city);
     }
     if (state) {
-      countQuery = sql`${countQuery} AND LOWER(state) = LOWER(${state})`;
+      const fullName = ABBR_TO_NAME[state];
+      if (fullName) {
+        countConditions.push(`(LOWER(state) = LOWER($${countValues.length + 1}) OR LOWER(state) = LOWER($${countValues.length + 2}))`);
+        countValues.push(state, fullName);
+      } else {
+        countConditions.push(`LOWER(state) = LOWER($${countValues.length + 1})`);
+        countValues.push(state);
+      }
     }
     if (featured === 'true') {
-      countQuery = sql`${countQuery} AND is_featured = true`;
+      countConditions.push(`is_featured = true`);
     }
     if (verified === 'true') {
-      countQuery = sql`${countQuery} AND is_verified = true`;
+      countConditions.push(`is_verified = true`);
     }
     if (search) {
-      countQuery = sql`${countQuery} AND (
-        LOWER(name) LIKE LOWER(${'%' + search + '%'}) OR
-        LOWER(description) LIKE LOWER(${'%' + search + '%'}) OR
-        LOWER(category) LIKE LOWER(${'%' + search + '%'})
-      )`;
+      countConditions.push(`(
+        LOWER(name) LIKE LOWER($${countValues.length + 1}) OR
+        LOWER(description) LIKE LOWER($${countValues.length + 2}) OR
+        LOWER(category) LIKE LOWER($${countValues.length + 3})
+      )`);
+      countValues.push('%' + search + '%', '%' + search + '%', '%' + search + '%');
     }
-
-    const countResult = await countQuery;
+    
+    const countWhereClause = countConditions.length > 0 ? `WHERE ${countConditions.join(' AND ')}` : '';
+    
+    const countQueryText = `
+      SELECT COUNT(*) as total FROM businesses
+      ${countWhereClause}
+    `;
+    
+    const countResult = await sql(countQueryText, countValues);
     const total = countResult[0]?.total || 0;
 
     return NextResponse.json({

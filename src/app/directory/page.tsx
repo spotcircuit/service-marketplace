@@ -1,21 +1,24 @@
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
-import { categories, locations } from '@/data/sample-businesses';
 import { Business, SearchFilters } from '@/types/business';
-import { Star, MapPin, Phone, Globe, Shield, Award, Filter, X, ChevronDown } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Shield, Award, Filter, X, ChevronDown, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import GoogleLocationSearch from '@/components/GoogleLocationSearch';
 
 function DirectoryContent() {
   const searchParams = useSearchParams();
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [categories, setCategories] = useState<Array<{category: string, count: number}>>([]);
+  const [locations, setLocations] = useState<Array<{city: string, state: string, count: number}>>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<SearchFilters>({
     sort_by: 'featured',
   });
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [locationQuery, setLocationQuery] = useState('');
 
   useEffect(() => {
     // Initialize filters from URL params
@@ -29,12 +32,34 @@ function DirectoryContent() {
         category: category || undefined,
         city: city || location || undefined,
       }));
+      if (city || location) {
+        setLocationQuery(city || location || '');
+      }
     }
+
+    // Fetch categories and locations stats
+    fetchStats();
   }, [searchParams]);
 
   useEffect(() => {
     fetchBusinesses();
   }, [filters, searchQuery]);
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/businesses/stats');
+      const data = await response.json();
+      
+      if (data.categories) {
+        setCategories(data.categories);
+      }
+      if (data.cities) {
+        setLocations(data.cities);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
 
   const fetchBusinesses = async () => {
     setLoading(true);
@@ -44,6 +69,7 @@ function DirectoryContent() {
       if (searchQuery) params.set('search', searchQuery);
       if (filters.category) params.set('category', filters.category);
       if (filters.city) params.set('city', filters.city);
+      if ((filters as any).state) params.set('state', (filters as any).state);
       if (filters.is_verified) params.set('verified', 'true');
 
       const response = await fetch(`/api/businesses?${params.toString()}`);
@@ -156,32 +182,112 @@ function DirectoryContent() {
     </div>
   );
 
+  const handleLocationChange = (location: { city?: string; state?: string; zipcode?: string; formatted: string }) => {
+    if (location.city || location.state) {
+      setFilters(prev => ({
+        ...prev,
+        city: location.city,
+        state: location.state
+      }));
+      setLocationQuery(location.formatted);
+    } else if (location.zipcode) {
+      // For zipcode, we'd need to geocode it to get city/state
+      setLocationQuery(location.formatted);
+      // For now, just search by the zipcode in the search query
+      setSearchQuery(location.zipcode);
+    } else {
+      setFilters(prev => {
+        const newFilters = { ...prev };
+        delete newFilters.city;
+        delete newFilters.state;
+        return newFilters;
+      });
+      setLocationQuery('');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Search Header */}
       <div className="bg-primary/5 border-b">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-4">Find Local Service Providers</h1>
-          <div className="flex flex-col md:flex-row gap-4">
-            <input
-              type="text"
-              placeholder="Search businesses, services, or categories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          <h1 className="text-3xl font-bold mb-6">Find Local Service Providers</h1>
+          
+          <div className="grid md:grid-cols-3 gap-4 mb-4">
+            {/* Service Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            
+            {/* Location Search with Google Autocomplete */}
+            <GoogleLocationSearch
+              value={locationQuery}
+              onChange={handleLocationChange}
+              placeholder="City, State or ZIP"
+              className="py-3"
+              types={['geocode']}
             />
+            
+            {/* Category Filter */}
+            <select
+              value={filters.category || ''}
+              onChange={(e) => setFilters({ ...filters, category: e.target.value || undefined })}
+              className="px-4 py-3 border rounded-lg bg-background"
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.category} value={cat.category}>
+                  {cat.category} ({cat.count})
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Additional Filters Row */}
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-6 py-3 bg-card border rounded-lg hover:bg-muted flex items-center gap-2 font-medium"
+              className={`px-4 py-2 border rounded-lg hover:bg-muted flex items-center gap-2 text-sm ${
+                showFilters ? 'bg-muted' : 'bg-card'
+              }`}
             >
-              <Filter className="h-5 w-5" />
-              Filters
-              {Object.keys(filters).length > 1 && (
-                <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
-                  {Object.keys(filters).length - 1}
-                </span>
-              )}
+              <Filter className="h-4 w-4" />
+              More Filters
             </button>
+            
+            {filters.is_verified && (
+              <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Verified Only
+              </span>
+            )}
+            
+            {filters.rating_min && (
+              <span className="px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg text-sm flex items-center gap-2">
+                <Star className="h-4 w-4" />
+                {filters.rating_min}+ Stars
+              </span>
+            )}
+            
+            {(searchQuery || locationQuery || filters.category || filters.is_verified || filters.rating_min) && (
+              <button
+                onClick={() => {
+                  setFilters({ sort_by: 'featured' });
+                  setSearchQuery('');
+                  setLocationQuery('');
+                }}
+                className="px-4 py-2 text-primary hover:bg-primary/10 rounded-lg text-sm"
+              >
+                Clear All
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -201,37 +307,6 @@ function DirectoryContent() {
                 </button>
               </div>
 
-              {/* Category Filter */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">Category</label>
-                <select
-                  value={filters.category || ''}
-                  onChange={(e) => setFilters({ ...filters, category: e.target.value || undefined })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
-                  <option value="">All Categories</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Location Filter */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">Location</label>
-                <select
-                  value={filters.city || ''}
-                  onChange={(e) => setFilters({ ...filters, city: e.target.value || undefined })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
-                  <option value="">All Locations</option>
-                  {locations.map(loc => (
-                    <option key={loc.city} value={loc.city}>
-                      {loc.city} ({loc.count})
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               {/* Rating Filter */}
               <div className="mb-6">

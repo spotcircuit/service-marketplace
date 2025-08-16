@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Search, Building2, CheckCircle, Mail, Phone, Shield, ArrowRight, Edit } from 'lucide-react';
 import { sampleBusinesses } from '@/data/sample-businesses';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
-export default function ClaimBusinessPage() {
+function ClaimBusinessContent() {
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<typeof sampleBusinesses>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<any>(null);
   const [claimStep, setClaimStep] = useState<'search' | 'verify' | 'success'>('search');
   const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [verificationData, setVerificationData] = useState({
     owner_name: '',
     owner_email: '',
@@ -22,7 +25,47 @@ export default function ClaimBusinessPage() {
 
   useEffect(() => {
     checkAuth();
+    handleUrlParams();
   }, []);
+
+  const handleUrlParams = async () => {
+    const businessId = searchParams.get('businessId');
+    const businessName = searchParams.get('businessName');
+    
+    if (businessId) {
+      // Try to fetch the business by ID
+      try {
+        const response = await fetch(`/api/businesses/${businessId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.business) {
+            setSelectedBusiness(data.business);
+            setClaimStep('verify');
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching business:', error);
+      }
+      
+      // If we couldn't fetch from API, try to find in sample data
+      const business = sampleBusinesses.find(b => b.id === businessId);
+      if (business) {
+        setSelectedBusiness(business);
+        setClaimStep('verify');
+      } else if (businessName) {
+        // If we have a business name, pre-fill the search
+        setSearchQuery(decodeURIComponent(businessName));
+        // Auto-search for the business
+        const results = sampleBusinesses.filter(b =>
+          b.name.toLowerCase().includes(businessName.toLowerCase())
+        );
+        setSearchResults(results);
+      }
+    }
+    setIsLoading(false);
+  };
 
   const checkAuth = async () => {
     try {
@@ -117,7 +160,13 @@ export default function ClaimBusinessPage() {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        {claimStep === 'search' && (
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <>
+            {claimStep === 'search' && (
           <div className="max-w-3xl mx-auto">
             {/* Search Form */}
             <div className="bg-card rounded-lg border p-8 mb-8">
@@ -456,7 +505,23 @@ export default function ClaimBusinessPage() {
             </div>
           </div>
         )}
+          </>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function ClaimBusinessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
+      <ClaimBusinessContent />
+    </Suspense>
   );
 }

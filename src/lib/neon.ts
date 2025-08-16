@@ -208,7 +208,13 @@ export const db = {
 
     async create(data: Partial<Lead>) {
       const columns = Object.keys(data);
-      const values = Object.values(data);
+      const values = Object.values(data).map(value => {
+        // Convert arrays to JSON strings for PostgreSQL JSON columns
+        if (Array.isArray(value)) {
+          return JSON.stringify(value);
+        }
+        return value;
+      });
       const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
 
       const query = `

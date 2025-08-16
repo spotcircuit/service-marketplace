@@ -2,8 +2,28 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { MapPin, Star, CheckCircle, Phone, Clock, DollarSign, Shield, Award, ArrowRight } from 'lucide-react';
+import { 
+  MapPin, 
+  Star, 
+  CheckCircle, 
+  Phone, 
+  Clock, 
+  Shield, 
+  ArrowRight,
+  ChevronRight,
+  Home,
+  Truck,
+  DollarSign,
+  Calendar,
+  Users,
+  Building2,
+  Navigation,
+  Filter,
+  Info
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
+import LocationMap from '@/components/LocationMap';
+import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 // State names mapping
 const stateNames: Record<string, string> = {
@@ -24,383 +44,667 @@ const stateNames: Record<string, string> = {
   'wisconsin': 'Wisconsin', 'wyoming': 'Wyoming'
 };
 
-interface Business {
-  id: string;
-  name: string;
-  category: string;
-  rating: number;
-  reviews: number;
-  address: string;
-  phone: string;
-  is_featured: boolean;
-  is_verified: boolean;
-  response_time: string;
-  price_range: string;
-  description: string;
-  services: string[];
-  years_in_business: number;
-}
+// State abbreviations
+const stateAbbr: Record<string, string> = {
+  'virginia': 'VA', 'maryland': 'MD', 'north-carolina': 'NC', 
+  'pennsylvania': 'PA', 'delaware': 'DE', 'west-virginia': 'WV'
+};
+
+// Known city coordinates for better map centering
+const cityCoordinates: Record<string, {lat: number, lng: number}> = {
+  // Virginia cities
+  'ashburn': { lat: 39.0438, lng: -77.4874 },
+  'sterling': { lat: 39.0062, lng: -77.4286 },
+  'reston': { lat: 38.9586, lng: -77.3570 },
+  'herndon': { lat: 38.9695, lng: -77.3861 },
+  'leesburg': { lat: 39.1157, lng: -77.5636 },
+  'fairfax': { lat: 38.8462, lng: -77.3064 },
+  'chantilly': { lat: 38.8943, lng: -77.4311 },
+  'arlington': { lat: 38.8816, lng: -77.0910 },
+  'alexandria': { lat: 38.8048, lng: -77.0469 },
+  'mclean': { lat: 38.9339, lng: -77.1773 },
+  'vienna': { lat: 38.9013, lng: -77.2653 },
+  'falls-church': { lat: 38.8823, lng: -77.1711 },
+  'manassas': { lat: 38.7509, lng: -77.4753 },
+  'richmond': { lat: 37.5407, lng: -77.4360 },
+  'virginia-beach': { lat: 36.8529, lng: -75.9780 },
+  'norfolk': { lat: 36.8508, lng: -76.2859 },
+  'chesapeake': { lat: 36.7682, lng: -76.2875 },
+  'newport-news': { lat: 37.0871, lng: -76.4730 },
+  'hampton': { lat: 37.0299, lng: -76.3452 }
+};
+
+// Nearby cities data
+const nearbyCitiesData: Record<string, string[]> = {
+  'sterling': ['Ashburn', 'Herndon', 'Reston', 'Leesburg', 'Chantilly', 'Fairfax'],
+  'ashburn': ['Sterling', 'Leesburg', 'Herndon', 'Reston', 'Chantilly', 'Fairfax'],
+  'reston': ['Herndon', 'Sterling', 'Fairfax', 'Vienna', 'McLean', 'Ashburn'],
+  'herndon': ['Reston', 'Sterling', 'Ashburn', 'Chantilly', 'Fairfax', 'Vienna'],
+  'leesburg': ['Ashburn', 'Sterling', 'Purcellville', 'Hamilton', 'Lovettsville'],
+  'fairfax': ['Vienna', 'Chantilly', 'Reston', 'Arlington', 'Falls Church', 'McLean'],
+  'arlington': ['Alexandria', 'Falls Church', 'McLean', 'Fairfax', 'Vienna'],
+  'alexandria': ['Arlington', 'Falls Church', 'Springfield', 'Fairfax', 'Mount Vernon'],
+  'richmond': ['Henrico', 'Chesterfield', 'Mechanicsville', 'Glen Allen', 'Midlothian']
+};
 
 export default function CityPage() {
   const params = useParams();
   const stateSlug = params.state as string;
   const citySlug = params.city as string;
   const stateName = stateNames[stateSlug] || stateSlug;
+  const stateCode = stateAbbr[stateSlug] || stateSlug.toUpperCase();
   const cityName = citySlug.split('-').map(word => 
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
   
-  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('featured');
+  const [stats, setStats] = useState({ total: 0, avgRating: 0, avgPrice: '$395' });
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
+  const [showMap, setShowMap] = useState(false);
+  const [modalInitialData, setModalInitialData] = useState<any>(null);
+  const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
+  
+  // Get nearby cities for this location
+  const nearbyCities = nearbyCitiesData[citySlug] || [];
+  
+  // Get coordinates for this city
+  const cityCoords = cityCoordinates[citySlug] || { lat: 39.0438, lng: -77.4874 };
 
   useEffect(() => {
-    fetchBusinesses();
-  }, [stateSlug, citySlug, filter, sortBy]);
+    fetchCityData();
+  }, [citySlug, stateName]);
 
-  const fetchBusinesses = async () => {
+  const fetchCityData = async () => {
     try {
-      // This would be an API call
-      // const response = await fetch(`/api/businesses?state=${stateSlug}&city=${citySlug}&filter=${filter}&sort=${sortBy}`);
-      // const data = await response.json();
+      setLoading(true);
       
-      // Mock data for now
-      setBusinesses([
-        {
-          id: '1',
-          name: `${cityName} Premium Dumpsters`,
-          category: 'Dumpster Rental',
-          rating: 4.9,
-          reviews: 234,
-          address: `123 Main St, ${cityName}, ${stateName}`,
-          phone: '(555) 123-4567',
-          is_featured: true,
-          is_verified: true,
-          response_time: '1 hour',
-          price_range: '$$',
-          description: 'Leading dumpster rental service with 15+ years of experience',
-          services: ['10 Yard Dumpsters', '20 Yard Dumpsters', '30 Yard Dumpsters', 'Same Day Delivery'],
-          years_in_business: 15
-        },
-        {
-          id: '2',
-          name: 'Quick Waste Solutions',
-          category: 'Junk Removal',
-          rating: 4.7,
-          reviews: 156,
-          address: `456 Oak Ave, ${cityName}, ${stateName}`,
-          phone: '(555) 234-5678',
-          is_featured: true,
-          is_verified: true,
-          response_time: '30 minutes',
-          price_range: '$$$',
-          description: 'Fast and reliable junk removal for residential and commercial',
-          services: ['Furniture Removal', 'Appliance Disposal', 'Estate Cleanouts', 'Office Cleanouts'],
-          years_in_business: 8
-        },
-        {
-          id: '3',
-          name: 'Elite Construction Services',
-          category: 'Construction',
-          rating: 4.8,
-          reviews: 189,
-          address: `789 Industrial Blvd, ${cityName}, ${stateName}`,
-          phone: '(555) 345-6789',
-          is_featured: false,
-          is_verified: true,
-          response_time: '2 hours',
-          price_range: '$$$$',
-          description: 'Full-service construction and renovation company',
-          services: ['New Construction', 'Renovations', 'Demolition', 'Site Preparation'],
-          years_in_business: 20
-        },
-        {
-          id: '4',
-          name: 'Green Earth Disposal',
-          category: 'Dumpster Rental',
-          rating: 4.5,
-          reviews: 98,
-          address: `321 Eco Way, ${cityName}, ${stateName}`,
-          phone: '(555) 456-7890',
-          is_featured: false,
-          is_verified: false,
-          response_time: '3 hours',
-          price_range: '$',
-          description: 'Eco-friendly waste management solutions',
-          services: ['Recycling Services', 'Green Disposal', 'Compost Bins', 'Yard Waste'],
-          years_in_business: 5
-        }
-      ]);
+      // Fetch providers for this city
+      const response = await fetch(`/api/businesses?city=${cityName}&state=${stateName}&limit=20`);
+      const data = await response.json();
+      
+      if (data.businesses && data.businesses.length > 0) {
+        setProviders(data.businesses);
+        
+        // Calculate stats
+        const avgRating = data.businesses.reduce((acc: number, b: any) => acc + (b.rating || 4.5), 0) / data.businesses.length;
+        setStats({
+          total: data.businesses.length,
+          avgRating: Math.round(avgRating * 10) / 10,
+          avgPrice: '$395'
+        });
+      } else {
+        setProviders([]);
+        setStats({ total: 0, avgRating: 0, avgPrice: '$395' });
+      }
     } catch (error) {
-      console.error('Error fetching businesses:', error);
+      console.error('Error fetching city data:', error);
+      setProviders([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredBusinesses = businesses.filter(business => {
-    if (filter === 'all') return true;
-    if (filter === 'featured') return business.is_featured;
-    if (filter === 'verified') return business.is_verified;
-    return business.category === filter;
-  });
+  const handleQuoteClick = (provider?: any, size?: string) => {
+    if (provider) {
+      setSelectedProvider(provider);
+    }
+    
+    // Prepare initial data for the modal
+    const initialData: any = {
+      customerType,
+      city: cityName,
+      state: stateName,
+    };
+    
+    // Add size if provided
+    if (size) {
+      initialData.dumpsterSize = size;
+    }
+    
+    setModalInitialData(initialData);
+    setModalStartStep(1); // Start at step 1 (skip customer type selection)
+    setQuoteModalOpen(true);
+  };
+
+  // Local FAQs specific to the city
+  const localFaqs = [
+    {
+      question: `Do I need a permit for a dumpster in ${cityName}?`,
+      answer: `Permit requirements in ${cityName} depend on placement. Driveway placement typically doesn't require permits, but street placement does. We'll help you determine permit needs.`
+    },
+    {
+      question: `How quickly can I get a dumpster delivered in ${cityName}?`,
+      answer: `Most providers in ${cityName} offer same-day or next-day delivery. During peak seasons, we recommend booking 2-3 days in advance.`
+    },
+    {
+      question: `What's the average cost of dumpster rental in ${cityName}?`,
+      answer: `Prices in ${cityName} typically range from $295-$695 depending on size and rental duration. Get quotes from multiple providers to find the best deal.`
+    }
+  ];
+
+  // Service sizes for display
+  const serviceSizes = [
+    { size: '10 Yard', dims: '14\' × 8\' × 3.5\'', capacity: '4 pickup loads', price: '$295-$395' },
+    { size: '20 Yard', dims: '16\' × 8\' × 5.5\'', capacity: '8 pickup loads', price: '$395-$595' },
+    { size: '30 Yard', dims: '20\' × 8\' × 6\'', capacity: '12 pickup loads', price: '$495-$695' },
+    { size: '40 Yard', dims: '22\' × 8\' × 8\'', capacity: '16 pickup loads', price: '$595-$795' }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center text-sm text-gray-600">
-            <Link href="/" className="hover:text-gray-900">Home</Link>
-            <span className="mx-2">/</span>
-            <Link href={`/${stateSlug}`} className="hover:text-gray-900">{stateName}</Link>
-            <span className="mx-2">/</span>
-            <span className="text-gray-900">{cityName}</span>
+      <div className="bg-muted border-b">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center gap-1 text-sm">
+            <Link href="/" className="hover:text-primary flex items-center gap-1">
+              <Home className="h-4 w-4" />
+              <span>Home</span>
+            </Link>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <Link href={`/${stateSlug}`} className="hover:text-primary">{stateName}</Link>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <span className="text-foreground font-medium">{cityName}</span>
+          </nav>
+        </div>
+      </div>
+
+      {/* Hero Section with Quick Stats */}
+      <section className="hero-gradient-secondary text-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Dumpster Rental in {cityName}, {stateCode}
+            </h1>
+            <p className="text-xl text-white/90 mb-6">
+              Compare {stats.total || 'multiple'} verified providers serving {cityName} and surrounding areas. 
+              Get free quotes in 60 seconds.
+            </p>
+            
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                <div className="text-2xl font-bold">{stats.total || '5+'}</div>
+                <div className="text-sm text-white/80">Local Providers</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                <div className="text-2xl font-bold flex items-center gap-1">
+                  {stats.avgRating || '4.5'} <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                </div>
+                <div className="text-sm text-white/80">Avg Rating</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                <div className="text-2xl font-bold">{stats.avgPrice}</div>
+                <div className="text-sm text-white/80">Starting Price</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                <div className="text-2xl font-bold">24hr</div>
+                <div className="text-sm text-white/80">Avg Delivery</div>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => handleQuoteClick()}
+                className="px-6 py-3 bg-white text-secondary hover:bg-white/90 font-semibold rounded-lg transition"
+              >
+                Get Free Quotes →
+              </button>
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className="px-6 py-3 bg-white/20 backdrop-blur hover:bg-white/30 font-semibold rounded-lg transition flex items-center gap-2"
+              >
+                <MapPin className="h-5 w-5" />
+                {showMap ? 'Hide Map' : 'View on Map'}
+              </button>
+              <a
+                href="tel:1-855-DUMPSTER"
+                className="px-6 py-3 bg-white/20 backdrop-blur hover:bg-white/30 font-semibold rounded-lg transition flex items-center gap-2"
+              >
+                <Phone className="h-5 w-5" />
+                Call 1-855-DUMP
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Type Toggle */}
+      <section className="bg-white border-b py-4 sticky top-0 z-30">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium">I need a dumpster for:</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCustomerType('residential')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    customerType === 'residential' 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  <Users className="inline h-4 w-4 mr-1" />
+                  Residential
+                </button>
+                <button
+                  onClick={() => setCustomerType('commercial')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    customerType === 'commercial' 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  <Building2 className="inline h-4 w-4 mr-1" />
+                  Commercial
+                </button>
+              </div>
+            </div>
+            
+            <div className="hidden md:flex items-center gap-4 text-sm">
+              <span className="flex items-center gap-1">
+                <Shield className="h-4 w-4 text-green-600" />
+                Licensed & Insured
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="h-4 w-4 text-blue-600" />
+                Same Day Available
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Map Section - Toggleable */}
+        {showMap && (
+          <div className="mb-8">
+            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+              <LocationMap
+                initialCity={cityName}
+                initialState={stateName}
+                mapCenter={cityCoords}
+                mapZoom={12}
+                showCategoryFilter={false}
+                onProviderSelect={(provider) => handleQuoteClick(provider)}
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content - 2/3 width */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Available Sizes */}
+            <section className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold mb-4">Dumpster Sizes Available in {cityName}</h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                {serviceSizes
+                  .filter(size => customerType === 'commercial' || !size.size.includes('40'))
+                  .map((size, idx) => (
+                  <div key={idx} className="border rounded-lg p-4 hover:shadow-md transition">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-lg">{size.size}</h3>
+                      <span className="text-primary font-bold">{size.price}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <p>Dimensions: {size.dims}</p>
+                      <p>Holds: {size.capacity}</p>
+                    </div>
+                    <button
+                      onClick={() => handleQuoteClick(undefined, size.size.toLowerCase().replace(' ', '-'))}
+                      className="mt-3 w-full py-2 btn-primary rounded text-sm"
+                    >
+                      Get Quote for {size.size}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Local Providers */}
+            <section className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold mb-4">
+                {loading ? 'Loading...' : `${providers.length || 'Available'} Providers in ${cityName}`}
+              </h2>
+              
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
+                </div>
+              ) : providers.length > 0 ? (
+                <div className="space-y-4">
+                  {providers.slice(0, 5).map((provider, idx) => (
+                    <div key={idx} className="border rounded-lg p-4 hover:shadow-md transition">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-bold">{provider.name}</h3>
+                            {provider.is_featured && (
+                              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
+                                FEATURED
+                              </span>
+                            )}
+                            {provider.is_verified && (
+                              <Shield className="h-4 w-4 text-green-600" />
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm mb-2">
+                            <span className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="font-semibold">{provider.rating || '4.5'}</span>
+                              <span className="text-muted-foreground">({provider.reviews || 0} reviews)</span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {provider.city || cityName}
+                            </span>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
+                            <span className="flex items-center gap-1">
+                              <Truck className="h-4 w-4" />
+                              Same Day Available
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="h-4 w-4" />
+                              Starting at $295
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              7-Day Rental
+                            </span>
+                          </div>
+                          
+                          {provider.description && (
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {provider.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleQuoteClick(provider)}
+                          className="flex-1 py-2 btn-primary rounded text-sm"
+                        >
+                          Get Quote
+                        </button>
+                        <a
+                          href={`tel:${provider.phone}`}
+                          className="flex-1 py-2 btn-ghost-primary rounded text-sm flex items-center justify-center gap-1"
+                        >
+                          <Phone className="h-4 w-4" />
+                          Call Now
+                        </a>
+                        <Link
+                          href={`/business/${provider.id}`}
+                          className="flex-1 py-2 border rounded text-sm text-center hover:bg-gray-50"
+                        >
+                          View Details
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {providers.length > 5 && (
+                    <div className="text-center pt-4">
+                      <button className="text-primary hover:text-primary/80 font-medium">
+                        View All {providers.length} Providers →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-lg font-semibold mb-2">No providers found in {cityName}</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    We're expanding our network. Call for assistance or try a nearby city.
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <a
+                      href="tel:1-855-DUMPSTER"
+                      className="px-4 py-2 btn-primary rounded-lg flex items-center gap-2"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Call for Help
+                    </a>
+                    <Link
+                      href={`/${stateSlug}`}
+                      className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                    >
+                      View All {stateName}
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Service Information */}
+            <section className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold mb-4">Dumpster Rental Service in {cityName}</h2>
+              <div className="prose max-w-none text-muted-foreground">
+                <p>
+                  Looking for reliable dumpster rental in {cityName}, {stateName}? Our network of verified 
+                  providers offers competitive pricing and fast delivery for both residential and commercial projects. 
+                  Whether you're renovating your home, cleaning out your garage, or managing a construction site, 
+                  we'll help you find the right size dumpster at the best price.
+                </p>
+                
+                <h3 className="text-lg font-semibold mt-4 mb-2 text-foreground">Popular Projects in {cityName}:</h3>
+                <ul className="space-y-1">
+                  <li>Home renovations and remodeling</li>
+                  <li>Roof replacement and repair</li>
+                  <li>Garage and basement cleanouts</li>
+                  <li>Landscaping and yard debris removal</li>
+                  <li>Construction and demolition projects</li>
+                  <li>Estate cleanouts and moving</li>
+                </ul>
+                
+                <h3 className="text-lg font-semibold mt-4 mb-2 text-foreground">Why Choose Our {cityName} Providers:</h3>
+                <div className="grid md:grid-cols-2 gap-3 mt-3">
+                  <div className="flex gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Licensed and insured companies</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Transparent, upfront pricing</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Same-day and next-day delivery</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Flexible rental periods</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Environmental compliance</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Professional customer service</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Local FAQs */}
+            <section className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions - {cityName}</h2>
+              <div className="space-y-4">
+                {localFaqs.map((faq, idx) => (
+                  <div key={idx} className="border-b last:border-0 pb-4 last:pb-0">
+                    <h3 className="font-semibold mb-2">{faq.question}</h3>
+                    <p className="text-muted-foreground text-sm">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* Sidebar - 1/3 width */}
+          <div className="space-y-6">
+            {/* Quick Quote Form */}
+            <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-20">
+              <h3 className="text-xl font-bold mb-4">Get Free Quotes</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Compare prices from {stats.total || 'multiple'} providers in {cityName}
+              </p>
+              <button
+                onClick={() => handleQuoteClick()}
+                className="w-full py-3 btn-primary rounded-lg font-semibold"
+              >
+                Start Getting Quotes →
+              </button>
+              <div className="mt-4 text-center">
+                <p className="text-xs text-muted-foreground mb-2">Or call for immediate assistance:</p>
+                <a
+                  href="tel:1-855-DUMPSTER"
+                  className="text-lg font-bold text-primary hover:text-primary/80"
+                >
+                  1-855-DUMPSTER
+                </a>
+              </div>
+              
+              {/* Trust Indicators */}
+              <div className="mt-6 pt-6 border-t space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span>No obligation quotes</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span>Licensed providers only</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span>Best price guarantee</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Nearby Cities */}
+            {nearbyCities.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <h3 className="font-bold mb-4">Nearby Cities</h3>
+                <div className="space-y-2">
+                  {nearbyCities.map(city => (
+                    <Link
+                      key={city}
+                      href={`/${stateSlug}/${city.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="block px-3 py-2 text-sm rounded hover:bg-gray-50 transition flex items-center justify-between group"
+                    >
+                      <span>{city}, {stateCode}</span>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                    </Link>
+                  ))}
+                </div>
+                <Link
+                  href={`/${stateSlug}`}
+                  className="block mt-4 pt-4 border-t text-center text-sm text-primary hover:text-primary/80 font-medium"
+                >
+                  View All {stateName} Cities →
+                </Link>
+              </div>
+            )}
+
+            {/* Service Areas */}
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h3 className="font-bold mb-4">Service Coverage</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Our {cityName} providers typically service:
+              </p>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span>{cityName} city limits</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span>15-25 mile service radius</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span>Surrounding neighborhoods</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span>Rural areas (may vary)</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Need Help */}
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="font-bold mb-2 flex items-center gap-2">
+                <Info className="h-5 w-5 text-blue-600" />
+                Need Help Choosing?
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Not sure what size dumpster you need? Our experts can help you choose the right size for your project.
+              </p>
+              <Link
+                href="/dumpster-sizes"
+                className="block text-center py-2 bg-white rounded-lg hover:shadow-sm transition text-sm font-medium"
+              >
+                View Size Guide
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-orange-600 to-orange-700 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Service Providers in {cityName}, {stateName}
-            </h1>
-            <p className="text-xl text-orange-100 mb-8">
-              Find trusted local professionals for all your service needs
-            </p>
-            
-            {/* Quick Search */}
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-2">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  placeholder="What service do you need?"
-                  className="flex-1 px-4 py-2 rounded-md focus:outline-none"
-                />
-                <button className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition">
-                  Get Quotes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Filters and Sorting */}
-      <section className="py-6 px-4 bg-white border-b">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap ${
-                  filter === 'all' 
-                    ? 'bg-orange-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                All Services
-              </button>
-              <button
-                onClick={() => setFilter('featured')}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap ${
-                  filter === 'featured' 
-                    ? 'bg-orange-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Featured
-              </button>
-              <button
-                onClick={() => setFilter('verified')}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap ${
-                  filter === 'verified' 
-                    ? 'bg-orange-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Verified Only
-              </button>
-              <button
-                onClick={() => setFilter('Dumpster Rental')}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap ${
-                  filter === 'Dumpster Rental' 
-                    ? 'bg-orange-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Dumpster Rental
-              </button>
-            </div>
-            
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="featured">Featured First</option>
-              <option value="rating">Highest Rated</option>
-              <option value="reviews">Most Reviews</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* Business Listings */}
-      <section className="py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <p className="text-gray-600">
-              Showing {filteredBusinesses.length} service providers in {cityName}
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {filteredBusinesses.map((business) => (
-                <div key={business.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                  {business.is_featured && (
-                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-center py-1 text-sm font-medium">
-                      ⭐ FEATURED PROVIDER - Premium placement in {cityName}
-                    </div>
-                  )}
-                  
-                  <div className="p-6">
-                    <div className="flex flex-col lg:flex-row gap-6">
-                      {/* Business Info */}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                              {business.name}
-                            </h2>
-                            <div className="flex items-center gap-3 text-sm">
-                              <span className="text-gray-600">{business.category}</span>
-                              {business.is_verified && (
-                                <span className="flex items-center text-green-600">
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Verified
-                                </span>
-                              )}
-                              <span className="text-gray-600">{business.price_range}</span>
-                            </div>
-                          </div>
-                          {business.years_in_business > 0 && (
-                            <div className="text-center">
-                              <Award className="h-8 w-8 text-orange-600 mx-auto" />
-                              <p className="text-xs text-gray-600 mt-1">
-                                {business.years_in_business} Years
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <p className="text-gray-700 mb-4">{business.description}</p>
-                        
-                        <div className="flex items-center mb-4">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-5 w-5 ${
-                                  i < Math.floor(business.rating)
-                                    ? 'text-yellow-400 fill-current'
-                                    : 'text-gray-300'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="ml-2 font-semibold">{business.rating}</span>
-                          <span className="ml-1 text-gray-600">({business.reviews} reviews)</span>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                            {business.address}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                            Response: {business.response_time}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Shield className="h-4 w-4 mr-2 text-gray-400" />
-                            Licensed & Insured
-                          </div>
-                        </div>
-                        
-                        {/* Services */}
-                        <div className="mb-4">
-                          <p className="text-sm font-medium text-gray-700 mb-2">Services:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {business.services.map((service, index) => (
-                              <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                                {service}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Contact Actions */}
-                      <div className="lg:w-64 space-y-3">
-                        <a
-                          href={`tel:${business.phone}`}
-                          className="flex items-center justify-center w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                        >
-                          <Phone className="h-5 w-5 mr-2" />
-                          {business.phone}
-                        </a>
-                        <Link
-                          href="/"
-                          className="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                        >
-                          Get Free Quote
-                        </Link>
-                        <Link
-                          href={`/business/${business.id}`}
-                          className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
-                        >
-                          View Full Profile
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-12 px-4 bg-orange-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Need Service in {cityName}?
+      {/* Bottom CTA Section */}
+      <section className="bg-gray-50 py-12 mt-12">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Rent a Dumpster in {cityName}?
           </h2>
-          <p className="text-xl text-orange-100 mb-8">
-            Get multiple quotes from verified providers in minutes
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Join thousands of satisfied customers who saved time and money by comparing quotes from multiple providers.
           </p>
-          <Link
-            href="/"
-            className="inline-flex items-center px-8 py-3 bg-white text-orange-600 rounded-lg font-medium hover:bg-orange-50 transition"
-          >
-            Get Started Now
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => handleQuoteClick()}
+              className="px-8 py-3 btn-primary rounded-lg font-semibold"
+            >
+              Get Free Quotes Now
+            </button>
+            <a
+              href="tel:1-855-DUMPSTER"
+              className="px-8 py-3 btn-ghost-primary rounded-lg font-semibold flex items-center gap-2"
+            >
+              <Phone className="h-5 w-5" />
+              Call 1-855-DUMPSTER
+            </a>
+          </div>
         </div>
       </section>
+
+      {/* Quote Modal */}
+      <DumpsterQuoteModal
+        isOpen={quoteModalOpen}
+        onClose={() => {
+          setQuoteModalOpen(false);
+          setSelectedProvider(null);
+          setModalInitialData(null);
+          setModalStartStep(undefined);
+        }}
+        businessId={selectedProvider?.id}
+        businessName={selectedProvider?.name}
+        initialCustomerType={customerType}
+        initialData={modalInitialData}
+        startAtStep={modalStartStep}
+      />
     </div>
   );
 }

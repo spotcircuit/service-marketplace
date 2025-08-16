@@ -97,7 +97,6 @@ export const siteConfig = {
       customers: [
         { name: "How It Works", href: "/how-it-works" },
         { name: "Tips & Resources", href: "/resources" },
-        { name: "FAQs", href: "/faqs" },
       ],
       professionals: [
         { name: "Join Our Network", href: "/join" },
