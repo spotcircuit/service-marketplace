@@ -1,0 +1,93 @@
+{
+  "name": "service-marketplace-neon",
+  "version": "1.0.0",
+  "description": "MCP Server configuration for Service Marketplace with Neon Database",
+  "servers": {
+    "neon": {
+      "type": "database",
+      "provider": "neon",
+      "config": {
+        "connectionString": "${DATABASE_URL}",
+        "pooling": true,
+        "ssl": {
+          "rejectUnauthorized": false
+        }
+      },
+      "features": {
+        "branching": true,
+        "autoscaling": true,
+        "serverless": true,
+        "point_in_time_recovery": true
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "query",
+      "description": "Execute SQL queries on Neon database",
+      "parameters": {
+        "sql": {
+          "type": "string",
+          "description": "SQL query to execute"
+        }
+      }
+    },
+    {
+      "name": "migrate",
+      "description": "Run database migrations",
+      "parameters": {
+        "direction": {
+          "type": "string",
+          "enum": ["up", "down"],
+          "description": "Migration direction"
+        }
+      }
+    },
+    {
+      "name": "branch",
+      "description": "Create or manage database branches",
+      "parameters": {
+        "action": {
+          "type": "string",
+          "enum": ["create", "delete", "list"],
+          "description": "Branch action"
+        },
+        "name": {
+          "type": "string",
+          "description": "Branch name (for create/delete)"
+        }
+      }
+    },
+    {
+      "name": "backup",
+      "description": "Create database backup",
+      "parameters": {
+        "description": {
+          "type": "string",
+          "description": "Backup description"
+        }
+      }
+    }
+  ],
+  "resources": {
+    "businesses": {
+      "type": "table",
+      "operations": ["create", "read", "update", "delete"],
+      "schema": "public"
+    },
+    "leads": {
+      "type": "table",
+      "operations": ["create", "read", "update", "delete"],
+      "schema": "public"
+    }
+  },
+  "environment": {
+    "required": [
+      "DATABASE_URL"
+    ],
+    "optional": [
+      "DIRECT_DATABASE_URL",
+      "NEXT_PUBLIC_DATABASE_TYPE"
+    ]
+  }
+}

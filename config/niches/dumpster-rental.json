@@ -1,0 +1,170 @@
+{
+  "id": "dumpster-rental",
+  "name": "Dumpster Rental Services",
+  
+  "terminology": {
+    "service": {
+      "singular": "Dumpster",
+      "plural": "Dumpsters",
+      "action": "Rent",
+      "actionPast": "Rented",
+      "provider": "Rental Company",
+      "providers": "Rental Companies"
+    },
+    "quote": {
+      "singular": "Rental Quote",
+      "plural": "Rental Quotes",
+      "action": "Get Quote",
+      "received": "Quote Request Received"
+    },
+    "project": {
+      "singular": "Cleanup Project",
+      "plural": "Cleanup Projects"
+    }
+  },
+  
+  "categories": [
+    { 
+      "slug": "dumpster-rental",
+      "name": "Dumpster Rental",
+      "description": "Roll-off dumpsters for any size project",
+      "keywords": ["waste", "debris", "disposal", "container"]
+    },
+    {
+      "slug": "junk-removal",
+      "name": "Junk Removal",
+      "description": "Full-service hauling and disposal",
+      "keywords": ["hauling", "cleanup", "removal", "trash"]
+    },
+    {
+      "slug": "demolition",
+      "name": "Demolition",
+      "description": "Professional demolition services",
+      "keywords": ["teardown", "deconstruction", "removal"]
+    },
+    {
+      "slug": "construction-cleanup",
+      "name": "Construction Cleanup",
+      "description": "Post-construction waste management",
+      "keywords": ["construction", "debris", "site", "cleanup"]
+    }
+  ],
+  
+  "sizes": [
+    {
+      "id": "10-yard",
+      "name": "10 Yard Dumpster",
+      "dimensions": "12' × 8' × 3.5'",
+      "capacity": "10 cubic yards",
+      "typical": "Small cleanouts, single room renovations",
+      "weight": "2-3 tons"
+    },
+    {
+      "id": "20-yard",
+      "name": "20 Yard Dumpster",
+      "dimensions": "22' × 8' × 4.5'",
+      "capacity": "20 cubic yards",
+      "typical": "Medium renovations, roof replacements",
+      "weight": "3-4 tons"
+    },
+    {
+      "id": "30-yard",
+      "name": "30 Yard Dumpster",
+      "dimensions": "22' × 8' × 6'",
+      "capacity": "30 cubic yards",
+      "typical": "Large renovations, new construction",
+      "weight": "4-5 tons"
+    },
+    {
+      "id": "40-yard",
+      "name": "40 Yard Dumpster",
+      "dimensions": "22' × 8' × 8'",
+      "capacity": "40 cubic yards",
+      "typical": "Commercial projects, complete demolition",
+      "weight": "5-6 tons"
+    }
+  ],
+  
+  "resources": {
+    "guides": [
+      {
+        "slug": "rental-guide",
+        "title": "Complete Dumpster Rental Guide",
+        "description": "Everything you need to know about renting a dumpster",
+        "enabled": true
+      },
+      {
+        "slug": "pricing-guide",
+        "title": "Dumpster Rental Pricing Guide 2025",
+        "description": "Current market rates and cost factors",
+        "enabled": true
+      },
+      {
+        "slug": "prohibited-items",
+        "title": "What Can't Go in a Dumpster",
+        "description": "Items prohibited from dumpster disposal",
+        "enabled": true
+      }
+    ],
+    "calculators": [
+      {
+        "slug": "size-calculator",
+        "title": "Dumpster Size Calculator",
+        "description": "Find the right size for your project",
+        "enabled": true
+      },
+      {
+        "slug": "cost-estimator",
+        "title": "Rental Cost Estimator",
+        "description": "Estimate your total rental costs",
+        "enabled": true
+      }
+    ]
+  },
+  
+  "faqs": [
+    {
+      "question": "What size dumpster do I need?",
+      "answer": "The size depends on your project. 10-yard dumpsters work for small cleanouts, 20-yard for medium renovations, 30-yard for large projects, and 40-yard for commercial or demolition work."
+    },
+    {
+      "question": "How much does dumpster rental cost?",
+      "answer": "Prices typically range from $250-$600 depending on size, location, and rental duration. Get quotes from multiple providers for the best price."
+    },
+    {
+      "question": "What can't go in a dumpster?",
+      "answer": "Hazardous materials like paint, chemicals, batteries, tires, and appliances with freon are typically prohibited. Check with your rental company for a complete list."
+    },
+    {
+      "question": "How long can I keep the dumpster?",
+      "answer": "Most rentals include 7-10 days. Extended rentals are usually available for an additional daily fee of $5-15."
+    },
+    {
+      "question": "Do I need a permit?",
+      "answer": "Permits are typically required for street placement but not for private driveways. Check with your local municipality for specific requirements."
+    }
+  ],
+  
+  "hero": {
+    "headline": "Rent a Dumpster & Be Free of Your Debris",
+    "subheadline": "Find the top dumpster rental companies serving your hometown",
+    "ctaText": "Get Free Quotes",
+    "searchPlaceholder": "Enter your ZIP code"
+  },
+  
+  "meta": {
+    "titleTemplate": "{location} Dumpster Rental | {businessName}",
+    "descriptionTemplate": "Find affordable dumpster rental in {location}. Compare prices, sizes, and get free quotes from verified local companies.",
+    "keywords": ["dumpster rental", "roll off dumpster", "waste management", "debris removal", "construction dumpster"]
+  },
+  
+  "pricing": {
+    "factors": ["size", "duration", "location", "weight", "type of debris"],
+    "typical": {
+      "10-yard": { "low": 250, "high": 450, "average": 350 },
+      "20-yard": { "low": 350, "high": 600, "average": 475 },
+      "30-yard": { "low": 450, "high": 750, "average": 600 },
+      "40-yard": { "low": 550, "high": 900, "average": 725 }
+    }
+  }
+}

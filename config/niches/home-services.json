@@ -1,0 +1,144 @@
+{
+  "id": "home-services",
+  "name": "Home Services",
+  
+  "terminology": {
+    "service": {
+      "singular": "Service",
+      "plural": "Services",
+      "action": "Book",
+      "actionPast": "Booked",
+      "provider": "Service Provider",
+      "providers": "Service Providers"
+    },
+    "quote": {
+      "singular": "Service Quote",
+      "plural": "Service Quotes", 
+      "action": "Get Quote",
+      "received": "Quote Request Received"
+    },
+    "project": {
+      "singular": "Home Project",
+      "plural": "Home Projects"
+    }
+  },
+  
+  "categories": [
+    {
+      "slug": "plumbing",
+      "name": "Plumbing",
+      "description": "Licensed plumbers for all your needs",
+      "keywords": ["pipes", "leaks", "water", "drain", "fixtures"]
+    },
+    {
+      "slug": "electrical",
+      "name": "Electrical",
+      "description": "Certified electricians you can trust",
+      "keywords": ["wiring", "outlets", "lighting", "circuit", "panel"]
+    },
+    {
+      "slug": "hvac",
+      "name": "HVAC",
+      "description": "Heating and cooling specialists",
+      "keywords": ["heating", "cooling", "air conditioning", "furnace", "ventilation"]
+    },
+    {
+      "slug": "roofing",
+      "name": "Roofing",
+      "description": "Professional roofing contractors",
+      "keywords": ["roof", "shingles", "repair", "replacement", "gutters"]
+    },
+    {
+      "slug": "landscaping",
+      "name": "Landscaping",
+      "description": "Transform your outdoor space",
+      "keywords": ["lawn", "garden", "trees", "design", "maintenance"]
+    },
+    {
+      "slug": "painting",
+      "name": "Painting",
+      "description": "Interior and exterior painting",
+      "keywords": ["paint", "walls", "interior", "exterior", "staining"]
+    }
+  ],
+  
+  "sizes": [],
+  
+  "resources": {
+    "guides": [
+      {
+        "slug": "hiring-guide",
+        "title": "How to Hire Home Service Pros",
+        "description": "Tips for finding and vetting contractors",
+        "enabled": true
+      },
+      {
+        "slug": "pricing-guide",
+        "title": "Home Services Pricing Guide 2025",
+        "description": "Average costs for common home services",
+        "enabled": true
+      },
+      {
+        "slug": "maintenance-calendar",
+        "title": "Home Maintenance Calendar",
+        "description": "Year-round maintenance schedule",
+        "enabled": true
+      }
+    ],
+    "calculators": [
+      {
+        "slug": "project-estimator",
+        "title": "Project Cost Estimator",
+        "description": "Estimate costs for your home project",
+        "enabled": true
+      },
+      {
+        "slug": "roi-calculator",
+        "title": "Home Improvement ROI Calculator",
+        "description": "Calculate return on investment",
+        "enabled": true
+      }
+    ]
+  },
+  
+  "faqs": [
+    {
+      "question": "How do I find a reliable contractor?",
+      "answer": "Look for licensed, insured professionals with good reviews. Get multiple quotes and check references before hiring."
+    },
+    {
+      "question": "Should I get multiple quotes?",
+      "answer": "Yes, we recommend getting at least 3 quotes to compare prices, services, and contractor qualifications."
+    },
+    {
+      "question": "What questions should I ask contractors?",
+      "answer": "Ask about licensing, insurance, warranties, timeline, payment terms, and request references from recent projects."
+    },
+    {
+      "question": "When should I pay for services?",
+      "answer": "Never pay in full upfront. A typical payment structure is 30% deposit, 30% midway, and 40% upon completion."
+    },
+    {
+      "question": "How far in advance should I book?",
+      "answer": "For non-emergency services, book 1-2 weeks in advance. Emergency services are typically available same-day."
+    }
+  ],
+  
+  "hero": {
+    "headline": "Find Trusted Home Service Professionals",
+    "subheadline": "Connect with verified contractors in your area",
+    "ctaText": "Get Free Quotes",
+    "searchPlaceholder": "What service do you need?"
+  },
+  
+  "meta": {
+    "titleTemplate": "{location} Home Services | {businessName}",
+    "descriptionTemplate": "Find trusted home service professionals in {location}. Compare quotes from licensed plumbers, electricians, HVAC techs, and more.",
+    "keywords": ["home services", "contractors", "home repair", "home improvement", "local professionals"]
+  },
+  
+  "pricing": {
+    "factors": ["service type", "project size", "urgency", "location", "materials"],
+    "typical": {}
+  }
+}
