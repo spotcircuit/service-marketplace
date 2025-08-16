@@ -9,43 +9,60 @@ A fully-featured, niche-agnostic service marketplace platform built with Next.js
 ## ✨ Features
 
 ### Core Platform
-- **Dynamic Configuration** - Backend-driven config manageable via admin panel
-- **Multi-Theme Support** - 8 pre-configured themes with dynamic switching
+- **Dynamic Niche Configuration** - JSON-based niche system for any service type
+- **Data-Driven Architecture** - Everything powered by database with server-side caching
+- **Multi-Theme Support** - Customizable themes separate from niche configuration
 - **Responsive Design** - Mobile-first, works on all devices
-- **SEO Optimized** - Built for search engine visibility
+- **SEO Optimized** - Dynamic routes for services, states, and cities
 
 ### Business Directory
-- **Featured Listings** - Promote businesses to the top of search results
+- **Featured Listings** - Promote businesses with subscription tiers
 - **Advanced Search** - Filter by category, location, rating, and verification status
 - **Business Profiles** - Detailed pages with services, hours, and contact info
 - **Ratings & Reviews** - Build trust with customer feedback
+- **Location-Based Pages** - SEO-optimized state and city pages
 
 ### Lead Generation
-- **Quote Request System** - Capture and manage customer inquiries
-- **Multi-Business Quotes** - Let customers request quotes from multiple providers
-- **Lead Management Dashboard** - Track and update lead status
-- **Email Notifications** - Alert businesses of new leads (configurable)
+- **Quote Request System** - Store quotes in database linking customers to pros
+- **Multi-Business Quotes** - Request quotes from multiple providers
+- **Lead Management Dashboard** - Track and respond to leads
+- **Business Response Tracking** - Monitor quote responses and conversions
 
 ### Business Management
-- **Claim Listings** - Business owners can claim and verify their listings
-- **Verification System** - Multiple verification methods (email, phone, documents)
-- **Admin Dashboard** - Comprehensive control panel for platform management
-- **Pricing Tiers** - Free, Professional, and Premium subscription levels
+- **Business Setup Flow** - Address verification before account creation
+- **Claim Existing Businesses** - Match and claim unclaimed listings
+- **Dealer Portal** - Complete business management dashboard
+- **Subscription Plans** - Free, Professional ($99), Premium ($299) tiers
+- **Advertising System** - Featured listings and territory exclusivity
+
+### User Management
+- **Multi-Role Authentication** - Customer, Business Owner, Admin roles
+- **Profile Management** - Edit profile and change password for all user types
+- **Dashboard Access** - Role-specific dashboards always visible in header
+- **Demo Users** - Built-in demo accounts when database not configured
+
+### Payment Integration
+- **Stripe Subscriptions** - Complete subscription management
+- **Database-Configured Stripe** - Store Stripe keys in database
+- **Test Mode Support** - Built-in test page at /test-stripe
+- **Subscription Management** - Upgrade, downgrade, cancel subscriptions
 
 ### Data Integration
-- **Supabase Ready** - Full integration with Supabase for persistent storage
-- **API Endpoints** - RESTful APIs for all data operations
-- **CSV Import/Export** - Bulk data management capabilities
-- **Fallback Mode** - Works with sample data when database isn't configured
+- **Neon PostgreSQL** - Primary database with Row Level Security
+- **Server-Side Caching** - BusinessCache loads all data on startup
+- **Auto Cache Refresh** - Rebuilds cache when data changes
+- **Fallback Mode** - Works without database using demo data
 
 ## 🛠️ Tech Stack
 
-- **Framework:** Next.js 15.3 (App Router)
+- **Framework:** Next.js 15.4 with Turbopack
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS + shadcn/ui
-- **Database:** Neon (PostgreSQL) or Supabase - Unified database layer
-- **Deployment:** Netlify (supports Vercel, others)
-- **Package Manager:** Bun (also works with npm/yarn)
+- **Database:** Neon PostgreSQL
+- **Authentication:** JWT with bcrypt
+- **Payments:** Stripe API
+- **Deployment:** Vercel/Netlify
+- **Package Manager:** npm/bun
 
 ## 📦 Installation
 
@@ -57,8 +74,7 @@ cd service-marketplace
 
 2. **Install dependencies:**
 ```bash
-bun install
-# or npm install
+npm install
 ```
 
 3. **Set up environment variables:**
@@ -66,191 +82,129 @@ bun install
 cp .env.example .env.local
 ```
 
-Edit `.env.local` and add your database credentials (choose Neon OR Supabase):
+Edit `.env.local` and add your credentials:
 
-**For Neon:**
 ```env
+# Database (Neon PostgreSQL)
 DATABASE_URL=postgresql://username:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
-NEXT_PUBLIC_DATABASE_TYPE=neon
+
+# Authentication
+JWT_SECRET=your-secret-key-change-in-production
+
+# Google Maps (Optional)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+
+# Stripe (Optional - can be configured in admin)
+STRIPE_SECRET_KEY=sk_test_xxx
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 ```
 
-**For Supabase:**
-```env
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-NEXT_PUBLIC_DATABASE_TYPE=supabase
-```
-
-4. **Run the development server:**
+4. **Set up the database:**
 ```bash
-bun dev
-# or npm run dev
+# Run the schema files in order:
+database/schema.sql
+database/create-business-subscriptions.sql
+database/create-quotes-table.sql
+```
+
+5. **Run the development server:**
+```bash
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see your application.
 
-## 🗄️ Database Setup
+## 🔑 Demo Accounts
 
-The platform supports both **Neon** (recommended) and **Supabase** databases through a unified database layer.
+When database is not configured, use these demo accounts:
 
-### Option 1: Using Neon (Recommended)
+- **Admin:** admin@example.com / admin123
+- **Business Owner:** dealer@example.com / dealer123
+- **Customer:** customer@example.com / customer123
 
-1. Create a project at [neon.tech](https://neon.tech)
-2. Get your connection string from the Neon console
-3. Run the schema from `database/schema.sql`
-4. (Optional) Seed with sample data from `database/seed.sql`
-5. Add to `.env.local`:
-```env
-DATABASE_URL=postgresql://username:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
-NEXT_PUBLIC_DATABASE_TYPE=neon
-```
+## 🎨 Niche Configuration
 
-See `NEON_SETUP.md` for detailed instructions.
+The platform uses a JSON-based niche configuration system:
 
-### Option 2: Using Supabase
+1. **Active Niche:** Set in `config/active-niche.json`
+2. **Niche Configs:** Stored in `config/niches/[niche-name].json`
+3. **Default:** Dumpster rental configuration included
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Run the schema from `database/schema.sql`
-3. (Optional) Seed with sample data from `database/seed.sql`
-4. Add to `.env.local`:
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-NEXT_PUBLIC_DATABASE_TYPE=supabase
-```
-
-See `SUPABASE_SETUP.md` for detailed instructions.
-
-### Testing Database Connection
-
-After configuration, test your database connection:
-```bash
-curl http://localhost:3000/api/test-db
-```
+To create a new niche:
+1. Copy `config/niches/dumpster-rental.json`
+2. Rename and customize for your niche
+3. Update `config/active-niche.json`
 
 ## 📁 Project Structure
 
 ```
-service-marketplace-template/
-├── src/
-│   ├── app/              # Next.js app router pages
-│   │   ├── api/          # API routes
-│   │   ├── admin/        # Admin dashboard
-│   │   ├── business/     # Business profiles
-│   │   ├── directory/    # Business directory
-│   │   └── ...
-│   ├── components/       # React components
-│   ├── contexts/         # React contexts
-│   ├── data/            # Sample data
-│   ├── lib/             # Utility functions
-│   └── types/           # TypeScript types
-├── database/            # Database schema and seeds
-├── public/             # Static assets
-└── ...
+src/
+├── app/                    # Next.js app router pages
+│   ├── api/               # API endpoints
+│   ├── admin/             # Admin dashboard
+│   ├── dealer-portal/     # Business owner portal
+│   ├── dashboard/         # Customer dashboard
+│   ├── business-setup/    # Business registration flow
+│   ├── services/[service] # SEO service pages
+│   └── [state]/[city]     # Location-based pages
+├── components/            # React components
+├── contexts/              # React contexts
+├── hooks/                 # Custom React hooks
+├── lib/                   # Utilities and services
+│   ├── auth.ts           # Authentication
+│   ├── cache.ts          # Server-side cache
+│   ├── neon.ts           # Database connection
+│   ├── stripe.ts         # Payment processing
+│   └── niche-config.ts   # Niche configuration
+└── config/               # Configuration files
+    ├── active-niche.json
+    └── niches/           # Niche configurations
 ```
-
-## 🎨 Customization
-
-### Themes
-
-The platform includes 8 pre-built themes:
-- Default (Orange/Green)
-- Professional (Navy)
-- Modern (Purple/Pink)
-- Eco Friendly (Green)
-- Luxury (Gold)
-- Tech (Purple/Cyan)
-- Healthcare (Blue)
-- Construction (Orange/Red)
-
-Access the admin panel at `/admin` to switch themes dynamically.
-
-### Configuration
-
-Edit the configuration through:
-1. **Admin Panel** - Runtime configuration at `/admin`
-2. **Config File** - `src/config/site-config.ts` for defaults
-3. **Environment Variables** - For API keys and secrets
-
-### Niches
-
-Pre-configured templates for:
-- Dumpster Rental
-- Home Services
-- Healthcare
-- Education & Tutoring
-- General Services
 
 ## 🚀 Deployment
 
-### Netlify
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/yourusername/service-marketplace)
-
-1. Click the button above or import your repository
-2. Add environment variables in Netlify dashboard
-3. Deploy!
-
 ### Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/service-marketplace)
-
-### Manual Deployment
-
 ```bash
-# Build for production
-bun run build
-
-# Start production server
-bun run start
+vercel
 ```
 
-## 📊 API Documentation
+### Netlify
+```bash
+netlify deploy --prod
+```
 
-### Businesses
+### Docker
+```bash
+docker build -t service-marketplace .
+docker run -p 3000:3000 service-marketplace
+```
 
-- `GET /api/businesses` - List businesses with filters
-- `GET /api/businesses/[id]` - Get single business
-- `POST /api/businesses` - Create business (admin)
-- `PATCH /api/businesses/[id]` - Update business
+## 📊 Features Roadmap
 
-### Leads
-
-- `GET /api/leads` - List leads (admin)
-- `POST /api/leads` - Create quote request
-- `PATCH /api/leads` - Update lead status
-
-### Configuration
-
-- `GET /api/config` - Get site configuration
-- `POST /api/config` - Update configuration
-- `GET /api/themes` - Get available themes
+- [ ] Google Places API integration
+- [ ] Email notifications (SendGrid)
+- [ ] SMS notifications (Twilio)
+- [ ] Advanced analytics dashboard
+- [ ] Review system with moderation
+- [ ] Mobile app (React Native)
+- [ ] Multi-language support
+- [ ] AI-powered lead matching
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 💬 Support
+
+For support, email support@yourplatform.com or open an issue on GitHub.
+
 ## 🙏 Acknowledgments
 
-- Built with [Next.js](https://nextjs.org/)
-- Styled with [Tailwind CSS](https://tailwindcss.com/)
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
-- Database by [Supabase](https://supabase.com/) / [Neon](https://neon.tech/)
-
-## 📧 Support
-
-For questions or support, please open an issue on GitHub or contact us at support@example.com
-
----
-
-**Ready to build your service marketplace?** Get started today!
+- Built with [Next.js](https://nextjs.org)
+- UI components from [shadcn/ui](https://ui.shadcn.com)
+- Database by [Neon](https://neon.tech)
+- Payments by [Stripe](https://stripe.com)
