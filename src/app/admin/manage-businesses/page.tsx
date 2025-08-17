@@ -56,6 +56,7 @@ export default function ManageBusinessesPage() {
   useEffect(() => {
     checkAuth();
     fetchBusinesses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuth = async () => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, Search, Phone, Home } from 'lucide-react';
 import USStatesMap from '@/components/USStatesMap';
@@ -116,6 +117,7 @@ export default function LocationsPage() {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Invert header/hero tone for this page
@@ -130,6 +132,7 @@ export default function LocationsPage() {
         root.removeAttribute('data-header-tone');
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Removed placeholder featured cities to avoid fake data on Locations page
@@ -172,16 +175,30 @@ export default function LocationsPage() {
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary to-primary/90">
-        <div className="container mx-auto px-4 text-center py-12 text-hero-foreground">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Service Locations
-          </h1>
-          <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
-            We proudly serve the Mid-Atlantic region with same-day and next-day dumpster delivery
-          </p>
+        <div className="container mx-auto px-4 py-12 text-hero-foreground">
+          <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Service Locations
+              </h1>
+              <p className="text-xl mb-8 text-hero-foreground/90">
+                We proudly serve the Mid-Atlantic region with same-day and next-day dumpster delivery
+              </p>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <Image
+                src="/images/locationtruck.png"
+                alt="Delivery truck serving local areas"
+                width={400}
+                height={300}
+                className="drop-shadow-lg"
+                priority
+              />
+            </div>
+          </div>
           
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
+          <div className="max-w-2xl mx-auto relative mt-8">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input

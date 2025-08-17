@@ -48,6 +48,7 @@ export default function PlanManagerPage() {
   useEffect(() => {
     checkAuth();
     fetchPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuth = async () => {

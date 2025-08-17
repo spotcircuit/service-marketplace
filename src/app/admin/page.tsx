@@ -105,6 +105,7 @@ export default function AdminPage() {
     root.style.setProperty('--secondary-foreground', hexToRgb(secondaryFg));
     root.style.setProperty('--accent-foreground', hexToRgb(accentFg));
     root.style.setProperty('--ring', hexToRgb(primary));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localConfig?.theme, themes]);
 
   const handleLogout = async () => {

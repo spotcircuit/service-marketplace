@@ -67,6 +67,7 @@ export default function LeadsPage() {
     checkAuth();
     fetchLeads();
     fetchCredits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

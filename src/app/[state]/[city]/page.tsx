@@ -133,6 +133,7 @@ export default function CityPage() {
     return () => {
       document.documentElement.removeAttribute('data-header-tone');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCityData = async () => {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Phone, CheckCircle, ArrowRight, Calendar, MapPin, Shield, Star, Clock, DollarSign, Truck, Info, ChevronDown, Map } from 'lucide-react';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 import GoogleLocationSearch from '@/components/GoogleLocationSearch';
@@ -298,10 +299,13 @@ export default function HomePage() {
               {/* Left: Headlines */}
               <div className="self-start">
                 {/* Hero Image (left of the quote form, above headline) */}
-                <img
+                <Image
                   src="/images/row-1-column-1.png"
                   alt="Roll-off dumpsters in Ashburn"
+                  width={288}
+                  height={200}
                   className="mb-4 w-56 h-auto md:w-64 lg:w-72 drop-shadow"
+                  priority
                 />
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                   Need a Dumpster in {userLocation.city}? Get a Quote.
@@ -317,7 +321,13 @@ export default function HomePage() {
                     <span>Licensed & Insured</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
+                    <Image
+                      src="/images/fasttimecheck.png"
+                      alt="Fast same-day delivery"
+                      width={20}
+                      height={20}
+                      className="object-contain"
+                    />
                     <span>Same-day in some areas</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -574,9 +584,11 @@ export default function HomePage() {
 
           {/* Illustration near the size section header */}
           <div className="flex justify-center mb-8">
-            <img
+            <Image
               src="/images/row-2-column-2.png"
               alt="Dumpster sizes illustration"
+              width={288}
+              height={200}
               className="w-56 h-auto md:w-64 lg:w-72 drop-shadow"
             />
           </div>
@@ -645,9 +657,11 @@ export default function HomePage() {
 
           {/* Illustration under the size grid */}
           <div className="flex justify-center mt-10">
-            <img
+            <Image
               src="/images/row-1-column-2.png"
               alt="Home project with dumpster"
+              width={384}
+              height={250}
               className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
             />
           </div>
@@ -679,11 +693,21 @@ export default function HomePage() {
               { step: '1', title: 'Get Quotes', desc: 'Compare prices from local providers' },
               { step: '2', title: 'Schedule Delivery', desc: 'Choose your delivery date & time' },
               { step: '3', title: 'Fill It Up', desc: '7 days included, extensions available' },
-              { step: '4', title: 'We Haul Away', desc: 'Text us when ready for pickup' }
+              { step: '4', title: 'We Haul Away', desc: 'Text us when ready for pickup', useHaulImage: true }
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-primary">{item.step}</span>
+                  {item.useHaulImage ? (
+                    <Image
+                      src="/images/haulawaybin.png"
+                      alt="Haul away service for dumpster pickup"
+                      width={32}
+                      height={32}
+                      className="object-contain"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-primary">{item.step}</span>
+                  )}
                 </div>
                 <h3 className="font-bold mb-2">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
@@ -698,9 +722,11 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           {/* Illustration above Available Providers */}
           <div className="flex justify-center mb-8">
-            <img
+            <Image
               src="/images/row-2-column-1.png"
               alt="Local providers illustration"
+              width={384}
+              height={250}
               className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
             />
           </div>
@@ -736,7 +762,13 @@ export default function HomePage() {
                       <h3 className="text-xl font-bold">{provider.name}</h3>
                       {provider.isVerified && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                          <CheckCircle className="h-3 w-3" />
+                          <Image
+                            src="/images/secureverified.png"
+                            alt="Verified provider badge"
+                            width={12}
+                            height={12}
+                            className="object-contain"
+                          />
                           Verified
                         </span>
                       )}
@@ -866,7 +898,13 @@ export default function HomePage() {
             
             <div className="text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-primary" />
+                <Image
+                  src="/images/secureverified.png"
+                  alt="Verified providers security badge"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
               <h3 className="text-xl font-bold mb-2">Verified Providers</h3>
               <p className="text-muted-foreground">
@@ -876,7 +914,13 @@ export default function HomePage() {
             
             <div className="text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-primary" />
+                <Image
+                  src="/images/fasttimecheck.png"
+                  alt="Fast delivery guarantee with time check"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
               <h3 className="text-xl font-bold mb-2">Fast Delivery</h3>
               <p className="text-muted-foreground">

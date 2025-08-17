@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Building, Building2, Truck, Calendar, Shield, Clock, Package, CheckCircle, ArrowRight, Phone, Users, Briefcase, Award, Calculator, Hammer, Home } from 'lucide-react';
 import Link from 'next/link';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
@@ -99,7 +100,8 @@ export default function CommercialPage() {
     {
       title: 'Compliance & Documentation',
       description: 'Complete waste tracking and disposal certificates',
-      icon: Shield
+      icon: Shield,
+      useSecureImage: true
     },
     {
       title: 'Volume Discounts',
@@ -139,28 +141,40 @@ export default function CommercialPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4 bg-gradient-to-br from-primary to-primary/90">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center text-hero-foreground">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Commercial Dumpster Rental Solutions
-            </h1>
-            <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
-              Reliable waste management for businesses, contractors, and industrial facilities. 
-              Flexible terms, competitive pricing, and dedicated support.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => setQuoteModalOpen(true)}
-                className="px-8 py-4 bg-primary text-white rounded-lg font-semibold text-lg hover:bg-primary/90 transition shadow-lg"
-              >
-                Get Commercial Quote
-              </button>
-              <a
-                href="tel:+14342076559"
-                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
-              >
-                <Phone className="h-5 w-5" />
-                Call for Volume Pricing
-              </a>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="text-hero-foreground">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Commercial Dumpster Rental Solutions
+              </h1>
+              <p className="text-xl mb-8 text-hero-foreground/90">
+                Reliable waste management for businesses, contractors, and industrial facilities. 
+                Flexible terms, competitive pricing, and dedicated support.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => setQuoteModalOpen(true)}
+                  className="px-8 py-4 bg-white text-primary rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg"
+                >
+                  Get Commercial Quote
+                </button>
+                <a
+                  href="tel:+14342076559"
+                  className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
+                >
+                  <Phone className="h-5 w-5" />
+                  Call for Volume Pricing
+                </a>
+              </div>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <Image
+                src="/images/houseconstructionbinfilled.png"
+                alt="Construction site with dumpster filled with construction debris"
+                width={400}
+                height={300}
+                className="drop-shadow-lg"
+                priority
+              />
             </div>
           </div>
         </div>
@@ -175,9 +189,11 @@ export default function CommercialPage() {
           </p>
           {/* Illustration for commercial sizes */}
           <div className="flex justify-center mb-10">
-            <img
+            <Image
               src="/images/dumpstersize.png"
               alt="Commercial dumpster sizes illustration"
+              width={384}
+              height={250}
               className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
             />
           </div>
@@ -322,7 +338,17 @@ export default function CommercialPage() {
               return (
                 <div key={benefit.title} className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-6 w-6 text-primary" />
+                    {benefit.useSecureImage ? (
+                      <Image
+                        src="/images/secureverified.png"
+                        alt="Security and compliance verification"
+                        width={24}
+                        height={24}
+                        className="object-contain"
+                      />
+                    ) : (
+                      <Icon className="h-6 w-6 text-primary" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">{benefit.title}</h3>

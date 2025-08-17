@@ -37,6 +37,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
 
   useEffect(() => {
     fetchBusiness();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchBusiness = async () => {

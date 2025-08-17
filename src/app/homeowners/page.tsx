@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Home, Trash2, Calendar, Shield, Clock, CheckCircle, ArrowRight, Phone, Calculator, Ruler, AlertTriangle, Package, Download, BookOpen, DollarSign, HelpCircle, Hammer, Brush, Trees } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 export default function HomeownersPage() {
@@ -62,7 +63,8 @@ export default function HomeownersPage() {
       icon: Hammer,
       description: 'Kitchen, bathroom, and room remodels',
       commonSize: '15-20 Yard',
-      tips: ['Order before demo starts', 'Consider weight limits for tile/concrete', 'Plan for 7-10 day rental']
+      tips: ['Order before demo starts', 'Consider weight limits for tile/concrete', 'Plan for 7-10 day rental'],
+      useHomeImage: true
     },
     {
       name: 'Spring Cleaning',
@@ -111,7 +113,8 @@ export default function HomeownersPage() {
     {
       title: 'Eco-Friendly Disposal',
       description: 'Responsible recycling and disposal practices',
-      icon: Shield
+      icon: Shield,
+      useEcoImage: true
     },
     {
       title: 'Expert Guidance',
@@ -166,32 +169,44 @@ export default function HomeownersPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-primary/90 py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center text-hero-foreground">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Dumpster Rental for Homeowners
-            </h1>
-            <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
-              Simple, affordable waste removal for home projects. From small cleanouts to major renovations, 
-              we make it easy to get rid of your debris.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => setQuoteModalOpen(true)}
-                className="px-8 py-4 bg-white text-primary rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg"
-              >
-                Get Quote
-              </button>
-              <Link
-                href="/dumpster-sizes"
-                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
-              >
-                <Ruler className="h-5 w-5" />
-                Size Calculator
-              </Link>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="text-hero-foreground">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Dumpster Rental for Homeowners
+              </h1>
+              <p className="text-xl mb-8 text-hero-foreground/90">
+                Simple, affordable waste removal for home projects. From small cleanouts to major renovations, 
+                we make it easy to get rid of your debris.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => setQuoteModalOpen(true)}
+                  className="px-8 py-4 bg-white text-primary rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg"
+                >
+                  Get Quote
+                </button>
+                <Link
+                  href="/dumpster-sizes"
+                  className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
+                >
+                  <Ruler className="h-5 w-5" />
+                  Size Calculator
+                </Link>
+              </div>
+              <p className="mt-6 text-hero-foreground/80 text-sm">
+                ⚡ Most deliveries within 24 hours • 📞 7-day support • ✓ No hidden fees
+              </p>
             </div>
-            <p className="mt-6 text-hero-foreground/80 text-sm">
-              ⚡ Most deliveries within 24 hours • 📞 7-day support • ✓ No hidden fees
-            </p>
+            <div className="flex justify-center lg:justify-end">
+              <Image
+                src="/images/homeowner.png"
+                alt="Homeowner with dumpster for residential project"
+                width={400}
+                height={300}
+                className="drop-shadow-lg"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -313,9 +328,11 @@ export default function HomeownersPage() {
           </p>
           {/* Illustration near Popular Sizes */}
           <div className="flex justify-center mb-10">
-            <img
+            <Image
               src="/images/dumpstersize.png"
-              alt="Popular residential sizes: 10, 20, 30 yard"
+              alt="Popular residential dumpster sizes: 10, 20, 30 yard comparison"
+              width={384}
+              height={250}
               className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
             />
           </div>
@@ -402,7 +419,17 @@ export default function HomeownersPage() {
               const Icon = project.icon;
               return (
                 <div key={project.name} className="border rounded-lg p-6 hover:shadow-lg transition">
-                  <Icon className="h-10 w-10 text-primary mb-4" />
+                  {project.useHomeImage ? (
+                    <Image
+                      src="/images/houseladder.png"
+                      alt="Home renovation with ladder for improvement projects"
+                      width={40}
+                      height={40}
+                      className="mb-4 object-contain"
+                    />
+                  ) : (
+                    <Icon className="h-10 w-10 text-primary mb-4" />
+                  )}
                   <h3 className="text-lg font-bold mb-2">{project.name}</h3>
                   <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
                   <p className="text-sm font-medium mb-3">
@@ -491,7 +518,17 @@ export default function HomeownersPage() {
               return (
                 <div key={benefit.title} className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-6 w-6 text-primary" />
+                    {benefit.useEcoImage ? (
+                      <Image
+                        src="/images/binfilledwithgreenery.png"
+                        alt="Eco-friendly waste disposal with greenery"
+                        width={24}
+                        height={24}
+                        className="object-contain"
+                      />
+                    ) : (
+                      <Icon className="h-6 w-6 text-primary" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">{benefit.title}</h3>

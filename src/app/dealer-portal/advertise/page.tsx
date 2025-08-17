@@ -133,6 +133,7 @@ export default function AdvertisePage() {
 
   useEffect(() => {
     fetchBusinessProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

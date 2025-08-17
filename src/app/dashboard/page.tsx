@@ -56,6 +56,7 @@ export default function CustomerDashboard() {
   useEffect(() => {
     fetchUserData();
     fetchQuotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchUserData = async () => {
