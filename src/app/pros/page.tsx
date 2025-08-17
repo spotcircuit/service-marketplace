@@ -1,23 +1,293 @@
 'use client';
 
-import { useState } from 'react';
-import { TrendingUp, Users, Shield, Clock, DollarSign, MapPin, Phone, CheckCircle, Award, Truck, Calendar, ChartBar, Zap, Briefcase, ArrowRight } from 'lucide-react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { TrendingUp, Users, Shield, Clock, DollarSign, MapPin, Phone, CheckCircle, Award, Truck, Calendar, ChartBar, Zap, Briefcase, ArrowRight, Search, LogIn } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { loadGoogleMaps } from '@/lib/google-maps';
 
 export default function ProsPage() {
-  const [formData, setFormData] = useState({
-    businessName: '',
-    contactName: '',
-    email: '',
-    phone: '',
-    city: '',
-    state: '',
-    yearsInBusiness: '',
-    fleetSize: '',
-    servicesOffered: [] as string[],
-    coverage: '',
-    message: ''
-  });
+  const router = useRouter();
+  const [address, setAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [placeDetails, setPlaceDetails] = useState<any>(null);
+  const [foundBusiness, setFoundBusiness] = useState<any>(null);
+  const [showResults, setShowResults] = useState(false);
+  const autocompleteRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTone = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (previousTone) {
+        root.setAttribute('data-header-tone', previousTone);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
+
+  // Define handlePlaceSelect before using it in useEffect
+  const handlePlaceSelect = useCallback(async () => {
+    const place = autocompleteRef.current?.getPlace();
+    if (!place || !place.place_id) return;
+
+    setPlaceDetails(place);
+    setIsLoading(true);
+    setShowResults(false);
+
+    // Extract business details from Google Places
+    const addressComponents = place.address_components || [];
+    
+    let city = '';
+    let state = '';
+    let zipcode = '';
+    let streetNumber = '';
+    let route = '';
+    
+    addressComponents.forEach((component: any) => {
+      const types = component.types;
+      if (types.includes('locality')) {
+        city = component.long_name;
+      }
+      if (types.includes('administrative_area_level_1')) {
+        state = component.short_name;
+      }
+      if (types.includes('postal_code')) {
+        zipcode = component.long_name;
+      }
+      if (types.includes('street_number')) {
+        streetNumber = component.long_name;
+      }
+      if (types.includes('route')) {
+        route = component.long_name;
+      }
+    });
+    
+    // Build street address from components
+    let streetAddress = '';
+    if (streetNumber && route) {
+      streetAddress = `${streetNumber} ${route}`;
+    } else if (route) {
+      streetAddress = route;
+    }
+    
+    // Determine if this is a business or just an address
+    // If place.name is the same as the formatted address or starts with street number, it's likely just an address
+    const placeName = place.name || '';
+    const isJustAddress = !placeName || 
+                          placeName === place.formatted_address ||
+                          placeName === streetAddress ||
+                          (streetNumber && placeName.startsWith(streetNumber));
+    
+    // Only use place.name as business name if it's actually a business name
+    const businessName = isJustAddress ? '' : placeName;
+    
+    // If no street address from components, try to extract from formatted address
+    if (!streetAddress && place.formatted_address) {
+      // Take the first part before the first comma as street address
+      const parts = place.formatted_address.split(',');
+      if (parts.length > 0) {
+        const firstPart = parts[0].trim();
+        // Check if it looks like a street address (contains numbers)
+        if (/\d/.test(firstPart)) {
+          streetAddress = firstPart;
+        }
+      }
+    }
+
+    // Store the extracted details for later use
+    const businessDetails = {
+      name: businessName,  // Will be empty if it's just an address
+      address: streetAddress,  // The street address
+      fullAddress: place.formatted_address || '',  // Always store the full address
+      city: city,
+      state: state,
+      zipcode: zipcode,
+      phone: place.formatted_phone_number || '',
+      website: place.website || '',
+      placeId: place.place_id
+    };
+    
+    console.log('Place from Google:', place);
+    console.log('Extracted details:', businessDetails);
+
+    // Check if business exists in database - ALWAYS check by address first
+    try {
+      const searchParams = new URLSearchParams();
+      // Always include address, city, state for location-based matching
+      if (streetAddress) searchParams.append('address', streetAddress);
+      if (city) searchParams.append('city', city);
+      if (state) searchParams.append('state', state);
+      if (businessName) searchParams.append('name', businessName);
+
+      console.log('Checking for existing business with:', {
+        address: streetAddress,
+        city,
+        state,
+        name: businessName
+      });
+
+      const response = await fetch(`/api/businesses/check?${searchParams}`);
+      const data = await response.json();
+
+      if (data.exists && data.business) {
+        console.log('Found existing business:', data.business);
+        console.log('Match type:', data.matchType);
+        
+        // Business exists at this address
+        setFoundBusiness(data.business);
+        setPlaceDetails({ ...place, businessDetails });
+        setShowResults(true);
+        
+        // If there are other possible matches, we could show them too
+        if (data.possibleMatches && data.possibleMatches.length > 0) {
+          console.log('Other possible matches:', data.possibleMatches);
+        }
+      } else {
+        // No business found at this address
+        console.log('No existing business found at this address');
+        setFoundBusiness(null);
+        setPlaceDetails({ ...place, businessDetails });
+        setShowResults(true);
+      }
+    } catch (error) {
+      console.error('Error checking business:', error);
+      // If error, show option to create new
+      setFoundBusiness(null);
+      setPlaceDetails({ ...place, businessDetails });
+      setShowResults(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Initialize Google Places Autocomplete - AFTER handlePlaceSelect is defined
+  useEffect(() => {
+    let mounted = true;
+    
+    const initAutocomplete = async () => {
+      try {
+        // Load Google Maps using centralized loader
+        await loadGoogleMaps();
+        
+        if (!mounted || !inputRef.current) return;
+        
+        // Initialize autocomplete
+        if (window.google && window.google.maps && window.google.maps.places) {
+          autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+            types: ['establishment', 'geocode'],
+            componentRestrictions: { country: 'us' },
+            fields: ['name', 'formatted_address', 'place_id', 'geometry', 'types', 'address_components', 'formatted_phone_number', 'website']
+          });
+
+          autocompleteRef.current.addListener('place_changed', handlePlaceSelect);
+        }
+      } catch (error) {
+        console.error('Error loading Google Maps:', error);
+      }
+    };
+
+    initAutocomplete();
+    
+    return () => {
+      mounted = false;
+      // Clean up autocomplete listener if it exists
+      if (autocompleteRef.current && window.google && window.google.maps) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+    };
+  }, [handlePlaceSelect]);
+
+  const handleClaimExisting = () => {
+    if (!foundBusiness) return;
+    
+    const claimParams = new URLSearchParams({
+      businessId: foundBusiness.id,
+      businessName: foundBusiness.name,
+      address: foundBusiness.address || '',
+      city: foundBusiness.city,
+      state: foundBusiness.state,
+      zipcode: foundBusiness.zipcode || '',
+      phone: foundBusiness.phone || '',
+      email: foundBusiness.email || '',
+      website: foundBusiness.website || '',
+      category: foundBusiness.category || 'Dumpster Rental',
+      fromPros: 'true'
+    });
+    router.push(`/claim?${claimParams.toString()}`);
+  };
+
+  const handleCreateNew = () => {
+    if (!placeDetails || !placeDetails.businessDetails) return;
+    
+    const details = placeDetails.businessDetails;
+    
+    // Parse the full address if individual components are missing
+    let parsedCity = details.city;
+    let parsedState = details.state;
+    let parsedZip = details.zipcode;
+    let parsedAddress = details.address;
+    
+    // If we have a full address but missing components, try to parse them
+    if (details.fullAddress && (!parsedCity || !parsedState)) {
+      const parts = details.fullAddress.split(',').map((p: string) => p.trim());
+      
+      // Typical format: "123 Main St, City, State ZIP, Country"
+      if (parts.length >= 3) {
+        // Address is usually first part (already have it)
+        if (!parsedAddress && parts[0]) {
+          parsedAddress = parts[0];
+        }
+        
+        // City is usually second part
+        if (!parsedCity && parts[1]) {
+          parsedCity = parts[1];
+        }
+        
+        // State and ZIP are usually in third part
+        if (!parsedState && parts[2]) {
+          const stateZip = parts[2].trim();
+          // Extract state (usually 2 letters) and zip
+          const stateZipMatch = stateZip.match(/([A-Z]{2})\s*(\d{5})?/);
+          if (stateZipMatch) {
+            parsedState = stateZipMatch[1];
+            if (!parsedZip && stateZipMatch[2]) {
+              parsedZip = stateZipMatch[2];
+            }
+          }
+        }
+      }
+    }
+    
+    // Build params object with parsed values
+    const params: Record<string, string> = {
+      businessName: details.name || '',
+      address: parsedAddress || '',
+      city: parsedCity || '',
+      state: parsedState || '',
+      zipcode: parsedZip || '',
+      phone: details.phone || '',
+      website: details.website || '',
+      placeId: details.placeId || '',
+      fullAddress: details.fullAddress || placeDetails.formatted_address || '',
+      fromPros: 'true',
+      isNew: 'true'
+    };
+    
+    // Create URLSearchParams and only include non-empty values
+    const newBusinessParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) {
+        newBusinessParams.append(key, value);
+      }
+    });
+    
+    console.log('Passing to claim page (parsed):', params);  // Debug log
+    router.push(`/claim?${newBusinessParams.toString()}`);
+  };
 
   const benefits = [
     {
@@ -119,19 +389,31 @@ export default function ProsPage() {
     }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Partner application:', formData);
-  };
-
-  const toggleService = (service: string) => {
-    setFormData(prev => ({
-      ...prev,
-      servicesOffered: prev.servicesOffered.includes(service)
-        ? prev.servicesOffered.filter(s => s !== service)
-        : [...prev.servicesOffered, service]
-    }));
+    if (!address.trim()) return;
+    
+    // If we have place details from a selection, use those
+    if (placeDetails && placeDetails.businessDetails) {
+      // User selected from autocomplete but then clicked Continue
+      // Check if we already showed results
+      if (showResults) {
+        // If results are already shown, don't resubmit
+        return;
+      }
+      // Otherwise trigger the place selection handler
+      handlePlaceSelect();
+    } else {
+      // They just typed without selecting from autocomplete
+      // Send them to claim page with just the text for manual entry
+      const params = new URLSearchParams({
+        searchText: address,
+        fromPros: 'true',
+        isNew: 'true',
+        needsAddress: 'true'
+      });
+      router.push(`/claim?${params.toString()}`);
+    }
   };
 
   return (
@@ -139,7 +421,7 @@ export default function ProsPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-primary/90 py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center text-white">
+          <div className="text-center text-hero-foreground">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full mb-6">
               <Zap className="h-4 w-4" />
               <span className="text-sm font-semibold">Join Our Growing Network</span>
@@ -147,7 +429,7 @@ export default function ProsPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Grow Your Dumpster Rental Business
             </h1>
-            <p className="text-xl mb-8 text-white/90 max-w-3xl mx-auto">
+            <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
               Partner with us to get guaranteed orders, reliable payments, and the technology to scale. 
               No upfront costs, no lead fees, just real business growth.
             </p>
@@ -160,7 +442,7 @@ export default function ProsPage() {
               </a>
               <a
                 href="tel:1-888-PRO-LINE"
-                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
+                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
               >
                 <Phone className="h-5 w-5" />
                 Call 1-888-PRO-LINE
@@ -288,167 +570,220 @@ export default function ProsPage() {
       {/* Application Form */}
       <section id="apply" className="py-16 px-4 bg-white">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">Apply to Become a Partner</h2>
-          <p className="text-center text-muted-foreground mb-8">
-            Takes less than 5 minutes. We'll review and respond within 24 hours.
-          </p>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">Business Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.businessName}
-                  onChange={(e) => setFormData({...formData, businessName: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Contact Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.contactName}
-                  onChange={(e) => setFormData({...formData, contactName: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-4">Get Started as a Partner</h2>
+            <p className="text-muted-foreground">
+              Enter your business address to get started
+            </p>
+          </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">Email *</label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+          {/* Address Lookup Form */}
+          <div className="bg-gray-50 rounded-lg p-8">
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Find Your Business</h3>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Phone *</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Start typing your business address and select from the suggestions
+              </p>
             </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">City *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.city}
-                  onChange={(e) => setFormData({...formData, city: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+            
+            <form onSubmit={handleManualSubmit} className="space-y-6">
+              <div className="relative">
+                <label className="block text-sm font-medium mb-2">Business Address</label>
+                <div className="relative">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full px-4 py-3 pl-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter your business address..."
+                    disabled={isLoading}
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Start typing and select your business from the dropdown suggestions for accurate address details
+                </p>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">State *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.state}
-                  onChange={(e) => setFormData({...formData, state: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">Years in Business *</label>
-                <select
-                  required
-                  value={formData.yearsInBusiness}
-                  onChange={(e) => setFormData({...formData, yearsInBusiness: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              {isLoading && (
+                <div className="flex items-center justify-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <span className="ml-3 text-muted-foreground">Checking our directory...</span>
+                </div>
+              )}
+
+              {/* Show results */}
+              {showResults && !isLoading && (
+                <div className="border-t pt-6">
+                  {foundBusiness ? (
+                    // Business exists
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-5 w-5" />
+                        <span className="font-medium">We found a business at this address!</span>
+                      </div>
+                      
+                      <div className="bg-white border rounded-lg p-4">
+                        <h4 className="font-semibold mb-1">{foundBusiness.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {foundBusiness.address}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {foundBusiness.city}, {foundBusiness.state} {foundBusiness.zipcode}
+                        </p>
+                        {foundBusiness.phone && (
+                          <p className="text-sm text-muted-foreground">📞 {foundBusiness.phone}</p>
+                        )}
+                        {foundBusiness.is_claimed && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full mt-2">
+                            <Shield className="h-3 w-3" />
+                            Already Claimed
+                          </span>
+                        )}
+                        {!foundBusiness.is_claimed && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full mt-2">
+                            <CheckCircle className="h-3 w-3" />
+                            Available to Claim
+                          </span>
+                        )}
+                      </div>
+
+                      {foundBusiness.is_claimed ? (
+                        <div className="space-y-3">
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p className="text-sm text-yellow-800">
+                              This business has already been claimed. If this is your business, please log in to manage it.
+                            </p>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <Link
+                              href="/login?type=business"
+                              className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                            >
+                              Log In
+                              <ArrowRight className="h-4 w-4" />
+                            </Link>
+                            
+                            <button
+                              onClick={() => {
+                                const disputeParams = new URLSearchParams({
+                                  businessId: foundBusiness.id,
+                                  businessName: foundBusiness.name,
+                                  action: 'dispute'
+                                });
+                                router.push(`/contact?${disputeParams.toString()}`);
+                              }}
+                              className="px-6 py-3 border border-primary text-primary rounded-lg font-semibold hover:bg-primary/10 transition flex items-center justify-center gap-2"
+                            >
+                              Dispute Claim
+                              <Shield className="h-4 w-4" />
+                            </button>
+                          </div>
+                          
+                          <div className="text-center">
+                            <Link 
+                              href="/forgot-password"
+                              className="text-sm text-primary hover:underline"
+                            >
+                              Forgot your password?
+                            </Link>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={handleClaimExisting}
+                          className="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                        >
+                          Claim This Business
+                          <ArrowRight className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
+                  ) : placeDetails ? (
+                    // Business not found, offer to create
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-blue-600">
+                        <Briefcase className="h-5 w-5" />
+                        <span className="font-medium">Business not found - Let's add it!</span>
+                      </div>
+                      
+                      <div className="bg-white border rounded-lg p-4">
+                        <h4 className="font-semibold mb-1">
+                          {placeDetails.businessDetails?.name ? (
+                            placeDetails.businessDetails.name
+                          ) : (
+                            <span className="text-muted-foreground italic">Business name will be required</span>
+                          )}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {placeDetails.formatted_address}
+                        </p>
+                        {placeDetails.businessDetails?.phone && (
+                          <p className="text-sm text-muted-foreground">
+                            Phone: {placeDetails.businessDetails.phone}
+                          </p>
+                        )}
+                        {placeDetails.businessDetails?.website && (
+                          <p className="text-sm text-muted-foreground">
+                            Website: {placeDetails.businessDetails.website}
+                          </p>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={handleCreateNew}
+                        className="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                      >
+                        Add Your Business
+                        <ArrowRight className="h-5 w-5" />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              {!showResults && (
+                <button
+                  type="submit"
+                  disabled={!address || isLoading}
+                  className="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select...</option>
-                  <option value="0-2">0-2 years</option>
-                  <option value="2-5">2-5 years</option>
-                  <option value="5-10">5-10 years</option>
-                  <option value="10+">10+ years</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Fleet Size *</label>
-                <select
-                  required
-                  value={formData.fleetSize}
-                  onChange={(e) => setFormData({...formData, fleetSize: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">Select...</option>
-                  <option value="1-3">1-3 trucks</option>
-                  <option value="4-10">4-10 trucks</option>
-                  <option value="11-25">11-25 trucks</option>
-                  <option value="25+">25+ trucks</option>
-                </select>
+                  Continue
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              )}
+            </form>
+
+            <div className="mt-8 pt-6 border-t">
+              <div className="grid md:grid-cols-2 gap-4 text-center">
+                <div>
+                  <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-medium">Instant Verification</p>
+                  <p className="text-xs text-muted-foreground">We'll verify your business automatically</p>
+                </div>
+                <div>
+                  <Zap className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-medium">Quick Setup</p>
+                  <p className="text-xs text-muted-foreground">Complete your profile in minutes</p>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Container Sizes Offered</label>
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-                {['10 Yard', '15 Yard', '20 Yard', '30 Yard', '40 Yard'].map((size) => (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => toggleService(size)}
-                    className={`px-3 py-2 border rounded-lg text-sm font-medium transition ${
-                      formData.servicesOffered.includes(size)
-                        ? 'bg-primary text-white border-primary'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+            <div className="mt-6 pt-6 border-t text-center">
+              <p className="text-sm text-muted-foreground mb-3">Already have an account?</p>
+              <Link
+                href="/login"
+                className="text-primary hover:underline font-medium"
+              >
+                Log in to your dealer portal
+              </Link>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Service Coverage Area</label>
-              <input
-                type="text"
-                value={formData.coverage}
-                onChange={(e) => setFormData({...formData, coverage: e.target.value})}
-                placeholder="e.g., 50 mile radius from Richmond, VA"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Additional Information</label>
-              <textarea
-                rows={4}
-                value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
-                placeholder="Tell us about your business, special capabilities, or questions"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
-            >
-              Submit Application
-            </button>
-          </form>
+          </div>
         </div>
       </section>
 
@@ -478,3 +813,5 @@ export default function ProsPage() {
     </div>
   );
 }
+
+// Removing all the duplicate form fields below

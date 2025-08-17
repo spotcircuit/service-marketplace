@@ -82,7 +82,23 @@ export default function BusinessProfilePage() {
       }
       const data = await response.json();
       setProfile(data.business);
-      setFormData(data.business);
+      // Ensure all fields have non-null values for form inputs
+      setFormData({
+        ...data.business,
+        description: data.business.description || '',
+        phone: data.business.phone || '',
+        email: data.business.email || '',
+        website: data.business.website || '',
+        address: data.business.address || '',
+        city: data.business.city || '',
+        state: data.business.state || '',
+        zipcode: data.business.zipcode || '',
+        price_range: data.business.price_range || '',
+        license_number: data.business.license_number || '',
+        services: data.business.services || [],
+        service_areas: data.business.service_areas || [],
+        hours: data.business.hours || {}
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       setError('Failed to load business profile');

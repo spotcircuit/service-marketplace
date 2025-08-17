@@ -119,11 +119,11 @@ export default function ResourcesPage() {
                 Get Instant Quote
               </button>
               <a
-                href="tel:1-888-555-0123"
+                href="tel:+14342076559"
                 className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
               >
                 <Phone className="h-5 w-5" />
-                Call 1-888-555-0123
+                Call (434) 207-6559
               </a>
             </div>
           </div>

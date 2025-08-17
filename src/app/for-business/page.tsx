@@ -130,7 +130,7 @@ export default function ForBusinessPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/signup?pro=true" className="px-8 py-4 bg-white text-primary rounded-lg hover:bg-white/90 font-semibold text-lg">
+              <Link href="/claim" className="px-8 py-4 bg-white text-primary rounded-lg hover:bg-white/90 font-semibold text-lg">
                 Get Started Free
               </Link>
               <Link href="/claim" className="px-8 py-4 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur font-semibold text-lg border border-white/30">
@@ -270,7 +270,7 @@ export default function ForBusinessPage() {
 
         <div className="text-center mt-12">
           <Link
-            href="/signup?pro=true"
+            href="/claim"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-semibold text-lg"
           >
             Start Your Free Trial
@@ -365,7 +365,7 @@ export default function ForBusinessPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/signup?pro=true"
+                href="/claim"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-primary rounded-lg hover:bg-white/90 font-semibold text-lg"
               >
                 Join as a Pro

@@ -118,6 +118,20 @@ export default function LocationsPage() {
     };
   }, []);
 
+  // Invert header/hero tone for this page
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTone = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (previousTone) {
+        root.setAttribute('data-header-tone', previousTone);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
+
   // Removed placeholder featured cities to avoid fake data on Locations page
 
   // Prepare served set and filtered cities from live data
@@ -157,12 +171,12 @@ export default function LocationsPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="hero-gradient-secondary text-white relative">
-        <div className="container mx-auto px-4 text-center py-12">
+      <section className="relative bg-gradient-to-br from-primary to-primary/90">
+        <div className="container mx-auto px-4 text-center py-12 text-hero-foreground">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Service Locations
           </h1>
-          <p className="text-xl mb-8 text-white/90 max-w-3xl mx-auto">
+          <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
             We proudly serve the Mid-Atlantic region with same-day and next-day dumpster delivery
           </p>
           
@@ -282,11 +296,11 @@ export default function LocationsPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="tel:1-888-555-0123"
+              href="tel:+14342076559"
               className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
             >
               <Phone className="h-5 w-5" />
-              Call 1-888-555-0123
+              Call (434) 207-6559
             </a>
             <Link
               href="/contact"

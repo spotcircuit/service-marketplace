@@ -10,7 +10,7 @@ import {
   ChevronRight, Tag, Zap, Heart, ThumbsUp
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import QuoteRequestModal from '@/components/QuoteRequestModal';
+import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 // Service categories with icons
 const serviceCategories = [
@@ -570,14 +570,14 @@ export default function EnhancedHome() {
       </section>
 
       {/* Quote Request Modal */}
-      <QuoteRequestModal
+      <DumpsterQuoteModal
         isOpen={quoteModalOpen}
         onClose={() => {
           setQuoteModalOpen(false);
           setSelectedBusinessId(undefined);
           setSelectedBusinessName(undefined);
         }}
-        businessIds={selectedBusinessId ? [selectedBusinessId] : []}
+        businessId={selectedBusinessId}
         businessName={selectedBusinessName}
       />
     </>

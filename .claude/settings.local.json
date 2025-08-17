@@ -9,7 +9,8 @@
       "Bash(rm:*)",
       "WebSearch",
       "Bash(grep:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": [],

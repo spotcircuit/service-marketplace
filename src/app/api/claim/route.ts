@@ -9,53 +9,132 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       businessId,
+      businessName,
       email,
       password,
       name,
       phone,
+      role,
+      businessLicense,
+      claimStatus,
+      // New business fields
+      businessAddress,
+      businessCity,
+      businessState,
+      businessZipcode,
+      businessPhone,
+      businessEmail,
+      businessWebsite,
+      businessCategory,
       verificationMethod,
       verificationCode
     } = body;
 
     // Validate input
-    if (!businessId || !email || !password || !name) {
+    if (!email || !password || !name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Check if business exists and is not already claimed
-    const businesses = await sql`
-      SELECT id, name as business_name, is_claimed, owner_email
-      FROM businesses
-      WHERE id = ${businessId}
-    `;
+    let finalBusinessId = businessId;
+    let business;
 
-    if (businesses.length === 0) {
+    // Check if this is a new business (temporary ID starting with "new-")
+    if (businessId && businessId.startsWith('new-')) {
+      console.log('Creating new business with data:', {
+        businessName,
+        businessAddress,
+        businessCity,
+        businessState,
+        businessZipcode,
+        businessPhone,
+        businessWebsite,
+        businessCategory
+      });
+      
+      // Create new business
+      const newBusinesses = await sql`
+        INSERT INTO businesses (
+          name,
+          address,
+          city,
+          state,
+          zipcode,
+          phone,
+          website,
+          category,
+          is_claimed,
+          is_verified,
+          owner_name,
+          owner_email,
+          owner_phone,
+          created_at,
+          updated_at
+        ) VALUES (
+          ${businessName || 'Unnamed Business'},
+          ${businessAddress || ''},
+          ${businessCity || ''},
+          ${businessState || ''},
+          ${businessZipcode || ''},
+          ${businessPhone || phone || ''},
+          ${businessWebsite || ''},
+          ${businessCategory || 'Dumpster Rental'},
+          ${claimStatus === 'pending' ? false : true},
+          ${claimStatus === 'pending' ? false : true},
+          ${name},
+          ${email},
+          ${phone || ''},
+          NOW(),
+          NOW()
+        )
+        RETURNING id, name as business_name, is_claimed, owner_email
+      `;
+      
+      if (newBusinesses.length === 0) {
+        return NextResponse.json(
+          { error: 'Failed to create business' },
+          { status: 500 }
+        );
+      }
+      
+      business = newBusinesses[0];
+      finalBusinessId = business.id;
+    } else if (businessId) {
+      // Check if existing business exists and is not already claimed
+      const businesses = await sql`
+        SELECT id, name as business_name, is_claimed, owner_email
+        FROM businesses
+        WHERE id = ${businessId}
+      `;
+
+      if (businesses.length === 0) {
+        return NextResponse.json(
+          { error: 'Business not found' },
+          { status: 404 }
+        );
+      }
+
+      business = businesses[0];
+      finalBusinessId = business.id;
+
+      if (business.is_claimed && claimStatus !== 'pending') {
+        return NextResponse.json(
+          { error: 'This business has already been claimed' },
+          { status: 400 }
+        );
+      }
+    } else {
+      // No business specified - this shouldn't happen
       return NextResponse.json(
-        { error: 'Business not found' },
-        { status: 404 }
-      );
-    }
-
-    const business = businesses[0];
-
-    if (business.is_claimed) {
-      return NextResponse.json(
-        { error: 'This business has already been claimed' },
+        { error: 'Business information required' },
         { status: 400 }
       );
     }
 
-    // TODO: Verify ownership (email, phone, or documentation)
-    // For now, we'll just check if the verification code matches
-    if (verificationMethod === 'email' && verificationCode !== '123456') {
-      return NextResponse.json(
-        { error: 'Invalid verification code' },
-        { status: 400 }
-      );
-    }
+    // TODO: Implement proper email verification
+    // For now, we'll skip verification during development
 
     // Check if user already exists
     const existingUsers = await sql`
@@ -74,8 +153,8 @@ export async function POST(request: NextRequest) {
         UPDATE users
         SET
           role = 'business_owner',
-          business_id = ${businessId},
-          company_name = ${business.business_name},
+          business_id = ${finalBusinessId},
+          company_name = ${business.business_name || business.name},
           phone = COALESCE(phone, ${phone})
         WHERE id = ${userId}
       `;
@@ -108,8 +187,8 @@ export async function POST(request: NextRequest) {
       await sql`
         UPDATE users
         SET
-          business_id = ${businessId},
-          company_name = ${business.business_name},
+          business_id = ${finalBusinessId},
+          company_name = ${business.business_name || business.name},
           phone = ${phone},
           email_verified = true
         WHERE id = ${userId}
@@ -128,30 +207,42 @@ export async function POST(request: NextRequest) {
       `;
     }
 
-    // Update business to mark as claimed
-    await sql`
-      UPDATE businesses
-      SET
-        is_claimed = true,
-        is_verified = true,
-        owner_name = ${name},
-        owner_email = ${email},
-        owner_phone = ${phone},
-        updated_at = NOW()
-      WHERE id = ${businessId}
-    `;
+    // Update business to mark as claimed (or pending if specified)
+    if (claimStatus === 'pending') {
+      // Create a pending claim record
+      await sql`
+        INSERT INTO pending_claims (business_id, user_id, status, created_at)
+        VALUES (${finalBusinessId}, ${userId}, 'pending', NOW())
+        ON CONFLICT (business_id, user_id) DO NOTHING
+      `;
+    } else {
+      // Mark as claimed immediately and update optional fields if provided
+      await sql`
+        UPDATE businesses
+        SET
+          is_claimed = true,
+          is_verified = true,
+          owner_name = ${name},
+          owner_email = ${email},
+          owner_phone = ${phone},
+          email = COALESCE(NULLIF(${businessEmail || ''}, ''), email),
+          website = COALESCE(NULLIF(${businessWebsite || ''}, ''), website),
+          updated_at = NOW()
+        WHERE id = ${finalBusinessId}
+      `;
+    }
 
     // Update user with business_id
     await sql`
       UPDATE users
-      SET business_id = ${businessId}
+      SET business_id = ${finalBusinessId}
       WHERE id = ${userId}
     `;
 
     // Create initial subscription for lead notifications
     await sql`
       INSERT INTO business_subscriptions (business_id, user_id, plan, status, lead_credits)
-      VALUES (${businessId}, ${userId}, 'free', 'active', 10)
+      VALUES (${finalBusinessId}, ${userId}, 'free', 'active', 10)
       ON CONFLICT (business_id) DO NOTHING
     `;
 

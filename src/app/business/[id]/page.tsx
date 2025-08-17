@@ -1,18 +1,39 @@
 "use client";
 
 import { use, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Star, MapPin, Phone, Globe, Mail, Clock, Shield, Award, CheckCircle, Calendar, DollarSign, Users, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 export default function BusinessProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
+  const router = useRouter();
   const [business, setBusiness] = useState<any>(null);
   const [similarBusinesses, setSimilarBusinesses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [modalInitialData, setModalInitialData] = useState<any>(null);
   const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
+  const [redirecting, setRedirecting] = useState(false);
+
+  // Helpers
+  const slugify = (s: string) => String(s || '')
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const toSlug = (s: string) => slugify(s);
+  const toStateSlug = (s: string) => {
+    const map: Record<string, string> = {
+      al: 'alabama', ak: 'alaska', az: 'arizona', ar: 'arkansas', ca: 'california', co: 'colorado', ct: 'connecticut', de: 'delaware', dc: 'district-of-columbia', fl: 'florida', ga: 'georgia', hi: 'hawaii', id: 'idaho', il: 'illinois', in: 'indiana', ia: 'iowa', ks: 'kansas', ky: 'kentucky', la: 'louisiana', me: 'maine', md: 'maryland', ma: 'massachusetts', mi: 'michigan', mn: 'minnesota', ms: 'mississippi', mo: 'missouri', mt: 'montana', ne: 'nebraska', nv: 'nevada', nh: 'new-hampshire', nj: 'new-jersey', nm: 'new-mexico', ny: 'new-york', nc: 'north-carolina', nd: 'north-dakota', oh: 'ohio', ok: 'oklahoma', or: 'oregon', pa: 'pennsylvania', ri: 'rhode-island', sc: 'south-carolina', sd: 'south-dakota', tn: 'tennessee', tx: 'texas', ut: 'utah', vt: 'vermont', va: 'virginia', wa: 'washington', wv: 'west-virginia', wi: 'wisconsin', wy: 'wyoming'
+    };
+    if (!s) return '';
+    const trimmed = s.trim();
+    if (trimmed.length === 2) return map[trimmed.toLowerCase()] || trimmed.toLowerCase();
+    return toSlug(trimmed);
+  };
 
   useEffect(() => {
     fetchBusiness();
@@ -26,6 +47,16 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
 
       if (data.business) {
         setBusiness(data.business);
+
+        // Perform client-side redirect to nested, breadcrumb-friendly URL
+        const stateSlug = toStateSlug(data.business.state || '');
+        const citySlug = toSlug(data.business.city || '');
+        const nameSlug = toSlug(data.business.name || 'business');
+        if (stateSlug && citySlug) {
+          setRedirecting(true);
+          router.replace(`/${stateSlug}/${citySlug}/${nameSlug}`);
+          return; // Stop further processing on this page
+        }
 
         // Fetch similar businesses in the same category
         const similarResponse = await fetch(`/api/businesses?category=${data.business.category}&limit=4`);
@@ -43,11 +74,11 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
     }
   };
 
-  if (loading) {
+  if (loading || redirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground">Loading business details...</p>
+          <p className="text-muted-foreground">{redirecting ? 'Redirecting to details…' : 'Loading business details...'}</p>
         </div>
       </div>
     );
@@ -202,8 +233,17 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
                 >
                   Call Now
                 </a>
-                {!business.is_claimed && (
-                  <Link href={`/claim?businessId=${resolvedParams.id}&businessName=${encodeURIComponent(business.name)}`} className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 font-medium">
+                {business.is_claimed ? (
+                  <div className="flex items-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-lg font-medium">
+                    <CheckCircle className="h-5 w-5" />
+                    Business Claimed
+                  </div>
+                ) : (
+                  <Link 
+                    href={`/claim?businessId=${resolvedParams.id}&businessName=${encodeURIComponent(business.name)}&address=${encodeURIComponent(business.address || '')}&city=${encodeURIComponent(business.city)}&state=${encodeURIComponent(business.state)}&zipcode=${encodeURIComponent(business.zipcode || '')}&phone=${encodeURIComponent(business.phone || '')}&email=${encodeURIComponent(business.email || '')}&category=${encodeURIComponent(business.category)}&website=${encodeURIComponent(business.website || '')}`} 
+                    className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 font-medium inline-flex items-center gap-2"
+                  >
+                    <Shield className="h-5 w-5" />
                     Claim This Business
                   </Link>
                 )}

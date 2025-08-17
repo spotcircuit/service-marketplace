@@ -17,39 +17,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [currentTheme, setCurrentTheme] = useState<ThemeName>('default');
 
   useEffect(() => {
-    // Load saved theme from localStorage
+    // Load saved theme from localStorage (do not apply CSS variables here)
     const savedTheme = localStorage.getItem('selectedTheme') as ThemeName;
     if (savedTheme && themes[savedTheme]) {
       setCurrentTheme(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      applyTheme('default');
     }
   }, []);
 
-  const applyTheme = (themeName: ThemeName) => {
-    const theme = themes[themeName];
-    const root = document.documentElement;
-
-    // Convert hex to RGB for CSS variables
-    const hexToRgb = (hex: string) => {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result
-        ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`
-        : '0 0 0';
-    };
-
-    // Apply theme colors as CSS variables
-    root.style.setProperty('--primary', hexToRgb(theme.primary));
-    root.style.setProperty('--secondary', hexToRgb(theme.secondary));
-    root.style.setProperty('--accent', hexToRgb(theme.accent));
-    root.style.setProperty('--background', hexToRgb(theme.background));
-    root.style.setProperty('--foreground', hexToRgb(theme.foreground));
-  };
-
   const setTheme = (theme: ThemeName) => {
     setCurrentTheme(theme);
-    applyTheme(theme);
     localStorage.setItem('selectedTheme', theme);
   };
 

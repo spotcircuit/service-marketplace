@@ -6,7 +6,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { useNiche } from '@/hooks/useNiche';
 import { Search, MapPin, Star, Phone, Shield, Award, ArrowRight, Building2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import QuoteRequestModal from '@/components/QuoteRequestModal';
+import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 import { businessCache } from '@/lib/cache';
 
 export default function NicheAwareHome() {
@@ -320,14 +320,14 @@ export default function NicheAwareHome() {
       </section>
 
       {/* Quote Request Modal */}
-      <QuoteRequestModal
+      <DumpsterQuoteModal
         isOpen={quoteModalOpen}
         onClose={() => {
           setQuoteModalOpen(false);
           setSelectedBusinessId(undefined);
           setSelectedBusinessName(undefined);
         }}
-        businessIds={selectedBusinessId ? [selectedBusinessId] : []}
+        businessId={selectedBusinessId}
         businessName={selectedBusinessName}
       />
     </>

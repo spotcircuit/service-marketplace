@@ -25,6 +25,16 @@ import { useState, useEffect } from 'react';
 import LocationMap from '@/components/LocationMap';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
+// Helper to create SEO-friendly slugs
+function slugify(input: string): string {
+  return String(input || '')
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // State names mapping
 const stateNames: Record<string, string> = {
   'alabama': 'Alabama', 'alaska': 'Alaska', 'arizona': 'Arizona', 'arkansas': 'Arkansas',
@@ -103,7 +113,7 @@ export default function CityPage() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(true);
   const [modalInitialData, setModalInitialData] = useState<any>(null);
   const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
   
@@ -116,6 +126,14 @@ export default function CityPage() {
   useEffect(() => {
     fetchCityData();
   }, [citySlug, stateName]);
+
+  useEffect(() => {
+    // Ensure header/hero tone inversion applies via :root attribute
+    document.documentElement.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      document.documentElement.removeAttribute('data-header-tone');
+    };
+  }, []);
 
   const fetchCityData = async () => {
     try {
@@ -212,13 +230,13 @@ export default function CityPage() {
       </div>
 
       {/* Hero Section with Quick Stats */}
-      <section className="hero-gradient-secondary text-white py-16">
+      <section className="bg-gradient-to-br from-primary to-primary/90 text-hero-foreground py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Dumpster Rental in {cityName}, {stateCode}
             </h1>
-            <p className="text-xl text-white/90 mb-6">
+            <p className="text-xl text-hero-foreground/90 mb-6">
               Compare {stats.total || 'multiple'} verified providers serving {cityName} and surrounding areas. 
               Get free quotes in 60 seconds.
             </p>
@@ -227,21 +245,21 @@ export default function CityPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="text-2xl font-bold">{stats.total || '5+'}</div>
-                <div className="text-sm text-white/80">Local Providers</div>
+                <div className="text-sm text-hero-foreground/80">Local Providers</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="text-2xl font-bold flex items-center gap-1">
                   {stats.avgRating || '4.5'} <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                 </div>
-                <div className="text-sm text-white/80">Avg Rating</div>
+                <div className="text-sm text-hero-foreground/80">Avg Rating</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="text-2xl font-bold">{stats.avgPrice}</div>
-                <div className="text-sm text-white/80">Starting Price</div>
+                <div className="text-sm text-hero-foreground/80">Starting Price</div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="text-2xl font-bold">24hr</div>
-                <div className="text-sm text-white/80">Avg Delivery</div>
+                <div className="text-sm text-hero-foreground/80">Avg Delivery</div>
               </div>
             </div>
 
@@ -261,11 +279,11 @@ export default function CityPage() {
                 {showMap ? 'Hide Map' : 'View on Map'}
               </button>
               <a
-                href="tel:1-855-DUMPSTER"
+                href="tel:+14342076559"
                 className="px-6 py-3 bg-white/20 backdrop-blur hover:bg-white/30 font-semibold rounded-lg transition flex items-center gap-2"
               >
                 <Phone className="h-5 w-5" />
-                Call 1-855-DUMP
+                Call (434) 207-6559
               </a>
             </div>
           </div>
@@ -322,7 +340,15 @@ export default function CityPage() {
         {/* Map Section - Toggleable */}
         {showMap && (
           <div className="mb-8">
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="relative bg-white rounded-lg shadow-sm border overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowMap(false)}
+                className="absolute top-3 right-3 z-10 px-3 py-1.5 text-sm border rounded-lg bg-white/90 hover:bg-white shadow"
+                aria-label="Hide map"
+              >
+                Hide Map
+              </button>
               <LocationMap
                 initialCity={cityName}
                 initialState={stateName}
@@ -376,89 +402,171 @@ export default function CityPage() {
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
                 </div>
               ) : providers.length > 0 ? (
-                <div className="space-y-4">
-                  {providers.slice(0, 5).map((provider, idx) => (
-                    <div key={idx} className="border rounded-lg p-4 hover:shadow-md transition">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-bold">{provider.name}</h3>
-                            {provider.is_featured && (
-                              <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
-                                FEATURED
-                              </span>
-                            )}
-                            {provider.is_verified && (
-                              <Shield className="h-4 w-4 text-green-600" />
-                            )}
+                <div className="space-y-6">
+                  {/* Featured Providers */}
+                  {providers.filter((p: any) => p.is_featured).length > 0 && (
+                    <div className="space-y-4">
+                      {providers.filter((p: any) => p.is_featured).map((provider: any, idx: number) => (
+                        <div key={`featured-${provider.id || idx}`} className="border rounded-lg p-4 hover:shadow-md transition">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-lg font-bold">{provider.name}</h3>
+                                <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
+                                  FEATURED
+                                </span>
+                                {provider.is_verified && (
+                                  <Shield className="h-4 w-4 text-green-600" />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-4 text-sm mb-2">
+                                <span className="flex items-center gap-1">
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <span className="font-semibold">{provider.rating || '4.5'}</span>
+                                  <span className="text-muted-foreground">({provider.reviews || 0} reviews)</span>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4" />
+                                  {provider.city || cityName}
+                                </span>
+                              </div>
+                              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
+                                <span className="flex items-center gap-1">
+                                  <Truck className="h-4 w-4" />
+                                  Same Day Available
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="h-4 w-4" />
+                                  Starting at $295
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-4 w-4" />
+                                  7-Day Rental
+                                </span>
+                              </div>
+                              {provider.description && (
+                                <p className="text-sm text-muted-foreground mb-3">{provider.description}</p>
+                              )}
+                            </div>
                           </div>
-                          
-                          <div className="flex items-center gap-4 text-sm mb-2">
-                            <span className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="font-semibold">{provider.rating || '4.5'}</span>
-                              <span className="text-muted-foreground">({provider.reviews || 0} reviews)</span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {provider.city || cityName}
-                            </span>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex gap-2 flex-1">
+                              <button onClick={() => handleQuoteClick(provider)} className="px-4 py-2 btn-primary rounded text-sm">Get Quote</button>
+                              <Link href={`/${stateSlug}/${citySlug}/${slugify(provider.name)}`} className="px-4 py-2 border rounded text-sm text-center hover:bg-gray-50">View Details</Link>
+                            </div>
+                            <div className="shrink-0">
+                              {provider.is_claimed ? (
+                                provider.is_verified ? (
+                                  <div className="px-4 py-2 bg-green-100 text-green-700 rounded-md text-sm font-medium flex items-center gap-1">
+                                    <Shield className="h-4 w-4" />
+                                    Verified
+                                  </div>
+                                ) : (
+                                  <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm font-medium">Claimed</div>
+                                )
+                              ) : (
+                                <Link 
+                                  href={`/claim?businessId=${provider.id}&businessName=${encodeURIComponent(provider.name)}&address=${encodeURIComponent(provider.address || '')}&city=${encodeURIComponent(provider.city || cityName)}&state=${encodeURIComponent(provider.state || stateName)}&zipcode=${encodeURIComponent(provider.zipcode || '')}&phone=${encodeURIComponent(provider.phone || '')}&email=${encodeURIComponent(provider.email || '')}&category=${encodeURIComponent(provider.category || 'Dumpster Rental')}&website=${encodeURIComponent(provider.website || '')}`}
+                                  className="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/10 text-sm font-medium"
+                                >
+                                  Claim This Business
+                                </Link>
+                              )}
+                            </div>
                           </div>
-                          
-                          <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
-                            <span className="flex items-center gap-1">
-                              <Truck className="h-4 w-4" />
-                              Same Day Available
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4" />
-                              Starting at $295
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              7-Day Rental
-                            </span>
-                          </div>
-                          
-                          {provider.description && (
-                            <p className="text-sm text-muted-foreground mb-3">
-                              {provider.description}
-                            </p>
-                          )}
                         </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleQuoteClick(provider)}
-                          className="flex-1 py-2 btn-primary rounded text-sm"
-                        >
-                          Get Quote
-                        </button>
-                        <a
-                          href={`tel:${provider.phone}`}
-                          className="flex-1 py-2 btn-ghost-primary rounded text-sm flex items-center justify-center gap-1"
-                        >
-                          <Phone className="h-4 w-4" />
-                          Call Now
-                        </a>
-                        <Link
-                          href={`/business/${provider.id}`}
-                          className="flex-1 py-2 border rounded text-sm text-center hover:bg-gray-50"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {providers.length > 5 && (
-                    <div className="text-center pt-4">
-                      <button className="text-primary hover:text-primary/80 font-medium">
-                        View All {providers.length} Providers →
-                      </button>
+                      ))}
                     </div>
                   )}
+
+                  {/* Regular Providers in 2-column grid */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {providers.filter((p: any) => !p.is_featured).map((provider: any, idx: number) => (
+                      <div key={`regular-${provider.id || idx}`} className="border rounded-lg p-4 hover:shadow-md transition">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-bold">{provider.name}</h3>
+                              {provider.is_verified && (
+                                <Shield className="h-4 w-4 text-green-600" />
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-4 text-sm mb-2">
+                              <span className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span className="font-semibold">{provider.rating || '4.5'}</span>
+                                <span className="text-muted-foreground">({provider.reviews || 0} reviews)</span>
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-4 w-4" />
+                                {provider.city || cityName}
+                              </span>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
+                              <span className="flex items-center gap-1">
+                                <Truck className="h-4 w-4" />
+                                Same Day Available
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="h-4 w-4" />
+                                Starting at $295
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                7-Day Rental
+                              </span>
+                            </div>
+                            
+                            {provider.description && (
+                              <p className="text-sm text-muted-foreground mb-3">
+                                {provider.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex gap-2 flex-1">
+                            <button
+                              onClick={() => handleQuoteClick(provider)}
+                              className="px-4 py-2 btn-primary rounded text-sm"
+                            >
+                              Get Quote
+                            </button>
+                            <Link
+                              href={`/${stateSlug}/${citySlug}/${slugify(provider.name)}`}
+                              className="px-4 py-2 border rounded text-sm text-center hover:bg-gray-50"
+                            >
+                              View Details
+                            </Link>
+                          </div>
+                          <div className="shrink-0">
+                            {provider.is_claimed ? (
+                              provider.is_verified ? (
+                                <div className="px-4 py-2 bg-green-100 text-green-700 rounded-md text-sm font-medium flex items-center gap-1">
+                                  <Shield className="h-4 w-4" />
+                                  Verified
+                                </div>
+                              ) : (
+                                <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm font-medium">
+                                  Claimed
+                                </div>
+                              )
+                            ) : (
+                              <Link 
+                                href={`/claim?businessId=${provider.id}&businessName=${encodeURIComponent(provider.name)}&address=${encodeURIComponent(provider.address || '')}&city=${encodeURIComponent(provider.city || cityName)}&state=${encodeURIComponent(provider.state || stateName)}&zipcode=${encodeURIComponent(provider.zipcode || '')}&phone=${encodeURIComponent(provider.phone || '')}&email=${encodeURIComponent(provider.email || '')}&category=${encodeURIComponent(provider.category || 'Dumpster Rental')}&website=${encodeURIComponent(provider.website || '')}`}
+                                className="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/10 text-sm font-medium"
+                              >
+                                Claim This Business
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -469,7 +577,7 @@ export default function CityPage() {
                   </p>
                   <div className="flex gap-2 justify-center">
                     <a
-                      href="tel:1-855-DUMPSTER"
+                      href="tel:+14342076559"
                       className="px-4 py-2 btn-primary rounded-lg flex items-center gap-2"
                     >
                       <Phone className="h-4 w-4" />
@@ -568,10 +676,10 @@ export default function CityPage() {
               <div className="mt-4 text-center">
                 <p className="text-xs text-muted-foreground mb-2">Or call for immediate assistance:</p>
                 <a
-                  href="tel:1-855-DUMPSTER"
+                  href="tel:+14342076559"
                   className="text-lg font-bold text-primary hover:text-primary/80"
                 >
-                  1-855-DUMPSTER
+                  (434) 207-6559
                 </a>
               </div>
               
@@ -680,11 +788,11 @@ export default function CityPage() {
               Get Free Quotes Now
             </button>
             <a
-              href="tel:1-855-DUMPSTER"
+              href="tel:+14342076559"
               className="px-8 py-3 btn-ghost-primary rounded-lg font-semibold flex items-center gap-2"
             >
               <Phone className="h-5 w-5" />
-              Call 1-855-DUMPSTER
+              Call (434) 207-6559
             </a>
           </div>
         </div>

@@ -2,12 +2,17 @@
   "name": "nextjs-shadcn",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "npx tsc --noEmit && next lint",
-    "format": "npx biome format --write"
+    "format": "npx biome format --write",
+    "fix:hero-order": "node scripts/fix-hero-order.js",
+    "fix:hero-order:dry": "node scripts/fix-hero-order.js --dry",
+    "db:migrate": "node database/migrate.js",
+    "db:migrate:quotes": "node database/migrate-quotes.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0",

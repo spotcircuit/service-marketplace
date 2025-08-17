@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       SELECT
         COUNT(*) as total_leads,
         COUNT(CASE WHEN status = 'new' THEN 1 END) as new_leads,
-        COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END) as weekly_leads
+        COUNT(CASE WHEN updated_at > NOW() - INTERVAL '7 days' THEN 1 END) as weekly_leads
       FROM lead_assignments
       WHERE business_id = ${user.business_id}
     `;
@@ -70,6 +70,13 @@ export async function GET(request: NextRequest) {
       ? Math.round((totalWon / totalContacted) * 100)
       : 0;
 
+    // Return stats with explicit lead_credits field
+    const subscriptionData = subscription[0] || {
+      plan: 'free',
+      credits: 10,
+      used: 0
+    };
+
     return NextResponse.json({
       totalLeads: parseInt(leadStats[0]?.total_leads || 0),
       newLeads: parseInt(leadStats[0]?.new_leads || 0),
@@ -78,11 +85,8 @@ export async function GET(request: NextRequest) {
       averageRating: parseFloat(businessMetrics[0]?.average_rating || 0),
       reviewCount: parseInt(businessMetrics[0]?.review_count || 0),
       conversionRate,
-      subscription: subscription[0] || {
-        plan: 'free',
-        credits: 10,
-        used: 0
-      }
+      lead_credits: subscriptionData.credits || 0,  // Explicit field for leads page
+      subscription: subscriptionData
     });
 
   } catch (error) {

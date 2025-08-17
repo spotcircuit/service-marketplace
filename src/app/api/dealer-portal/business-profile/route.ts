@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
         city,
         state,
         zipcode,
+        latitude,
+        longitude,
         price_range,
         years_in_business,
         license_number,
@@ -52,7 +54,8 @@ export async function GET(request: NextRequest) {
         rating,
         reviews,
         is_verified,
-        is_featured
+        is_featured,
+        featured_until
       FROM businesses
       WHERE id = ${userResult[0].business_id}::uuid
     `;

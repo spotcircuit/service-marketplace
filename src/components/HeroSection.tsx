@@ -41,12 +41,12 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 max-w-4xl mx-auto">
+      <div className="relative z-10 container mx-auto px-4 text-center text-hero-foreground">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl mx-auto">
           {config.hero?.headline || 'Find the Perfect Service Provider'}
         </h1>
 
-        <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl opacity-90 mb-8 max-w-2xl mx-auto">
           {config.hero?.subheadline || 'Connect with verified professionals'}
         </p>
 
@@ -74,7 +74,7 @@ export default function HeroSection() {
         </form>
 
         {/* Trust Indicators */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-white">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8">
           <div className="flex items-center gap-2">
             <span className="text-3xl">✓</span>
             <span>Verified Professionals</span>

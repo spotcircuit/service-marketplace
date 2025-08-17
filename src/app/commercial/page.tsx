@@ -1,12 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Building, Building2, Truck, Calendar, Shield, Clock, Package, CheckCircle, ArrowRight, Phone, Users, Briefcase, Award, Calculator, Hammer, Home } from 'lucide-react';
 import Link from 'next/link';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 
 export default function CommercialPage() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTone = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (previousTone) {
+        root.setAttribute('data-header-tone', previousTone);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
 
   const commercialSizes = [
     {
@@ -16,7 +29,7 @@ export default function CommercialPage() {
       weight: '3-4 tons',
       idealFor: 'Office cleanouts, retail renovations',
       projects: ['Office remodeling', 'Retail buildouts', 'Restaurant renovations', 'Small construction'],
-      features: ['Same-day delivery', 'Flexible scheduling']
+      features: ['Same-day delivery (some areas)', 'Flexible scheduling']
     },
     {
       size: '30 Yard',
@@ -80,7 +93,7 @@ export default function CommercialPage() {
     },
     {
       title: 'Priority Service',
-      description: 'Same-day and next-day delivery for urgent projects',
+      description: 'Same-day (in some areas) and next-day delivery for urgent projects',
       icon: Clock
     },
     {
@@ -124,13 +137,13 @@ export default function CommercialPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-20 px-4">
+      <section className="relative overflow-hidden py-20 px-4 bg-gradient-to-br from-primary to-primary/90">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center text-white">
+          <div className="text-center text-hero-foreground">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Commercial Dumpster Rental Solutions
             </h1>
-            <p className="text-xl mb-8 text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
               Reliable waste management for businesses, contractors, and industrial facilities. 
               Flexible terms, competitive pricing, and dedicated support.
             </p>
@@ -142,8 +155,8 @@ export default function CommercialPage() {
                 Get Commercial Quote
               </button>
               <a
-                href="tel:1-888-555-0123"
-                className="px-8 py-4 bg-gray-700 text-white rounded-lg font-semibold text-lg hover:bg-gray-600 transition flex items-center justify-center gap-2"
+                href="tel:+14342076559"
+                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
               >
                 <Phone className="h-5 w-5" />
                 Call for Volume Pricing
@@ -160,6 +173,14 @@ export default function CommercialPage() {
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             From office cleanouts to major construction projects. Multiple containers available for large jobs.
           </p>
+          {/* Illustration for commercial sizes */}
+          <div className="flex justify-center mb-10">
+            <img
+              src="/images/dumpstersize.png"
+              alt="Commercial dumpster sizes illustration"
+              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
+            />
+          </div>
           
           <div className="grid md:grid-cols-3 gap-6">
             {commercialSizes.map((item) => (
@@ -355,7 +376,7 @@ export default function CommercialPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Special Contractor Rates</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Contractors get priority service and volume discounts. Same-day delivery available.
+              Contractors get priority service and volume discounts. Same-day delivery available in some areas.
             </p>
           </div>
 
@@ -410,10 +431,10 @@ export default function CommercialPage() {
                 Contractors get priority service on our dedicated line
               </p>
               <a 
-                href="tel:1-888-555-0123"
+                href="tel:+14342076559"
                 className="text-2xl font-bold text-primary hover:text-primary/80 transition"
               >
-                1-888-555-0123
+                (434) 207-6559
               </a>
               <p className="text-xs text-muted-foreground mt-2">Press 2 for contractor service</p>
               <button
@@ -449,7 +470,7 @@ export default function CommercialPage() {
               Get Commercial Quote
             </button>
             <a
-              href="tel:1-888-555-0123"
+              href="tel:+14342076559"
               className="px-8 py-3 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold hover:bg-primary-foreground/20 transition border-2 border-white/50 flex items-center justify-center gap-2"
             >
               <Phone className="h-5 w-5" />

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Target, Users, Award, Globe, Heart, Zap, Shield, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
@@ -7,6 +8,19 @@ import Image from 'next/image';
 
 export default function AboutPage() {
   const { config } = useConfig();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTone = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (previousTone) {
+        root.setAttribute('data-header-tone', previousTone);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
 
   const stats = [
     { label: 'Service Providers', value: '3,200+', icon: Users },
@@ -50,13 +64,13 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-orange-50 to-white py-20 px-4">
+      <section className="relative overflow-hidden py-20 px-4 bg-gradient-to-br from-primary to-primary/90">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <div className="text-center text-hero-foreground mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
               About {config?.siteName || 'Our Platform'}
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-hero-foreground/90 max-w-3xl mx-auto">
               We&apos;re on a mission to connect customers with trusted service providers,
               making it easier than ever to get things done.
             </p>
@@ -133,6 +147,52 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Image Gallery Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">In the Field</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <Image
+                src="/images/row-1-column-1.png"
+                alt="Team delivering on-site dumpster service"
+                fill
+                sizes="(min-width: 1024px) 600px, (min-width: 640px) 50vw, 100vw"
+                className="object-cover"
+                priority={false}
+              />
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <Image
+                src="/images/row-1-column-2.png"
+                alt="Customer receiving a quick quote"
+                fill
+                sizes="(min-width: 1024px) 600px, (min-width: 640px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <Image
+                src="/images/row-2-column-1.png"
+                alt="Professional service provider at work"
+                fill
+                sizes="(min-width: 1024px) 600px, (min-width: 640px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <Image
+                src="/images/row-2-column-2.png"
+                alt="Completed project with satisfied customer"
+                fill
+                sizes="(min-width: 1024px) 600px, (min-width: 640px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Story Timeline */}
       <section className="py-16 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
@@ -153,42 +213,6 @@ export default function AboutPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">Leadership Team</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Our experienced team is dedicated to building the best service marketplace platform
-          </p>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-4"></div>
-              <h3 className="text-xl font-semibold">Brian</h3>
-              <p className="text-gray-600">Founder & CEO</p>
-              <p className="text-sm text-gray-500 mt-2">
-                10+ years in tech and marketplace platforms
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-4"></div>
-              <h3 className="text-xl font-semibold">Sarah Johnson</h3>
-              <p className="text-gray-600">Head of Operations</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Expert in service industry optimization
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-4"></div>
-              <h3 className="text-xl font-semibold">Mike Chen</h3>
-              <p className="text-gray-600">Head of Technology</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Leading our platform innovation
-              </p>
-            </div>
           </div>
         </div>
       </section>

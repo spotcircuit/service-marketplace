@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, MapPin, Calendar, User, Mail, Phone, Building, Check, ChevronRight, ChevronLeft, Home, Hammer, Truck, Trees, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import GoogleLocationSearch from './GoogleLocationSearch';
 
 interface DumpsterQuoteModalProps {
@@ -314,16 +315,27 @@ export default function DumpsterQuoteModal({
         throw new Error(`${statusText}${response.status ? ` (HTTP ${response.status})` : ''}`);
       }
 
-      // If not logged in, prompt to create account
+      // Get the quote ID from response
+      const quoteId = data?.quote?.id || data?.quoteId;
+      
+      // If not logged in, prompt to create account with pre-filled data
       if (!user) {
-        const quoteId = data?.quote?.id || data?.quoteId;
         if (!quoteId) {
           console.warn('Quote created but no id returned:', data);
         }
-        router.push(`/signup?quoteId=${quoteId || ''}&email=${encodeURIComponent(quoteData.email)}`);
+        // Redirect to signup with quote info to link account after creation
+        const signupParams = new URLSearchParams({
+          quoteId: quoteId || '',
+          email: quoteData.email,
+          firstName: quoteData.firstName,
+          lastName: quoteData.lastName,
+          phone: quoteData.phone || '',
+          redirectTo: '/dashboard'
+        });
+        router.push(`/signup?${signupParams.toString()}`);
       } else {
-        // Show success and redirect to quotes page
-        router.push('/dashboard/quotes');
+        // User is logged in - redirect to their dashboard
+        router.push('/dashboard');
       }
 
       onClose();
@@ -645,38 +657,53 @@ export default function DumpsterQuoteModal({
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4">What size dumpster do you need?</h3>
                   
-                  <div className="space-y-3">
-                    {(quoteData.customerType === 'commercial' ? COMMERCIAL_SIZES : RESIDENTIAL_SIZES).map((size) => (
-                      <button
-                        key={size.id}
-                        onClick={() => setQuoteData(prev => ({ ...prev, dumpsterSize: size.id }))}
-                        className={`w-full p-4 rounded-lg border-2 transition-all text-left relative ${
-                          quoteData.dumpsterSize === size.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        {size.recommended && (
-                          <span className="absolute top-2 right-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
-                            Most Popular
-                          </span>
-                        )}
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1">
-                            <p className="font-medium">{size.name}</p>
-                            <p className="text-sm text-muted-foreground">{size.dimensions}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{size.description}</p>
-                            <div className="flex items-center gap-4 mt-2">
-                              <span className="text-sm font-semibold text-primary">{size.priceLabel}</span>
-                              <span className="text-xs text-muted-foreground">{size.truckLoads}</span>
-                            </div>
-                          </div>
-                          {quoteData.dumpsterSize === size.id && (
-                            <Check className="h-5 w-5 text-primary" />
+                  <div className="lg:grid lg:grid-cols-2 lg:gap-6">
+                    <div className="space-y-3">
+                      {(quoteData.customerType === 'commercial' ? COMMERCIAL_SIZES : RESIDENTIAL_SIZES).map((size) => (
+                        <button
+                          key={size.id}
+                          onClick={() => setQuoteData(prev => ({ ...prev, dumpsterSize: size.id }))}
+                          className={`w-full p-4 rounded-lg border-2 transition-all text-left relative ${
+                            quoteData.dumpsterSize === size.id
+                              ? 'border-primary bg-primary/5'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {size.recommended && (
+                            <span className="absolute top-2 right-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
+                              Most Popular
+                            </span>
                           )}
-                        </div>
-                      </button>
-                    ))}
+                          <div className="flex items-start gap-3">
+                            <div className="flex-1">
+                              <p className="font-medium">{size.name}</p>
+                              <p className="text-sm text-muted-foreground">{size.dimensions}</p>
+                              <p className="text-xs text-muted-foreground mt-1">{size.description}</p>
+                              <div className="flex items-center gap-4 mt-2">
+                                <span className="text-sm font-semibold text-primary">{size.priceLabel}</span>
+                                <span className="text-xs text-muted-foreground">{size.truckLoads}</span>
+                              </div>
+                            </div>
+                            {quoteData.dumpsterSize === size.id && (
+                              <Check className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {/* Right-side visual guide (desktop only) */}
+                    <div className="hidden lg:flex items-center justify-center">
+                      <div className="relative w-full max-w-sm aspect-[4/3]">
+                        <Image
+                          src="/images/dumpstersize.png"
+                          alt="Dumpster size comparison guide"
+                          fill
+                          className="object-contain"
+                          sizes="(min-width: 1024px) 320px, 100vw"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

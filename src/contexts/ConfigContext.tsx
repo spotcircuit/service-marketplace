@@ -39,9 +39,12 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
       setConfig(configData);
       setThemes(themesData);
 
-      // Apply theme if specified
-      if (configData.theme && themesData[configData.theme]) {
-        applyThemeColors(themesData[configData.theme]);
+      // Apply theme if specified: support preset key or custom colors
+      const cfgTheme = (configData as any).theme;
+      if (typeof cfgTheme === 'string' && themesData[cfgTheme]) {
+        applyThemeColors(themesData[cfgTheme]);
+      } else if (cfgTheme && typeof cfgTheme === 'object') {
+        applyThemeColors(cfgTheme);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load configuration');
@@ -73,11 +76,45 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         : '0 0 0';
     };
 
-    if (theme.primary) root.style.setProperty('--primary', hexToRgb(theme.primary));
-    if (theme.secondary) root.style.setProperty('--secondary', hexToRgb(theme.secondary));
-    if (theme.accent) root.style.setProperty('--accent', hexToRgb(theme.accent));
-    if (theme.background) root.style.setProperty('--background', hexToRgb(theme.background));
-    if (theme.foreground) root.style.setProperty('--foreground', hexToRgb(theme.foreground));
+    const hexToRgbTuple = (hex: string): [number, number, number] => {
+      const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (!m) return [0, 0, 0];
+      return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+    };
+
+    const pickFg = (hexBg: string) => {
+      const [r, g, b] = hexToRgbTuple(hexBg);
+      // Perceived brightness
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000; // 0-255
+      // Choose dark text for light backgrounds, white for dark
+      return brightness > 140 ? '0 0 0' : '255 255 255';
+    };
+
+    const primary = theme.primary ?? theme.primaryColor;
+    const secondary = theme.secondary ?? theme.secondaryColor;
+    const accent = theme.accent ?? theme.accentColor;
+    const background = theme.background ?? theme.backgroundColor;
+    const foreground = theme.foreground ?? theme.foregroundColor;
+
+    if (primary) {
+      root.style.setProperty('--primary', hexToRgb(primary));
+      root.style.setProperty('--primary-foreground', pickFg(primary));
+      root.style.setProperty('--ring', hexToRgb(primary));
+    }
+    if (secondary) {
+      root.style.setProperty('--secondary', hexToRgb(secondary));
+      root.style.setProperty('--secondary-foreground', pickFg(secondary));
+    }
+    if (accent) {
+      root.style.setProperty('--accent', hexToRgb(accent));
+      root.style.setProperty('--accent-foreground', pickFg(accent));
+    }
+    if (background) root.style.setProperty('--background', hexToRgb(background));
+    if (foreground) {
+      root.style.setProperty('--foreground', hexToRgb(foreground));
+    } else if (background) {
+      root.style.setProperty('--foreground', pickFg(background));
+    }
   };
 
   // Update configuration
@@ -94,9 +131,14 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
       const result = await response.json();
       setConfig(result.config);
 
-      // Apply theme if changed
-      if (result.config.theme && themes[result.config.theme]) {
-        applyThemeColors(themes[result.config.theme]);
+      // Apply theme if changed (support preset key or custom object)
+      if (result.config) {
+        const cfgTheme = result.config.theme;
+        if (typeof cfgTheme === 'string' && themes && themes[cfgTheme]) {
+          applyThemeColors(themes[cfgTheme]);
+        } else if (cfgTheme && typeof cfgTheme === 'object') {
+          applyThemeColors(cfgTheme);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save configuration');

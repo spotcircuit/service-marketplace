@@ -1,11 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ruler, Package, Weight, Home, Building, Info, CheckCircle, AlertTriangle, ArrowRight, Calculator } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DumpsterSizesPage() {
   const [activeTab, setActiveTab] = useState<'residential' | 'commercial'>('residential');
+
+  // Set header to secondary when this page uses a primary-toned hero
+  useEffect(() => {
+    const root = document.documentElement;
+    const prev = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (prev) {
+        root.setAttribute('data-header-tone', prev);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
 
   const allSizes = [
     {
@@ -209,11 +223,11 @@ export default function DumpsterSizesPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-primary/90 py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center text-white">
+        <div className="max-w-6xl mx-auto text-center text-hero-foreground">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Dumpster Size Guide & Comparison
           </h1>
-          <p className="text-xl mb-8 text-white/90 max-w-3xl mx-auto">
+          <p className="text-xl mb-8 opacity-90 max-w-3xl mx-auto">
             Find the perfect dumpster size for your project. From small home cleanouts to large construction sites.
           </p>
           <Link
@@ -327,6 +341,26 @@ export default function DumpsterSizesPage() {
         </div>
       </section>
 
+      {/* Illustration + Recommendation by Category */}
+      <section className="py-8 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-center">
+            <div className="relative">
+              <img
+                src="/images/dumpstersize.png"
+                alt="Dumpster sizes illustration"
+                className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
+              />
+              <span
+                className="absolute -top-3 -right-3 md:-top-4 md:-right-4 bg-primary text-white text-xs md:text-sm font-semibold px-3 py-1 rounded-full shadow"
+              >
+                {activeTab === 'residential' ? 'Recommended: 30 Yard' : 'Recommended: 40 Yard'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Visual Size Comparison */}
       <section className="py-12 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -351,18 +385,24 @@ export default function DumpsterSizesPage() {
           </h2>
           
           <div className="space-y-8">
-            {filteredSizes.map((size) => (
-              <div 
-                key={size.size} 
-                className={`bg-white rounded-xl shadow-lg overflow-hidden ${
-                  size.popular ? 'ring-2 ring-primary' : ''
-                }`}
-              >
-                {size.popular && (
-                  <div className="bg-primary text-white text-center py-2 text-sm font-semibold">
-                    MOST POPULAR SIZE
-                  </div>
-                )}
+            {filteredSizes.map((size) => {
+              const isRecommended = activeTab === 'residential'
+                ? size.size === '30 Yard'
+                : activeTab === 'commercial'
+                ? size.size === '40 Yard'
+                : false;
+              return (
+                <div 
+                  key={size.size} 
+                  className={`bg-white rounded-xl shadow-lg overflow-hidden ${
+                    isRecommended ? 'ring-2 ring-primary' : ''
+                  }`}
+                >
+                  {isRecommended && (
+                    <div className="bg-primary text-white text-center py-2 text-sm font-semibold">
+                      RECOMMENDED SIZE
+                    </div>
+                  )}
                 
                 <div className="p-8">
                   <div className="grid lg:grid-cols-3 gap-8">
@@ -467,7 +507,8 @@ export default function DumpsterSizesPage() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -509,10 +550,10 @@ export default function DumpsterSizesPage() {
               Get Expert Recommendation
             </Link>
             <a
-              href="tel:1-888-555-0123"
+              href="tel:+14342076559"
               className="px-8 py-3 bg-gray-800 text-white rounded-lg font-semibold hover:bg-gray-700 transition"
             >
-              Call 1-888-555-0123
+              Call (434) 207-6559
             </a>
           </div>
         </div>

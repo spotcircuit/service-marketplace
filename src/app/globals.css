@@ -11,9 +11,9 @@
     --popover: 255 255 255;
     --popover-foreground: 26 26 26;
     --primary: 255 140 0;
-    --primary-foreground: 255 255 255;
+    --primary-foreground: 0 0 0;
     --secondary: 44 62 80;
-    --secondary-foreground: 255 255 255;
+    --secondary-foreground: 26 26 26;
     --accent: 139 195 74;
     --accent-foreground: 255 255 255;
     --muted: 240 240 240;
@@ -36,7 +36,7 @@
     --primary: 255 140 0;
     --primary-foreground: 26 26 26;
     --secondary: 44 62 80;
-    --secondary-foreground: 255 255 255;
+    --secondary-foreground: 26 26 26;
     --accent: 139 195 74;
     --accent-foreground: 26 26 26;
     --muted: 64 64 64;
@@ -67,34 +67,45 @@
     @apply py-12 md:py-16 lg:py-20;
   }
 
+  /* Header Theming */
+  .site-header {
+    @apply bg-primary text-primary-foreground;
+  }
+
+
+  /* Topbar (small header) uses a light surface for strong contrast vs main header */
+  .topbar {
+    @apply bg-muted text-foreground;
+  }
+
   /* Hero Gradients */
   .hero-gradient-primary {
-    background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgba(255, 140, 0, 0.85) 100%);
+    background: linear-gradient(135deg, rgb(var(--primary) / 1) 0%, rgb(var(--primary) / 0.85) 100%);
   }
   
   .hero-gradient-secondary {
-    background: linear-gradient(135deg, rgb(44, 62, 80) 0%, rgba(44, 62, 80, 0.85) 100%);
+    background: linear-gradient(135deg, rgb(var(--secondary) / 1) 0%, rgb(var(--secondary) / 0.85) 100%);
   }
   
   .hero-gradient-accent {
-    background: linear-gradient(135deg, rgb(139, 195, 74) 0%, rgba(139, 195, 74, 0.85) 100%);
+    background: linear-gradient(135deg, rgb(var(--accent) / 1) 0%, rgb(var(--accent) / 0.85) 100%);
   }
   
   .hero-gradient-mixed {
-    background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(139, 195, 74) 100%);
+    background: linear-gradient(135deg, rgb(var(--primary) / 1) 0%, rgb(var(--accent) / 1) 100%);
   }
 
   /* Button Styles */
   .btn-primary {
-    @apply bg-primary text-white hover:bg-primary/90 transition-all duration-200 font-semibold;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 font-semibold;
   }
   
   .btn-secondary {
-    @apply bg-secondary text-white hover:bg-secondary/90 transition-all duration-200 font-semibold;
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all duration-200 font-semibold;
   }
   
   .btn-accent {
-    @apply bg-accent text-white hover:bg-accent/90 transition-all duration-200 font-semibold;
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 transition-all duration-200 font-semibold;
   }
   
   .btn-ghost-primary {
@@ -111,7 +122,7 @@
   }
   
   .badge-commercial {
-    @apply bg-secondary text-white px-3 py-1 text-xs rounded-full font-semibold;
+    @apply bg-secondary text-secondary-foreground px-3 py-1 text-xs rounded-full font-semibold;
   }
   
   .badge-success {
@@ -189,10 +200,27 @@
   }
 
   .hero-overlay {
-    @apply absolute inset-0 bg-black/40 backdrop-blur-[2px];
+    @apply absolute inset-0 bg-secondary/50 backdrop-blur-[2px];
+  }
+
+  .text-hero-foreground {
+    @apply text-secondary-foreground;
   }
 
   .glass-effect {
     @apply bg-white/90 backdrop-blur-lg border border-white/20;
+  }
+
+  /* Per-page header/hero inversion via root attribute */
+  :root[data-header-tone='secondary'] .site-header {
+    @apply bg-secondary text-secondary-foreground;
+  }
+
+  :root[data-header-tone='secondary'] .hero-overlay {
+    @apply bg-primary/50;
+  }
+
+  :root[data-header-tone='secondary'] .text-hero-foreground {
+    @apply text-primary-foreground;
   }
 }

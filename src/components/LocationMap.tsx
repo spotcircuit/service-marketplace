@@ -21,6 +21,7 @@ interface Provider {
   distance?: number;
   services?: string[];
   description?: string;
+  is_claimed?: boolean;
   is_verified?: boolean;
   is_featured?: boolean;
   response_time?: string;
@@ -71,6 +72,16 @@ export default function LocationMap({
           await fetchProvidersByLocation(initialCity || '', initialState);
         }
         return;
+      }
+
+      // If an initialState is provided (e.g., state page without explicit mapCenter), prioritize it
+      if (initialState) {
+        const displayAddress = initialCity 
+          ? `${initialCity}, ${initialState}`
+          : initialState;
+        setAddress(displayAddress);
+        await fetchProvidersByLocation(initialCity || '', initialState);
+        return; // Do not override with user/IP location
       }
       
       // Override with user's saved location if logged in
@@ -327,6 +338,20 @@ export default function LocationMap({
         } else if (stateCoordinates[stateLower]) {
           centerLat = stateCoordinates[stateLower].lat;
           centerLng = stateCoordinates[stateLower].lng;
+        } else if (city) {
+          // Geocode arbitrary city names to get precise center
+          try {
+            const q = encodeURIComponent(`${city}, ${state}`.trim());
+            const geocodeResp = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${q}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`);
+            if (geocodeResp.ok) {
+              const geo = await geocodeResp.json();
+              const loc = geo?.results?.[0]?.geometry?.location;
+              if (loc && Number.isFinite(loc.lat) && Number.isFinite(loc.lng)) {
+                centerLat = loc.lat;
+                centerLng = loc.lng;
+              }
+            }
+          } catch {}
         }
         
         // Sort businesses - featured first
@@ -407,6 +432,7 @@ export default function LocationMap({
             distance: distance,
             services: dumpsterSizes,
             description: b.description || `Professional dumpster rental service in ${b.city || city}`,
+            is_claimed: b.is_claimed || false,
             is_verified: b.is_verified || false,
             is_featured: b.is_featured || false,
             response_time: b.response_time || (b.is_featured ? 'Same day' : '< 24 hours'),
@@ -419,10 +445,60 @@ export default function LocationMap({
         setLocation({ lat: centerLat, lng: centerLng });
       } else {
         setProviders([]);
-        // Still set location even for empty results
-        if (location) {
-          setLocation(location);
+        // Even with no results, center the map on the requested city/state
+        let centerLat = 39.0438;
+        let centerLng = -77.4874;
+
+        const stateCoordinates: Record<string, {lat: number, lng: number}> = {
+          'virginia': { lat: 37.4316, lng: -78.6569 },
+          'va': { lat: 37.4316, lng: -78.6569 },
+          'north carolina': { lat: 35.7596, lng: -79.0193 },
+          'nc': { lat: 35.7596, lng: -79.0193 },
+          'maryland': { lat: 39.0458, lng: -76.6413 },
+          'md': { lat: 39.0458, lng: -76.6413 },
+          'pennsylvania': { lat: 41.2033, lng: -77.1945 },
+          'pa': { lat: 41.2033, lng: -77.1945 },
+          'delaware': { lat: 38.9108, lng: -75.5277 },
+          'de': { lat: 38.9108, lng: -75.5277 },
+          'west virginia': { lat: 38.5976, lng: -80.4549 },
+          'wv': { lat: 38.5976, lng: -80.4549 }
+        };
+
+        const cityCoordinates: Record<string, {lat: number, lng: number}> = {
+          'richmond': { lat: 37.5407, lng: -77.4360 },
+          'ashburn': { lat: 39.0438, lng: -77.4874 },
+          'raleigh': { lat: 35.7796, lng: -78.6382 },
+          'charlotte': { lat: 35.2271, lng: -80.8431 },
+          'norfolk': { lat: 36.8508, lng: -76.2859 },
+          'virginia beach': { lat: 36.8529, lng: -75.9780 },
+          'alexandria': { lat: 38.8048, lng: -77.0469 }
+        };
+
+        const cityLower = (city || '').toLowerCase();
+        const stateLower = (state || '').toLowerCase();
+        
+        if (cityLower && cityCoordinates[cityLower]) {
+          centerLat = cityCoordinates[cityLower].lat;
+          centerLng = cityCoordinates[cityLower].lng;
+        } else if (stateLower && stateCoordinates[stateLower]) {
+          centerLat = stateCoordinates[stateLower].lat;
+          centerLng = stateCoordinates[stateLower].lng;
+        } else if (city) {
+          // Geocode to center on arbitrary city even when there are no providers
+          try {
+            const q = encodeURIComponent(`${city}, ${state}`.trim());
+            const geocodeResp = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${q}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`);
+            if (geocodeResp.ok) {
+              const geo = await geocodeResp.json();
+              const loc = geo?.results?.[0]?.geometry?.location;
+              if (loc && Number.isFinite(loc.lat) && Number.isFinite(loc.lng)) {
+                centerLat = loc.lat;
+                centerLng = loc.lng;
+              }
+            }
+          } catch {}
         }
+        setLocation({ lat: centerLat, lng: centerLng });
       }
     } catch (error) {
       console.error('Error fetching providers:', error);
@@ -434,7 +510,9 @@ export default function LocationMap({
 
   const handleProviderClick = (provider: Provider) => {
     setSelectedProvider(provider);
-    setLocation({ lat: provider.lat, lng: provider.lng });
+    // Offset the map center slightly north so the popup sits higher and buttons are visible
+    const offset = 0.02 * (12 / (mapZoom || 12));
+    setLocation({ lat: provider.lat + offset, lng: provider.lng });
     if (onProviderSelect) {
       onProviderSelect(provider);
     }
@@ -453,12 +531,21 @@ export default function LocationMap({
       (window as any).handleMarkerDetails = (providerId: string) => {
         window.location.href = `/business/${providerId}`;
       };
+
+      (window as any).handleMarkerClaim = (providerId: string) => {
+        const provider = providers.find(p => p.id === providerId);
+        if (!provider) return;
+        if (provider.is_claimed) return; // do nothing if already claimed
+        const claimUrl = `/claim?businessId=${provider.id}&businessName=${encodeURIComponent(provider.name)}&city=${encodeURIComponent(provider.city)}&state=${encodeURIComponent(provider.state)}&phone=${encodeURIComponent(provider.phone || '')}`;
+        window.location.href = claimUrl;
+      };
     }
     
     return () => {
       if (typeof window !== 'undefined') {
         delete (window as any).handleMarkerQuote;
         delete (window as any).handleMarkerDetails;
+        delete (window as any).handleMarkerClaim;
       }
     };
   }, [providers, onProviderSelect]);
@@ -477,9 +564,11 @@ export default function LocationMap({
         services: provider.services?.slice(0, 3),
         info: provider.description || `Professional ${selectedCategory === 'all' ? 'waste management' : selectedCategory.toLowerCase()} service`,
         verified: provider.is_verified,
+        claimed: provider.is_claimed,
         priceRange: provider.is_featured ? 'Starting at $295' : 'Competitive Pricing',
         availability: provider.response_time || 'Same Day Available',
-        address: `${provider.city}, ${provider.state}`
+        address: `${provider.city}, ${provider.state}`,
+        claimUrl: `/claim?businessId=${provider.id}&businessName=${encodeURIComponent(provider.name)}&city=${encodeURIComponent(provider.city)}&state=${encodeURIComponent(provider.state)}&phone=${encodeURIComponent(provider.phone || '')}`
       }))
       .filter(m => Number.isFinite(m.lat) && Number.isFinite(m.lng))
   ), [providers, selectedCategory]);
@@ -489,8 +578,11 @@ export default function LocationMap({
     const provider = providers.find(p => p.id === marker.id);
     if (provider) {
       setSelectedProvider(provider);
+      // Offset the map center slightly north so the popup sits higher
+      const offset = 0.02 * (12 / (mapZoom || 12));
+      setLocation({ lat: provider.lat + offset, lng: provider.lng });
     }
-  }, [providers]);
+  }, [providers, mapZoom]);
 
   const handleCategoryChange = (newCategory: string) => {
     setSelectedCategory(newCategory);
@@ -591,7 +683,7 @@ export default function LocationMap({
             {providers.length} Providers Found {address && `near ${address}`}
           </h3>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
             {providers.map((provider) => (
               <div
                 key={provider.id}
@@ -653,19 +745,45 @@ export default function LocationMap({
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <Link
-                    href={`/business/${provider.id}`}
-                    className="flex-1 px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded hover:bg-primary/90 text-center"
-                  >
-                    Get Quote
-                  </Link>
-                  <Link
-                    href={`/business/${provider.id}`}
-                    className="flex-1 px-3 py-1.5 border text-sm rounded hover:bg-muted text-center"
-                  >
-                    View Details
-                  </Link>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onProviderSelect && onProviderSelect(provider); }}
+                      className="px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded hover:bg-primary/90"
+                    >
+                      Get Quote
+                    </button>
+                    <Link
+                      href={`/business/${provider.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="px-3 py-1.5 border text-sm rounded hover:bg-muted text-center"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                  <div className="shrink-0">
+                    {provider.is_claimed ? (
+                      provider.is_verified ? (
+                        <div className="px-3 py-1.5 bg-green-100 text-green-700 rounded text-xs font-medium inline-flex items-center gap-1">
+                          <Shield className="h-3.5 w-3.5" />
+                          Verified
+                        </div>
+                      ) : (
+                        <div className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                          Claimed
+                        </div>
+                      )
+                    ) : (
+                      <Link
+                        href={`/claim?businessId=${provider.id}&businessName=${encodeURIComponent(provider.name)}&city=${encodeURIComponent(provider.city)}&state=${encodeURIComponent(provider.state)}&phone=${encodeURIComponent(provider.phone || '')}&category=${encodeURIComponent(selectedCategory === 'all' ? 'Dumpster Rental' : selectedCategory)}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-3 py-1.5 border border-primary text-primary rounded hover:bg-primary/10 text-xs font-medium"
+                      >
+                        Claim This Business
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

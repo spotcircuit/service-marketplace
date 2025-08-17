@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
@@ -47,22 +48,31 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-1">
-            <h3 className="text-2xl font-bold mb-4 text-primary">
-              {config.businessName}
-            </h3>
+            <div className="mb-4">
+              <Link href="/" aria-label={config.businessName || 'Home'} className="inline-block">
+                <Image
+                  src="/images/dumpquote.png"
+                  alt={config.businessName || 'Brand logo'}
+                  width={200}
+                  height={50}
+                  priority
+                  className="h-12 w-auto"
+                />
+              </Link>
+            </div>
             <p className="text-sm mb-4 text-secondary-foreground/80">
               {config.description || 'Your trusted marketplace for dumpster rental and waste management services.'}
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2 mb-4">
-              <a href="tel:1-855-DUMPSTER" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+              <a href="tel:+14342076559" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                 <Phone className="h-4 w-4" />
-                1-855-DUMPSTER
+                (434) 207-6559
               </a>
-              <a href="mailto:support@dumpstermarketplace.com" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+              <a href="mailto:support@dumpquote.co" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                 <Mail className="h-4 w-4" />
-                support@dumpstermarketplace.com
+                support@dumpquote.co
               </a>
               <div className="flex items-center gap-2 text-sm text-secondary-foreground/80">
                 <MapPin className="h-4 w-4" />
@@ -163,11 +173,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/signup?pro=true" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
-                  Pro Sign Up
-                </Link>
-              </li>
-              <li>
                 <Link href="/dealer-portal" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                   Dealer Portal
                 </Link>
@@ -248,7 +253,7 @@ export default function Footer() {
               <Link href="/terms" className="text-secondary-foreground/60 hover:text-primary transition-colors">
                 Terms of Service
               </Link>
-              <Link href="/sitemap" className="text-secondary-foreground/60 hover:text-primary transition-colors">
+              <Link href="/sitemap.xml" className="text-secondary-foreground/60 hover:text-primary transition-colors">
                 Sitemap
               </Link>
               <Link href="/accessibility" className="text-secondary-foreground/60 hover:text-primary transition-colors">

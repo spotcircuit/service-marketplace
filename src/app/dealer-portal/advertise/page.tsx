@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { loadGoogleMaps } from '@/lib/google-maps';
 import {
   Megaphone,
   Star,
@@ -34,93 +35,204 @@ interface AdvertisingPackage {
 
 const advertisingPackages: AdvertisingPackage[] = [
   {
-    name: 'Featured Listing',
+    name: 'Boost Listing',
+    price: 49,
+    duration: 'for 30 days',
+    icon: TrendingUp,
+    color: 'green',
+    features: [
+      'Highlighted in search results',
+      'Priority placement in your category',
+      'Boost icon on your listing',
+      'Show above standard listings',
+      'Mobile & desktop visibility'
+    ]
+  },
+  {
+    name: 'Featured Business',
     price: 99,
-    duration: 'per month',
+    duration: 'for 30 days',
     icon: Star,
     color: 'yellow',
-    features: [
-      'Featured badge on listing',
-      '2x visibility in search results',
-      'Priority placement in category',
-      'Highlighted in email newsletters',
-      'Basic performance analytics',
-      '50 guaranteed impressions/day'
-    ]
-  },
-  {
-    name: 'City Dominator',
-    price: 299,
-    duration: 'per month',
-    icon: MapPin,
-    color: 'blue',
     popular: true,
-    savings: 'Save $50/month',
     features: [
-      'Everything in Featured Listing',
+      'Everything in Boost Listing',
+      'Featured badge on listing',
       'Top 3 placement in your city',
-      'Exclusive city page banner',
-      'No competitor ads on your listing',
-      'Advanced analytics dashboard',
-      '200 guaranteed impressions/day',
-      'Priority lead delivery',
-      'Custom business showcase'
+      'Homepage featured section',
+      'Priority in "Near Me" searches',
+      'Show in multiple categories'
     ]
   },
   {
-    name: 'Regional Champion',
-    price: 599,
-    duration: 'per month',
+    name: 'Premium Spotlight',
+    price: 199,
+    duration: 'for 30 days',
     icon: Crown,
     color: 'purple',
-    savings: 'Save $200/month',
     features: [
-      'Everything in City Dominator',
-      'Top placement in 5 cities',
-      'State directory premium position',
-      'Homepage featured provider',
-      'Competitor analysis reports',
-      '500 guaranteed impressions/day',
-      'Dedicated account manager',
-      'Custom landing page',
-      'Social media promotion'
+      'Everything in Featured Business',
+      '#1 placement in your city',
+      'Exclusive category banner',
+      'No competitor ads on your page',
+      'Priority customer support',
+      'Performance analytics',
+      'Extra photos & content'
     ]
   }
 ];
 
 const addonServices = [
   {
-    name: 'Boost Campaign',
-    price: 49,
-    description: 'Get 1000 extra targeted impressions',
-    icon: Zap
-  },
-  {
-    name: 'Review Spotlight',
-    price: 29,
-    description: 'Highlight your best reviews prominently',
-    icon: Star
-  },
-  {
-    name: 'Video Showcase',
-    price: 79,
-    description: 'Add video content to your listing',
+    name: 'Extra Photos',
+    price: 19,
+    description: 'Add up to 10 photos to showcase your work',
     icon: Eye
   },
   {
-    name: 'Emergency Priority',
-    price: 99,
-    description: 'Get emergency/urgent leads first',
+    name: 'Refresh Boost',
+    price: 29,
+    description: 'Move back to top of search results',
+    icon: Zap
+  },
+  {
+    name: 'Multi-City',
+    price: 39,
+    description: 'Show in 3 additional nearby cities',
+    icon: MapPin
+  },
+  {
+    name: 'Urgent Badge',
+    price: 25,
+    description: 'Show "Available Today" badge for 7 days',
     icon: Target
   }
 ];
+
+interface BusinessInfo {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  latitude?: number;
+  longitude?: number;
+}
 
 export default function AdvertisePage() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<number[]>([]);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  // One-time fees only for now
   const [loading, setLoading] = useState(false);
+  const [business, setBusiness] = useState<BusinessInfo | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const circlesRef = useRef<any[]>([]);
+
+  useEffect(() => {
+    fetchBusinessProfile();
+  }, []);
+
+  useEffect(() => {
+    if (business && business.latitude && business.longitude && selectedPackage !== null) {
+      initializeMap();
+    }
+  }, [business, selectedPackage]);
+
+  const fetchBusinessProfile = async () => {
+    try {
+      const response = await fetch('/api/dealer-portal/business-profile');
+      if (response.ok) {
+        const data = await response.json();
+        setBusiness(data.business);
+      }
+    } catch (error) {
+      console.error('Error fetching business profile:', error);
+    }
+  };
+
+  const initializeMap = async () => {
+    if (!mapRef.current || !business?.latitude || !business?.longitude) return;
+
+    try {
+      await loadGoogleMaps();
+      
+      const center = { lat: business.latitude, lng: business.longitude };
+      
+      // Initialize map
+      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+        center,
+        zoom: 11,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        styles: [
+          {
+            featureType: 'poi',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }]
+          }
+        ]
+      });
+
+      // Add business marker
+      new window.google.maps.Marker({
+        position: center,
+        map: mapInstanceRef.current,
+        title: business.name,
+        icon: {
+          url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+        }
+      });
+
+      // Clear existing circles
+      circlesRef.current.forEach(circle => circle.setMap(null));
+      circlesRef.current = [];
+
+      // Add coverage circles based on selected package
+      const coverageRadii = {
+        0: 8000,  // Boost: 5 mile radius (8000 meters)
+        1: 16000, // Featured: 10 mile radius
+        2: 32000  // Premium: 20 mile radius
+      };
+
+      if (selectedPackage !== null) {
+        const radius = coverageRadii[selectedPackage as keyof typeof coverageRadii] || 8000;
+        
+        // Primary coverage area
+        const primaryCircle = new window.google.maps.Circle({
+          strokeColor: selectedPackage === 2 ? '#9333ea' : selectedPackage === 1 ? '#eab308' : '#22c55e',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: selectedPackage === 2 ? '#9333ea' : selectedPackage === 1 ? '#eab308' : '#22c55e',
+          fillOpacity: 0.15,
+          map: mapInstanceRef.current,
+          center,
+          radius
+        });
+        circlesRef.current.push(primaryCircle);
+
+        // Show extended coverage for multi-city addon
+        if (selectedAddons.includes(2)) {
+          const extendedCircle = new window.google.maps.Circle({
+            strokeColor: '#3b82f6',
+            strokeOpacity: 0.5,
+            strokeWeight: 1,
+            fillColor: '#3b82f6',
+            fillOpacity: 0.08,
+            map: mapInstanceRef.current,
+            center,
+            radius: radius * 1.5
+          });
+          circlesRef.current.push(extendedCircle);
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
+  };
 
   const calculateTotal = () => {
     let total = 0;
@@ -133,10 +245,7 @@ export default function AdvertisePage() {
       total += addonServices[index].price;
     });
     
-    // Apply annual discount
-    if (billingCycle === 'annual') {
-      total = total * 10; // 2 months free
-    }
+    // No discounts - these are one-time fees
     
     return total;
   };
@@ -146,12 +255,76 @@ export default function AdvertisePage() {
     
     setLoading(true);
     
-    // Here you would integrate with Stripe
-    // For now, we'll just show an alert
-    setTimeout(() => {
-      alert('Redirecting to checkout...');
+    try {
+      const pkg = advertisingPackages[selectedPackage];
+      const totalPrice = calculateTotal();
+      
+      // Create checkout session for featured listing
+      const response = await fetch('/api/dealer-portal/subscription/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          mode: 'payment', // One-time payment
+          lineItems: [
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: pkg.name,
+                  description: `${pkg.duration} featured listing for your business`
+                },
+                unit_amount: pkg.price * 100 // Convert to cents
+              },
+              quantity: 1
+            },
+            // Add addon items if selected
+            ...selectedAddons.map(index => ({
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: addonServices[index].name,
+                  description: addonServices[index].description
+                },
+                unit_amount: addonServices[index].price * 100
+              },
+              quantity: 1
+            }))
+          ],
+          metadata: {
+            type: 'featured',
+            package: pkg.name,
+            duration: '30', // 30 days
+            addons: selectedAddons.join(',')
+          }
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Checkout error:', data);
+        if (response.status === 401) {
+          alert('Please log in to purchase advertising');
+          router.push('/login?type=business');
+        } else {
+          alert(data.error || 'Failed to start checkout. Please make sure Stripe is configured.');
+        }
+        return;
+      }
+      
+      // Redirect to Stripe checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Payment system not configured. Please contact support.');
+      }
+    } catch (error) {
+      console.error('Error starting checkout:', error);
+      alert('Failed to process payment. Please try again.');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const toggleAddon = (index: number) => {
@@ -170,10 +343,10 @@ export default function AdvertisePage() {
           <Megaphone className="h-8 w-8 text-white" />
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Supercharge Your Business Growth
+          Get More Customers Today
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Get premium placement, exclusive territory rights, and guaranteed visibility in your service area
+          Stand out from competitors with featured placement and priority visibility
         </p>
       </div>
 
@@ -181,49 +354,30 @@ export default function AdvertisePage() {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-12 text-white">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
-            <div className="text-3xl font-bold">5x</div>
+            <div className="text-3xl font-bold">3x</div>
             <div className="text-blue-100">More Visibility</div>
           </div>
           <div>
-            <div className="text-3xl font-bold">73%</div>
-            <div className="text-blue-100">Higher Conversion</div>
+            <div className="text-3xl font-bold">Top 3</div>
+            <div className="text-blue-100">Search Placement</div>
           </div>
           <div>
-            <div className="text-3xl font-bold">250+</div>
-            <div className="text-blue-100">Leads/Month Avg</div>
+            <div className="text-3xl font-bold">30</div>
+            <div className="text-blue-100">Days Featured</div>
           </div>
           <div>
-            <div className="text-3xl font-bold">ROI</div>
-            <div className="text-blue-100">Guaranteed</div>
+            <div className="text-3xl font-bold">100%</div>
+            <div className="text-blue-100">Risk Free</div>
           </div>
         </div>
       </div>
 
-      {/* Billing Toggle */}
-      <div className="flex justify-center mb-8">
-        <div className="bg-gray-100 rounded-lg p-1 inline-flex">
-          <button
-            onClick={() => setBillingCycle('monthly')}
-            className={`px-6 py-2 rounded-md font-medium transition ${
-              billingCycle === 'monthly'
-                ? 'bg-white text-gray-900 shadow'
-                : 'text-gray-600'
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setBillingCycle('annual')}
-            className={`px-6 py-2 rounded-md font-medium transition ${
-              billingCycle === 'annual'
-                ? 'bg-white text-gray-900 shadow'
-                : 'text-gray-600'
-            }`}
-          >
-            Annual
-            <span className="ml-2 text-xs text-green-600 font-semibold">Save 17%</span>
-          </button>
-        </div>
+      {/* One-Time Purchase Notice */}
+      <div className="text-center mb-8">
+        <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+          <Check className="h-4 w-4 mr-2" />
+          One-time payment • No recurring fees • 30 days featured
+        </span>
       </div>
 
       {/* Packages */}
@@ -253,14 +407,12 @@ export default function AdvertisePage() {
               
               <div className="mb-6">
                 <span className="text-4xl font-bold text-gray-900">
-                  ${billingCycle === 'annual' ? pkg.price * 10 : pkg.price}
+                  ${pkg.price}
                 </span>
                 <span className="text-gray-600 ml-2">
-                  {billingCycle === 'annual' ? '/year' : pkg.duration}
+                  {pkg.duration}
                 </span>
-                {pkg.savings && billingCycle === 'annual' && (
-                  <div className="text-green-600 text-sm mt-1">{pkg.savings}</div>
-                )}
+                
               </div>
               
               <ul className="space-y-3 mb-6">
@@ -310,7 +462,7 @@ export default function AdvertisePage() {
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-gray-900">+${addon.price}</div>
-                  <div className="text-xs text-gray-500">/month</div>
+                  <div className="text-xs text-gray-500">one-time</div>
                 </div>
               </div>
             </div>
@@ -321,15 +473,41 @@ export default function AdvertisePage() {
       {/* Territory Map Preview */}
       <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Territory Coverage</h2>
-        <div className="bg-gray-100 rounded-lg p-8 text-center">
-          <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">
-            Interactive map showing your coverage area will appear here
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Premium packages include exclusive territory rights
-          </p>
-        </div>
+        {business?.latitude && business?.longitude ? (
+          <div>
+            <div ref={mapRef} className="w-full h-96 rounded-lg" />
+            <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500 rounded-full opacity-30 border-2 border-green-500"></div>
+                <span>Boost: 5 mile radius</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-yellow-500 rounded-full opacity-30 border-2 border-yellow-500"></div>
+                <span>Featured: 10 mile radius</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-purple-500 rounded-full opacity-30 border-2 border-purple-500"></div>
+                <span>Premium: 20 mile radius</span>
+              </div>
+            </div>
+            {selectedAddons.includes(2) && (
+              <div className="mt-2 flex items-center gap-2 text-sm">
+                <div className="w-4 h-4 bg-blue-500 rounded-full opacity-20 border border-blue-500"></div>
+                <span>Extended coverage with Multi-City addon</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-gray-100 rounded-lg p-8 text-center">
+            <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">
+              {business ? 'Setting up map...' : 'Loading business location...'}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Premium packages include exclusive territory rights
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Order Summary */}
@@ -347,12 +525,10 @@ export default function AdvertisePage() {
               <div className="text-3xl font-bold text-gray-900">
                 ${calculateTotal()}
                 <span className="text-lg text-gray-600 ml-2">
-                  /{billingCycle === 'annual' ? 'year' : 'month'}
+                  total
                 </span>
               </div>
-              {billingCycle === 'annual' && (
-                <p className="text-sm text-green-600">You save ${calculateTotal() * 0.17} annually</p>
-              )}
+              <p className="text-sm text-gray-500">One-time payment</p>
             </div>
             <button
               onClick={handlePurchase}
@@ -371,13 +547,13 @@ export default function AdvertisePage() {
         <div className="flex items-start">
           <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
           <div>
-            <h4 className="font-semibold text-blue-900 mb-2">Advertising Guidelines</h4>
+            <h4 className="font-semibold text-blue-900 mb-2">How It Works</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• All advertising packages auto-renew unless cancelled</li>
-              <li>• Territory exclusivity based on first-come, first-served basis</li>
-              <li>• Performance guarantee: Get 2x visibility or money back</li>
-              <li>• Cancel anytime with 30 days notice</li>
-              <li>• Custom enterprise packages available for 10+ locations</li>
+              <li>• Your promotion starts immediately after payment</li>
+              <li>• Featured placement lasts for 30 days from purchase</li>
+              <li>• First-come, first-served for premium positions</li>
+              <li>• Renew anytime to maintain your featured status</li>
+              <li>• Email support for custom packages</li>
             </ul>
           </div>
         </div>

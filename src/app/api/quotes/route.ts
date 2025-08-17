@@ -179,20 +179,48 @@ export async function POST(request: NextRequest) {
 
     const quote = result[0];
 
-    // If a specific business was selected, update their new lead count
-    if (body.businessId) {
-      // In a real app, you'd send email notification here
-      console.log(`Quote ${quote.id} sent to business:`, body.businessId);
-      
-      // Update business's new lead count (for notification badges)
-      await sql`
-        UPDATE businesses 
-        SET new_leads_count = COALESCE(new_leads_count, 0) + 1
-        WHERE id = ${body.businessId}
-      `;
-    } else {
-      // General quote - available for all businesses to browse
-      console.log(`General quote ${quote.id} created - available for all businesses`);
+    // Assign quote to businesses based on service area
+    try {
+      // If a specific business was selected, assign only to them
+      if (body.businessId) {
+        await sql`
+          INSERT INTO lead_assignments (
+            lead_id,
+            business_id,
+            status,
+            assigned_at
+          ) VALUES (
+            ${quote.id}::uuid,
+            ${body.businessId}::uuid,
+            'new',
+            NOW()
+          )
+          ON CONFLICT (lead_id, business_id) DO NOTHING
+        `;
+        console.log(`Quote ${quote.id} assigned to specific business:`, body.businessId);
+      } else {
+        // Assign to all businesses that service this area
+        const assignResponse = await fetch(`${request.url.split('/api')[0]}/api/quotes/assign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quoteId: quote.id,
+            city: serviceCity,
+            state: serviceState,
+            zipcode: body.zipcode,
+            lat: body.lat,
+            lng: body.lng
+          })
+        });
+        
+        if (assignResponse.ok) {
+          const assignData = await assignResponse.json();
+          console.log(`Quote ${quote.id} assigned to ${assignData.assignments?.length || 0} businesses`);
+        }
+      }
+    } catch (assignError) {
+      console.error('Error assigning quote to businesses:', assignError);
+      // Don't fail the quote creation if assignment fails
     }
 
     // If user is logged in, link this quote to their account

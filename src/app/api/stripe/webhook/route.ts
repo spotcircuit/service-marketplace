@@ -76,42 +76,152 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  if (!session.customer || !session.subscription) return;
-
   const customerId = session.customer as string;
-  const subscriptionId = session.subscription as string;
   const metadata = session.metadata || {};
 
-  // Update stripe_customers table
-  if (metadata.business_id) {
-    await sql`
-      UPDATE stripe_customers
-      SET
-        stripe_subscription_id = ${subscriptionId},
-        subscription_status = 'active',
-        updated_at = NOW()
+  // Get user and business info from session metadata or customer
+  let businessId = metadata.business_id;
+  let userId = metadata.user_id;
+  
+  if (!businessId || !userId) {
+    // Try to get from stripe_customers table
+    const customer = await sql`
+      SELECT business_id, user_id FROM stripe_customers
       WHERE stripe_customer_id = ${customerId}
     `;
+    
+    if (customer[0]) {
+      businessId = businessId || customer[0].business_id;
+      userId = userId || customer[0].user_id;
+    }
+  }
 
-    // Update business subscription
-    await sql`
-      UPDATE business_subscriptions
-      SET
-        status = 'active',
-        updated_at = NOW()
-      WHERE business_id = ${metadata.business_id}
-    `;
+  // Handle credit purchases
+  if (metadata.type === 'credits' && metadata.credits) {
+    const credits = parseInt(metadata.credits);
+    
+    if (businessId) {
+      // Add credits to business subscription
+      await sql`
+        UPDATE business_subscriptions
+        SET
+          lead_credits = COALESCE(lead_credits, 0) + ${credits},
+          updated_at = NOW()
+        WHERE business_id = ${businessId}
+      `;
 
-    // Create notification
-    await sql`
-      INSERT INTO business_notifications (business_id, type, title, message)
-      VALUES (
-        ${metadata.business_id},
-        'subscription',
-        'Subscription Activated',
-        'Your subscription has been activated successfully!'
-      )
-    `;
+      // Record transaction
+      await sql`
+        INSERT INTO payment_transactions (
+          business_id, user_id, stripe_payment_intent_id,
+          amount, currency, status, type, description
+        ) VALUES (
+          ${businessId},
+          ${userId},
+          ${session.payment_intent as string},
+          ${(session.amount_total || 0) / 100},
+          ${session.currency},
+          'succeeded',
+          'credits',
+          ${`Purchased ${credits} lead credits`}
+        )
+      `;
+
+      // Create notification
+      await sql`
+        INSERT INTO business_notifications (business_id, type, title, message)
+        VALUES (
+          ${businessId},
+          'credits',
+          'Credits Purchased',
+          ${`Successfully added ${credits} lead credits to your account`}
+        )
+      `;
+    }
+  }
+  // Handle featured listing purchases
+  else if (metadata.type === 'featured' && metadata.duration) {
+    const durationDays = parseInt(metadata.duration);
+    
+    if (businessId) {
+      // Calculate featured_until date
+      const featuredUntil = new Date();
+      featuredUntil.setDate(featuredUntil.getDate() + durationDays);
+      
+      // Update business to be featured
+      await sql`
+        UPDATE businesses
+        SET
+          is_featured = true,
+          featured_until = ${featuredUntil.toISOString()},
+          updated_at = NOW()
+        WHERE id = ${businessId}
+      `;
+
+      // Record transaction
+      await sql`
+        INSERT INTO payment_transactions (
+          business_id, user_id, stripe_payment_intent_id,
+          amount, currency, status, type, description
+        ) VALUES (
+          ${businessId},
+          ${userId},
+          ${session.payment_intent as string},
+          ${(session.amount_total || 0) / 100},
+          ${session.currency},
+          'succeeded',
+          'featured',
+          ${`Featured listing for ${durationDays} days`}
+        )
+      `;
+
+      // Create notification
+      await sql`
+        INSERT INTO business_notifications (business_id, type, title, message)
+        VALUES (
+          ${businessId},
+          'featured',
+          'Featured Listing Activated',
+          ${`Your listing is now featured for ${durationDays} days!`}
+        )
+      `;
+    }
+  }
+  // Handle regular subscription
+  else if (session.subscription) {
+    const subscriptionId = session.subscription as string;
+    
+    // Update stripe_customers table
+    if (businessId) {
+      await sql`
+        UPDATE stripe_customers
+        SET
+          stripe_subscription_id = ${subscriptionId},
+          subscription_status = 'active',
+          updated_at = NOW()
+        WHERE stripe_customer_id = ${customerId}
+      `;
+
+      // Update business subscription
+      await sql`
+        UPDATE business_subscriptions
+        SET
+          status = 'active',
+          updated_at = NOW()
+        WHERE business_id = ${businessId}
+      `;
+
+      // Create notification
+      await sql`
+        INSERT INTO business_notifications (business_id, type, title, message)
+        VALUES (
+          ${businessId},
+          'subscription',
+          'Subscription Activated',
+          'Your subscription has been activated successfully!'
+        )
+      `;
+    }
   }
 }
 

@@ -42,10 +42,24 @@ export default function HomePage() {
     }
   }, [userLocation.city, userLocation.state]);
 
+  // Invert header/hero tone for home page to ensure readable header over hero
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTone = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (previousTone) {
+        root.setAttribute('data-header-tone', previousTone);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
+
   const fetchLocalProviders = async (city: string, state: string) => {
     try {
       setProvidersLoading(true);
-      const response = await fetch(`/api/businesses?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&featured=true&limit=3`);
+      const response = await fetch(`/api/businesses?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&featured=true&limit=6`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch providers');
@@ -84,6 +98,8 @@ export default function HomePage() {
           return {
             id: business.id,
             name: business.name,
+            isFeatured: business.is_featured || false,
+            isVerified: business.is_verified || false,
             availability: business.same_day_available ? 'Today' : 'Tomorrow',
             sizes: sizes,
             rating: business.rating || 4.5,
@@ -274,18 +290,24 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Instant Quote Form */}
-      <section className="hero-gradient-primary text-white relative overflow-hidden">
+      <section className="hero-gradient-primary relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="container mx-auto px-4 py-12 relative z-10 text-hero-foreground">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* Left: Headlines */}
-              <div>
+              <div className="self-start">
+                {/* Hero Image (left of the quote form, above headline) */}
+                <img
+                  src="/images/row-1-column-1.png"
+                  alt="Roll-off dumpsters in Ashburn"
+                  className="mb-4 w-56 h-auto md:w-64 lg:w-72 drop-shadow"
+                />
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  Need a Dumpster in {userLocation.city}? Get a Price in 60 Seconds.
+                  Need a Dumpster in {userLocation.city}? Get a Quote.
                 </h1>
-                <p className="text-xl text-white/90 mb-6">
-                  10–40 yard roll-offs • Same-day delivery • Upfront pricing—no surprises.
+                <p className="text-xl text-hero-foreground/90 mb-6">
+                  10–40 yard roll-offs • Same-day delivery in some areas • Upfront pricing—no surprises.
                 </p>
                 
                 {/* Trust Indicators */}
@@ -296,7 +318,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-5 w-5" />
-                    <span>Same-Day Available</span>
+                    <span>Same-day in some areas</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Star className="h-5 w-5 fill-current" />
@@ -310,16 +332,16 @@ export default function HomePage() {
                     {recentReviews.map((review, idx) => (
                       <div key={idx} className="flex-shrink-0 text-sm">
                         <p className="italic">"{review.text}"</p>
-                        <p className="text-white/70 text-xs mt-1">— {review.author}, {review.location}</p>
+                        <p className="text-hero-foreground/70 text-xs mt-1">— {review.author}, {review.location}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Right: Instant Quote Form */}
+              {/* Right: Quote Form */}
               <div className="bg-white rounded-xl shadow-2xl p-6 text-gray-900">
-                <h2 className="text-2xl font-bold mb-4">Get Instant Quotes</h2>
+                <h2 className="text-2xl font-bold mb-4">Get Quotes</h2>
                 
                 <form onSubmit={handleQuoteSubmit} className="space-y-4">
                   {/* Customer Type */}
@@ -519,17 +541,17 @@ export default function HomePage() {
                       Get Quotes →
                     </button>
                     <a
-                      href="tel:1-855-DUMPSTER"
+                      href="tel:+14342076559"
                       className="w-full py-3 btn-ghost-primary rounded-lg flex items-center justify-center gap-2"
                     >
                       <Phone className="h-5 w-5" />
-                      Call Now: 1-855-DUMPSTER
+                      Call Now: (434) 207-6559
                     </a>
                   </div>
 
                   {/* Micro-trust */}
                   <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
-                    <span>✓ Same-day available</span>
+                    <span>✓ Same-day in some areas</span>
                     <span>✓ No spam</span>
                     <span>✓ Free quotes</span>
                   </div>
@@ -548,6 +570,15 @@ export default function HomePage() {
             <p className="text-xl text-muted-foreground">
               Not sure which size? Most customers choose 20-yard for home projects.
             </p>
+          </div>
+
+          {/* Illustration near the size section header */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="/images/row-2-column-2.png"
+              alt="Dumpster sizes illustration"
+              className="w-56 h-auto md:w-64 lg:w-72 drop-shadow"
+            />
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -612,6 +643,15 @@ export default function HomePage() {
             ))}
           </div>
 
+          {/* Illustration under the size grid */}
+          <div className="flex justify-center mt-10">
+            <img
+              src="/images/row-1-column-2.png"
+              alt="Home project with dumpster"
+              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
+            />
+          </div>
+
           <div className="text-center mt-8">
             <button
               onClick={() => alert('Size guide modal would open here')}
@@ -656,10 +696,18 @@ export default function HomePage() {
       {/* Top Providers */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
+          {/* Illustration above Available Providers */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="/images/row-2-column-1.png"
+              alt="Local providers illustration"
+              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
+            />
+          </div>
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Available Providers in {userLocation.city}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Providers in {userLocation.city}</h2>
             <p className="text-xl text-muted-foreground">
-              Compare quotes from verified local companies
+              Top-rated companies with premium service and fast response times
             </p>
           </div>
 
@@ -671,11 +719,27 @@ export default function HomePage() {
               </div>
             ) : localProviders.length > 0 ? (
               localProviders.map((provider, idx) => (
-              <div key={idx} className="border rounded-lg p-6 hover:shadow-lg transition">
+              <div key={idx} className={`border rounded-lg p-6 hover:shadow-lg transition relative overflow-hidden ${
+                provider.isFeatured ? 'border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50' : ''
+              }`}>
+                {provider.isFeatured && (
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-4 py-1 rounded-bl-lg">
+                    <span className="flex items-center gap-1 text-sm font-bold">
+                      <Star className="h-3 w-3 fill-white" />
+                      FEATURED
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-2">
                       <h3 className="text-xl font-bold">{provider.name}</h3>
+                      {provider.isVerified && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          <CheckCircle className="h-3 w-3" />
+                          Verified
+                        </span>
+                      )}
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                         <span className="font-semibold">{provider.rating}</span>
@@ -693,6 +757,12 @@ export default function HomePage() {
                         <MapPin className="h-4 w-4" />
                         Services {userLocation.city} area
                       </span>
+                      {provider.isFeatured && (
+                        <span className="flex items-center gap-1 text-orange-600 font-medium">
+                          <Clock className="h-4 w-4" />
+                          Priority Response
+                        </span>
+                      )}
                     </div>
                   </div>
                   
@@ -739,11 +809,11 @@ export default function HomePage() {
                   We're expanding our network. Try searching nearby cities or call us for assistance.
                 </p>
                 <a
-                  href="tel:1-855-DUMPSTER"
+                  href="tel:+14342076559"
                   className="inline-flex items-center gap-2 px-4 py-2 btn-primary rounded-lg"
                 >
                   <Phone className="h-4 w-4" />
-                  Call 1-855-DUMPSTER
+                  Call (434) 207-6559
                 </a>
               </div>
             )}
@@ -863,7 +933,7 @@ export default function HomePage() {
             Get Quotes
           </button>
           <a
-            href="tel:1-855-DUMPSTER"
+            href="tel:+14342076559"
             className="flex-1 py-3 btn-ghost-primary rounded-lg flex items-center justify-center gap-2"
           >
             <Phone className="h-4 w-4" />

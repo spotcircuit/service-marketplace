@@ -44,8 +44,11 @@ const defaultConfig = {
     },
   ],
   theme: {
-    primaryColor: "#FF6B35",
-    secondaryColor: "#4A5568"
+    primaryColor: "#FF8C00",
+    secondaryColor: "#2C3E50",
+    accentColor: "#8BC34A",
+    backgroundColor: "#FFFFFF",
+    foregroundColor: "#1A1A1A",
   },
 };
 
@@ -122,6 +125,24 @@ export async function GET() {
             configFromDb.theme = {};
           }
           configFromDb.theme.secondaryColor = value;
+          break;
+        case 'accent_color':
+          if (!configFromDb.theme || typeof configFromDb.theme === 'string') {
+            configFromDb.theme = {};
+          }
+          configFromDb.theme.accentColor = value;
+          break;
+        case 'background_color':
+          if (!configFromDb.theme || typeof configFromDb.theme === 'string') {
+            configFromDb.theme = {};
+          }
+          configFromDb.theme.backgroundColor = value;
+          break;
+        case 'foreground_color':
+          if (!configFromDb.theme || typeof configFromDb.theme === 'string') {
+            configFromDb.theme = {};
+          }
+          configFromDb.theme.foregroundColor = value;
           break;
         case 'categories':
           configFromDb.categories = value;
@@ -223,6 +244,30 @@ export async function POST(request: NextRequest) {
           VALUES ('secondary_color', ${JSON.stringify(body.theme.secondaryColor)}, 'theme')
           ON CONFLICT (key)
           DO UPDATE SET value = ${JSON.stringify(body.theme.secondaryColor)}, updated_at = NOW()
+        `;
+      }
+      if (body.theme.accentColor) {
+        await sql`
+          INSERT INTO site_configurations (key, value, category)
+          VALUES ('accent_color', ${JSON.stringify(body.theme.accentColor)}, 'theme')
+          ON CONFLICT (key)
+          DO UPDATE SET value = ${JSON.stringify(body.theme.accentColor)}, updated_at = NOW()
+        `;
+      }
+      if (body.theme.backgroundColor) {
+        await sql`
+          INSERT INTO site_configurations (key, value, category)
+          VALUES ('background_color', ${JSON.stringify(body.theme.backgroundColor)}, 'theme')
+          ON CONFLICT (key)
+          DO UPDATE SET value = ${JSON.stringify(body.theme.backgroundColor)}, updated_at = NOW()
+        `;
+      }
+      if (body.theme.foregroundColor) {
+        await sql`
+          INSERT INTO site_configurations (key, value, category)
+          VALUES ('foreground_color', ${JSON.stringify(body.theme.foregroundColor)}, 'theme')
+          ON CONFLICT (key)
+          DO UPDATE SET value = ${JSON.stringify(body.theme.foregroundColor)}, updated_at = NOW()
         `;
       }
     }

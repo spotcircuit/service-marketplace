@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
       name, 
       role = 'customer', 
       businessName,
+      quoteId, // Quote ID to link after signup
       // Business details
       businessId,
       claim,
@@ -102,7 +103,8 @@ export async function POST(request: NextRequest) {
             owner_name,
             owner_email,
             owner_phone,
-            services
+            services,
+            service_areas
           ) VALUES (
             ${businessName},
             ${category || 'Other'},
@@ -121,7 +123,8 @@ export async function POST(request: NextRequest) {
             ${name},
             ${email},
             ${phone || null},
-            ${services ? JSON.stringify(services) : null}
+            ${services ? JSON.stringify(services) : null},
+            ${JSON.stringify([city, `${city} County`, `Greater ${city} Area`])}
           )
           RETURNING id
         `;
@@ -140,6 +143,21 @@ export async function POST(request: NextRequest) {
             company_name = ${businessName}
           WHERE id = ${result.user.id}
         `;
+      }
+    }
+
+    // Link quote to user if quoteId is provided
+    if (quoteId && role === 'customer') {
+      try {
+        await sql`
+          UPDATE quotes
+          SET customer_id = ${result.user.id}
+          WHERE id = ${quoteId} AND customer_id IS NULL
+        `;
+        console.log(`Linked quote ${quoteId} to user ${result.user.id}`);
+      } catch (error) {
+        console.error('Failed to link quote to user:', error);
+        // Don't fail the signup if quote linking fails
       }
     }
 

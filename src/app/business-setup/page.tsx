@@ -30,6 +30,10 @@ interface ExistingBusiness {
   state: string;
   zipcode: string;
   is_claimed: boolean;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  category?: string | null;
 }
 
 export default function BusinessSetupPage() {
@@ -151,20 +155,26 @@ export default function BusinessSetupPage() {
   };
 
   const handleCreateBusiness = () => {
-    // Navigate to signup with business data
+    // Navigate to claim page with business data
     const params = new URLSearchParams({
-      pro: 'true',
-      businessName: businessName,
+      businessName: businessName || '',
       address: addressComponents.address,
       city: addressComponents.city,
       state: addressComponents.state,
       zipcode: addressComponents.zipcode,
-      lat: addressComponents.lat.toString(),
-      lng: addressComponents.lng.toString(),
-      ...(existingBusiness ? { businessId: existingBusiness.id, claim: 'true' } : {})
+      fromBusinessSetup: 'true',
+      ...(existingBusiness ? { 
+        businessId: existingBusiness.id,
+        phone: existingBusiness.phone || '',
+        email: existingBusiness.email || '',
+        website: existingBusiness.website || '',
+        category: existingBusiness.category || 'Dumpster Rental'
+      } : {
+        isNew: 'true'
+      })
     });
     
-    router.push(`/signup?${params.toString()}`);
+    router.push(`/claim?${params.toString()}`);
   };
 
   return (

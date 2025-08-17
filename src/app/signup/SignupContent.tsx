@@ -13,6 +13,14 @@ export default function SignupContent() {
   const businessName = searchParams.get('businessName');
   const claim = searchParams.get('claim');
   
+  // Quote-related params for customer signup after quote submission
+  const quoteId = searchParams.get('quoteId');
+  const emailFromQuote = searchParams.get('email');
+  const firstNameFromQuote = searchParams.get('firstName');
+  const lastNameFromQuote = searchParams.get('lastName');
+  const phoneFromQuote = searchParams.get('phone');
+  const redirectTo = searchParams.get('redirectTo');
+  
   // Business details from business-setup
   const addressFromParams = searchParams.get('address');
   const cityFromParams = searchParams.get('city');
@@ -22,11 +30,11 @@ export default function SignupContent() {
   const lngFromParams = searchParams.get('lng');
 
   const [formData, setFormData] = useState({
-    email: '',
+    email: emailFromQuote || '',
     password: '',
     confirmPassword: '',
-    name: '',
-    phone: '',
+    name: (firstNameFromQuote && lastNameFromQuote) ? `${firstNameFromQuote} ${lastNameFromQuote}` : '',
+    phone: phoneFromQuote || '',
     businessName: businessName || '',
     role: isPro ? 'business_owner' : 'customer',
     // Business details from business-setup
@@ -89,6 +97,7 @@ export default function SignupContent() {
           phone: formData.phone,
           role: formData.role,
           businessName: formData.businessName,
+          quoteId: quoteId, // Include quote ID to link after signup
           // Business details for business owners
           ...(formData.role === 'business_owner' && {
             businessId: formData.businessId,
@@ -118,8 +127,10 @@ export default function SignupContent() {
       // Show success message before redirect
       setError('');
 
-      // Redirect based on role
-      if (formData.role === 'business_owner') {
+      // Redirect based on role or redirectTo param
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else if (formData.role === 'business_owner') {
         router.push('/dealer-portal');
       } else {
         router.push('/dashboard');

@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   Users,
   Building2,
-  CreditCard,
+  Megaphone,
   Settings,
   LogOut,
   Menu,
@@ -73,7 +73,7 @@ export default function DealerPortalLayout({
     { name: 'Dashboard', href: '/dealer-portal', icon: LayoutDashboard },
     { name: 'Leads', href: '/dealer-portal/leads', icon: Users },
     { name: 'Business Profile', href: '/dealer-portal/profile', icon: Building2 },
-    { name: 'Subscription', href: '/dealer-portal/subscription', icon: CreditCard },
+    { name: 'Advertise & Feature', href: '/dealer-portal/advertise', icon: Megaphone },
     { name: 'Account Settings', href: '/dealer-portal/settings', icon: Settings },
   ];
 

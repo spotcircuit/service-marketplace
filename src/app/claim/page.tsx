@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
-import { Search, Building2, CheckCircle, Mail, Phone, Shield, ArrowRight, Edit } from 'lucide-react';
+import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
+import { Search, Building2, CheckCircle, Mail, Phone, Shield, ArrowRight, Edit, MapPin, Star } from 'lucide-react';
 import { sampleBusinesses } from '@/data/sample-businesses';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import ClaimForm from './ClaimForm';
 
 function ClaimBusinessContent() {
   const searchParams = useSearchParams();
@@ -14,6 +15,24 @@ function ClaimBusinessContent() {
   const [claimStep, setClaimStep] = useState<'search' | 'verify' | 'success'>('search');
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNewBusiness, setIsNewBusiness] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [businessData, setBusinessData] = useState({
+    name: '',
+    address: '',
+    city: '',
+    state: '',
+    zipcode: '',
+    phone: '',
+    website: '',
+    category: 'Dumpster Rental',
+    placeId: ''
+  });
   const [verificationData, setVerificationData] = useState({
     owner_name: '',
     owner_email: '',
@@ -28,12 +47,225 @@ function ClaimBusinessContent() {
     handleUrlParams();
   }, []);
 
+  // Page-level header theming: make header use secondary while on /claim
+  useEffect(() => {
+    const root = document.documentElement;
+    const prev = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (prev) {
+        root.setAttribute('data-header-tone', prev);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
+
+  // Debounced search for autocomplete
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      
+      searchTimeoutRef.current = setTimeout(() => {
+        fetchSuggestions(searchQuery);
+      }, 300);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+    
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
   const handleUrlParams = async () => {
     const businessId = searchParams.get('businessId');
     const businessName = searchParams.get('businessName');
+    const isNew = searchParams.get('isNew') === 'true';
+    const fromPros = searchParams.get('fromPros') === 'true';
+    const searchText = searchParams.get('searchText'); // Text user typed without selecting
+    const needsAddress = searchParams.get('needsAddress') === 'true';
     
-    if (businessId) {
-      // Try to fetch the business by ID
+    // Get all business details from URL params (when coming from business details page)
+    const address = searchParams.get('address') || '';
+    const city = searchParams.get('city') || '';
+    const state = searchParams.get('state') || '';
+    const zipcode = searchParams.get('zipcode') || '';
+    const phone = searchParams.get('phone') || '';
+    const email = searchParams.get('email') || '';
+    const website = searchParams.get('website') || '';
+    const category = searchParams.get('category') || 'Dumpster Rental';
+    
+    // Handle new business from pros page
+    if (isNew || (fromPros && !businessId)) {
+      const fullAddress = searchParams.get('fullAddress') || '';
+      const placeId = searchParams.get('placeId') || '';
+      
+      console.log('Received params from pros page (NEW):', {
+        businessName,
+        address,
+        city,
+        state,
+        zipcode,
+        phone,
+        website,
+        fullAddress,
+        searchText,
+        needsAddress
+      });
+      
+      // If user just typed text without selecting from autocomplete
+      if (needsAddress && searchText) {
+        // Try to parse what they typed
+        const parts = searchText.split(',').map(p => p.trim());
+        let parsedAddress = '';
+        let parsedCity = '';
+        let parsedState = '';
+        let parsedZip = '';
+        
+        if (parts.length === 1) {
+          // Just one part - could be address or business name
+          parsedAddress = parts[0];
+        } else if (parts.length >= 2) {
+          parsedAddress = parts[0];
+          parsedCity = parts[1];
+          if (parts[2]) {
+            const stateZip = parts[2].trim();
+            const stateZipMatch = stateZip.match(/([A-Z]{2})\s*(\d{5})?/i);
+            if (stateZipMatch) {
+              parsedState = stateZipMatch[1].toUpperCase();
+              parsedZip = stateZipMatch[2] || '';
+            } else {
+              parsedState = parts[2];
+            }
+          }
+        }
+        
+        setIsNewBusiness(true);
+        setBusinessData({
+          name: '',
+          address: parsedAddress,
+          city: parsedCity,
+          state: parsedState,
+          zipcode: parsedZip,
+          phone: '',
+          website: '',
+          category: 'Dumpster Rental',
+          placeId: ''
+        });
+        
+        // Don't set selectedBusiness for new businesses - let ClaimForm handle it
+        setSelectedBusiness(null);
+      } else {
+        // Normal flow with data from Google Places
+        setIsNewBusiness(true);
+        setBusinessData({
+          name: businessName || '',
+          address: address,
+          city: city,
+          state: state,
+          zipcode: zipcode,
+          phone: phone,
+          website: website,
+          category: 'Dumpster Rental',
+          placeId: placeId
+        });
+        
+        // Don't set selectedBusiness for new businesses - let ClaimForm handle it
+        setSelectedBusiness(null);
+      }
+      
+      setClaimStep('verify');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Handle existing business from pros page (when business was found)
+    if (businessId && fromPros) {
+      // Coming from pros page with an existing business
+      try {
+        const response = await fetch(`/api/businesses/${businessId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.business) {
+            setSelectedBusiness(data.business);
+            setIsNewBusiness(false);
+            setClaimStep('verify');
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching business:', error);
+      }
+    }
+    
+    if (businessId && !isNew && !fromPros) {
+      // Coming from business details page or with existing business ID
+      try {
+        const response = await fetch(`/api/businesses/${businessId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.business) {
+            // Merge URL params with fetched data (URL params take precedence)
+            const mergedBusiness = {
+              ...data.business,
+              name: businessName ? decodeURIComponent(businessName) : data.business.name,
+              address: address || data.business.address,
+              city: city || data.business.city,
+              state: state || data.business.state,
+              zipcode: zipcode || data.business.zipcode,
+              phone: phone || data.business.phone,
+              email: email || data.business.email,
+              website: website || data.business.website,
+              category: category || data.business.category
+            };
+            setSelectedBusiness(mergedBusiness);
+            
+            // Pre-fill verification data with business owner info if available
+            if (mergedBusiness.owner_email || email) {
+              setVerificationData(prev => ({
+                ...prev,
+                owner_email: mergedBusiness.owner_email || email || '',
+                owner_phone: mergedBusiness.owner_phone || phone || ''
+              }));
+            }
+            
+            setClaimStep('verify');
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching business:', error);
+      }
+      
+      // If we couldn't fetch from API, create business object from URL params
+      if (businessName) {
+        const businessFromParams = {
+          id: businessId,
+          name: decodeURIComponent(businessName),
+          address: address,
+          city: city,
+          state: state,
+          zipcode: zipcode,
+          phone: phone,
+          email: email,
+          website: website,
+          category: category,
+          is_claimed: false,
+          is_verified: false
+        };
+        setSelectedBusiness(businessFromParams);
+        setClaimStep('verify');
+      }
+    } else if (businessId) {
+      // Legacy flow - try to fetch by ID only
       try {
         const response = await fetch(`/api/businesses/${businessId}`);
         if (response.ok) {
@@ -48,21 +280,6 @@ function ClaimBusinessContent() {
       } catch (error) {
         console.error('Error fetching business:', error);
       }
-      
-      // If we couldn't fetch from API, try to find in sample data
-      const business = sampleBusinesses.find(b => b.id === businessId);
-      if (business) {
-        setSelectedBusiness(business);
-        setClaimStep('verify');
-      } else if (businessName) {
-        // If we have a business name, pre-fill the search
-        setSearchQuery(decodeURIComponent(businessName));
-        // Auto-search for the business
-        const results = sampleBusinesses.filter(b =>
-          b.name.toLowerCase().includes(businessName.toLowerCase())
-        );
-        setSearchResults(results);
-      }
     }
     setIsLoading(false);
   };
@@ -76,6 +293,52 @@ function ClaimBusinessContent() {
       }
     } catch (error) {
       // User not logged in
+    }
+  };
+
+  const fetchSuggestions = async (query: string) => {
+    try {
+      setIsSearching(true);
+      const response = await fetch(`/api/businesses/search?q=${encodeURIComponent(query)}&limit=8`);
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.businesses || []);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSuggestionClick = (business: any) => {
+    setSelectedBusiness(business);
+    setSearchQuery(business.name);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setClaimStep('verify');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+        handleSuggestionClick(suggestions[selectedIndex]);
+      } else {
+        handleSearch(e);
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
     }
   };
 
@@ -110,18 +373,32 @@ function ClaimBusinessContent() {
     const tempPassword = 'Business' + Math.random().toString(36).slice(-8) + '!';
 
     try {
+      const requestBody: any = {
+        businessId: selectedBusiness?.id,
+        email: verificationData.owner_email,
+        password: tempPassword,
+        name: verificationData.owner_name,
+        phone: verificationData.owner_phone,
+        verificationMethod: verificationData.verification_method,
+        verificationCode: '123456', // In production, this would be sent via email/SMS
+      };
+      
+      // If this is a new business, include the business data
+      if (isNewBusiness) {
+        requestBody.businessName = businessData.name;
+        requestBody.businessAddress = businessData.address;
+        requestBody.businessCity = businessData.city;
+        requestBody.businessState = businessData.state;
+        requestBody.businessZipcode = businessData.zipcode;
+        requestBody.businessPhone = businessData.phone;
+        requestBody.businessWebsite = businessData.website;
+        requestBody.businessCategory = businessData.category;
+      }
+      
       const response = await fetch('/api/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          businessId: selectedBusiness?.id,
-          email: verificationData.owner_email,
-          password: tempPassword,
-          name: verificationData.owner_name,
-          phone: verificationData.owner_phone,
-          verificationMethod: verificationData.verification_method,
-          verificationCode: '123456', // In production, this would be sent via email/SMS
-        })
+        body: JSON.stringify(requestBody)
       });
 
       const data = await response.json();
@@ -174,26 +451,135 @@ function ClaimBusinessContent() {
               <form onSubmit={handleSearch} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Search by business name, phone, or address
+                    Start typing your business name or address
                   </label>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="e.g., R&L Dumpsters or (936) 236-9474"
-                      className="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <button
-                      type="submit"
-                      className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium flex items-center gap-2"
-                    >
-                      <Search className="h-5 w-5" />
-                      Search
-                    </button>
+                  <div className="relative">
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setSelectedIndex(-1);
+                          }}
+                          onKeyDown={handleKeyDown}
+                          onFocus={() => {
+                            if (suggestions.length > 0) {
+                              setShowSuggestions(true);
+                            }
+                          }}
+                          onBlur={() => {
+                            // Delay to allow click on suggestion
+                            setTimeout(() => setShowSuggestions(false), 200);
+                          }}
+                          placeholder="e.g., ABC Dumpsters or 123 Main Street"
+                          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          autoComplete="off"
+                        />
+                        {isSearching && (
+                          <div className="absolute right-3 top-3.5">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="submit"
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium flex items-center gap-2"
+                      >
+                        <Search className="h-5 w-5" />
+                        Search
+                      </button>
+                    </div>
+                    
+                    {/* Autocomplete Dropdown */}
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-xl border max-h-96 overflow-y-auto">
+                        <div className="p-2">
+                          {suggestions.map((business, index) => (
+                            <div
+                              key={business.id}
+                              onClick={() => handleSuggestionClick(business)}
+                              onMouseEnter={() => setSelectedIndex(index)}
+                              className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                                index === selectedIndex ? 'bg-muted' : 'hover:bg-muted/50'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                                    <div className="font-medium">{business.name}</div>
+                                    {business.is_verified && (
+                                      <Shield className="h-4 w-4 text-blue-600" />
+                                    )}
+                                    {business.is_claimed && (
+                                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                        Claimed
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>
+                                      {business.address && `${business.address}, `}
+                                      {business.city}, {business.state} {business.zipcode}
+                                    </span>
+                                  </div>
+                                  {business.rating > 0 && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                                      <span className="text-sm font-medium">{business.rating}</span>
+                                      <span className="text-sm text-muted-foreground">
+                                        ({business.reviews} reviews)
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {suggestions.length >= 8 && (
+                          <div className="p-3 border-t text-center text-sm text-muted-foreground">
+                            Type more to refine your search...
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {showSuggestions && suggestions.length === 0 && searchQuery.length >= 2 && !isSearching && (
+                      <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-xl border p-6 text-center">
+                        <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground mb-3">
+                          No businesses found matching "{searchQuery}"
+                        </p>
+                        <Link
+                          href={`/pros?searchText=${encodeURIComponent(searchQuery)}&needsAddress=true`}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 text-sm font-medium"
+                        >
+                          Add Your Business
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               </form>
+              
+              <div className="mt-6 pt-6 border-t">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Can't find your business?
+                </p>
+                <Link
+                  href="/pros"
+                  className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+                >
+                  Add your business listing
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
 
             {/* Search Results */}
@@ -283,19 +669,140 @@ function ClaimBusinessContent() {
           </div>
         )}
 
-        {claimStep === 'verify' && selectedBusiness && (
+        {claimStep === 'verify' && (
+          <ClaimForm 
+            business={selectedBusiness}
+            isNewBusiness={isNewBusiness}
+            businessData={businessData}
+            onBusinessDataChange={setBusinessData}
+          />
+        )}
+
+        {/* Original verify form - now hidden */}
+        {false && selectedBusiness && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-card rounded-lg border p-8">
-              <h2 className="text-2xl font-bold mb-6">Verify Your Ownership</h2>
+              <h2 className="text-2xl font-bold mb-6">
+                {isNewBusiness ? 'Complete Your Business Listing' : 'Verify Your Ownership'}
+              </h2>
 
-              {/* Business Info */}
-              <div className="p-4 bg-muted rounded-lg mb-6">
-                <h3 className="font-semibold mb-2">{selectedBusiness.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {selectedBusiness.address}, {selectedBusiness.city}, {selectedBusiness.state}
-                </p>
-                <p className="text-sm text-muted-foreground">{selectedBusiness.phone}</p>
-              </div>
+              {/* Business Info Section */}
+              {isNewBusiness ? (
+                <div className="space-y-6 mb-6">
+                  <div className="border-b pb-4">
+                    <h3 className="text-lg font-semibold mb-4">Business Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium mb-2">
+                          Business Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={businessData.name}
+                          onChange={(e) => setBusinessData({...businessData, name: e.target.value})}
+                          placeholder="Enter your business name"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium mb-2">
+                          Street Address *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={businessData.address}
+                          onChange={(e) => setBusinessData({...businessData, address: e.target.value})}
+                          placeholder="123 Main Street"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={businessData.city}
+                          onChange={(e) => setBusinessData({...businessData, city: e.target.value})}
+                          placeholder="City"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          State *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={businessData.state}
+                          onChange={(e) => setBusinessData({...businessData, state: e.target.value})}
+                          placeholder="State"
+                          maxLength={2}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          ZIP Code
+                        </label>
+                        <input
+                          type="text"
+                          value={businessData.zipcode}
+                          onChange={(e) => setBusinessData({...businessData, zipcode: e.target.value})}
+                          placeholder="12345"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Business Phone
+                        </label>
+                        <input
+                          type="tel"
+                          value={businessData.phone}
+                          onChange={(e) => setBusinessData({...businessData, phone: e.target.value})}
+                          placeholder="(555) 123-4567"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium mb-2">
+                          Website
+                        </label>
+                        <input
+                          type="url"
+                          value={businessData.website}
+                          onChange={(e) => setBusinessData({...businessData, website: e.target.value})}
+                          placeholder="https://www.yourbusiness.com"
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border-b pb-4">
+                    <h3 className="text-lg font-semibold mb-4">Owner Information</h3>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-muted rounded-lg mb-6">
+                  <h3 className="font-semibold mb-2">{selectedBusiness.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedBusiness.address}, {selectedBusiness.city}, {selectedBusiness.state}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{selectedBusiness.phone}</p>
+                </div>
+              )}
 
               <form onSubmit={handleVerificationSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

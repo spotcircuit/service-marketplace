@@ -109,3 +109,54 @@ CREATE TRIGGER update_businesses_updated_at BEFORE UPDATE ON businesses
 
 CREATE TRIGGER update_leads_updated_at BEFORE UPDATE ON leads
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create quotes table
+CREATE TABLE IF NOT EXISTS quotes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_id UUID,
+  customer_name VARCHAR(255) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  customer_phone VARCHAR(20),
+  customer_zipcode VARCHAR(10),
+  service_address VARCHAR(255),
+  service_city VARCHAR(100),
+  service_state VARCHAR(50),
+  service_area VARCHAR(255),
+  business_id UUID,
+  business_name VARCHAR(255),
+  service_type VARCHAR(100) NOT NULL,
+  project_description TEXT,
+  timeline VARCHAR(50),
+  budget VARCHAR(50),
+  status VARCHAR(20) DEFAULT 'new',
+  source VARCHAR(50) DEFAULT 'website',
+  referrer VARCHAR(255),
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Create indexes for quotes
+CREATE INDEX idx_quotes_customer_id ON quotes(customer_id);
+CREATE INDEX idx_quotes_business_id ON quotes(business_id);
+CREATE INDEX idx_quotes_status ON quotes(status);
+CREATE INDEX idx_quotes_service_type ON quotes(service_type);
+
+-- Enable RLS for quotes
+ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
+
+-- Allow public to create quotes (for quote requests)
+CREATE POLICY "Allow public to create quotes" ON quotes
+  FOR INSERT WITH CHECK (true);
+
+-- Allow authenticated users to read and update quotes
+CREATE POLICY "Allow authenticated users to read quotes" ON quotes
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow authenticated users to update quotes" ON quotes
+  FOR UPDATE USING (true);
+
+-- Create trigger for updated_at
+CREATE TRIGGER update_quotes_updated_at BEFORE UPDATE ON quotes
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

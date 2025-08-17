@@ -45,6 +45,12 @@ function DirectoryContent() {
     fetchBusinesses();
   }, [filters, searchQuery]);
 
+  // Ensure header uses primary (yellow) theme on directory page
+  useEffect(() => {
+    const root = document.documentElement;
+    root.removeAttribute('data-header-tone');
+  }, []);
+
   const fetchStats = async () => {
     try {
       const response = await fetch('/api/businesses/stats');
@@ -173,9 +179,25 @@ function DirectoryContent() {
             <Link href={`/business/${business.id}`} className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm font-medium">
               View Details
             </Link>
-            <button className="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/10 text-sm font-medium">
-              Get Quote
-            </button>
+            {business.is_claimed ? (
+              business.is_verified ? (
+                <div className="px-4 py-2 bg-green-100 text-green-700 rounded-md text-sm font-medium flex items-center gap-1">
+                  <Shield className="h-4 w-4" />
+                  Verified
+                </div>
+              ) : (
+                <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm font-medium">
+                  Claimed
+                </div>
+              )
+            ) : (
+              <Link 
+                href={`/claim?businessId=${business.id}&businessName=${encodeURIComponent(business.name)}&address=${encodeURIComponent(business.address || '')}&city=${encodeURIComponent(business.city)}&state=${encodeURIComponent(business.state)}&zipcode=${encodeURIComponent(business.zipcode || '')}&phone=${encodeURIComponent(business.phone || '')}&email=${encodeURIComponent(business.email || '')}&category=${encodeURIComponent(business.category)}&website=${encodeURIComponent(business.website || '')}`}
+                className="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/10 text-sm font-medium"
+              >
+                Claim This Business
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -214,7 +236,16 @@ function DirectoryContent() {
           <h1 className="text-3xl font-bold mb-6">Find Local Service Providers</h1>
           
           <div className="grid md:grid-cols-3 gap-4 mb-4">
-            {/* Service Search */}
+            {/* Location Search with Google Autocomplete (first) */}
+            <GoogleLocationSearch
+              value={locationQuery}
+              onChange={handleLocationChange}
+              placeholder="City, State or ZIP"
+              className="py-3"
+              types={['geocode']}
+            />
+
+            {/* Service Search (second) */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
@@ -225,17 +256,8 @@ function DirectoryContent() {
                 className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
-            
-            {/* Location Search with Google Autocomplete */}
-            <GoogleLocationSearch
-              value={locationQuery}
-              onChange={handleLocationChange}
-              placeholder="City, State or ZIP"
-              className="py-3"
-              types={['geocode']}
-            />
-            
-            {/* Category Filter */}
+
+            {/* Category Filter (third) */}
             <select
               value={filters.category || ''}
               onChange={(e) => setFilters({ ...filters, category: e.target.value || undefined })}

@@ -273,14 +273,25 @@ export default function GoogleMap({
       markersRef.current.push(marker);
     });
 
-    // Fit bounds to show all valid markers
+    // Fit or center based on marker count
     const validMarkers = markers.filter(m => Number.isFinite(Number(m.lat)) && Number.isFinite(Number(m.lng)));
     if (validMarkers.length > 1) {
       const bounds = new window.google.maps.LatLngBounds();
       validMarkers.forEach(m => {
         bounds.extend(new window.google.maps.LatLng(Number(m.lat), Number(m.lng)));
       });
-      googleMapRef.current.fitBounds(bounds);
+      try {
+        // Add padding so markers and popups aren't tight to edges
+        googleMapRef.current.fitBounds(bounds, { top: 80, right: 80, bottom: 80, left: 80 });
+      } catch {
+        googleMapRef.current.fitBounds(bounds);
+      }
+    } else if (validMarkers.length === 1) {
+      const m = validMarkers[0];
+      const position = new window.google.maps.LatLng(Number(m.lat), Number(m.lng));
+      googleMapRef.current.setCenter(position);
+      // Reasonable close zoom for a single business
+      googleMapRef.current.setZoom(14);
     }
   }, [markers, onMarkerClick]);
 

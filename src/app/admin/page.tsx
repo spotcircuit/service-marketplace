@@ -48,7 +48,64 @@ export default function AdminPage() {
     }
   }, [config]);
 
-  
+  // Live preview helpers
+  const hexToRgb = (hex: string) => {
+    const clean = hex.replace('#', '');
+    const bigint = parseInt(clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `${r} ${g} ${b}`;
+  };
+
+  const readableText = (hex: string) => {
+    const clean = hex.replace('#', '');
+    const bigint = parseInt(clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    // Perceived brightness formula
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 186 ? '#000000' : '#ffffff';
+  };
+
+  // Apply live preview of theme changes without persisting
+  useEffect(() => {
+    if (!localConfig) return;
+    const root = document.documentElement;
+    let palette: any = null;
+    if (typeof localConfig.theme === 'object') {
+      palette = localConfig.theme;
+    } else if (typeof localConfig.theme === 'string' && themes && (themes as any)[localConfig.theme]) {
+      const t: any = (themes as any)[localConfig.theme];
+      palette = {
+        primaryColor: t.primary,
+        secondaryColor: t.secondary,
+        accentColor: t.accent,
+        backgroundColor: t.background,
+      };
+    }
+    if (!palette) return;
+
+    const primary = palette.primaryColor || '#000000';
+    const secondary = palette.secondaryColor || '#000000';
+    const accent = palette.accentColor || '#000000';
+    const background = palette.backgroundColor || '#ffffff';
+    const foreground = readableText(background);
+    const primaryFg = readableText(primary);
+    const secondaryFg = readableText(secondary);
+    const accentFg = readableText(accent);
+
+    root.style.setProperty('--primary', hexToRgb(primary));
+    root.style.setProperty('--secondary', hexToRgb(secondary));
+    root.style.setProperty('--accent', hexToRgb(accent));
+    root.style.setProperty('--background', hexToRgb(background));
+    root.style.setProperty('--foreground', hexToRgb(foreground));
+    root.style.setProperty('--primary-foreground', hexToRgb(primaryFg));
+    root.style.setProperty('--secondary-foreground', hexToRgb(secondaryFg));
+    root.style.setProperty('--accent-foreground', hexToRgb(accentFg));
+    root.style.setProperty('--ring', hexToRgb(primary));
+  }, [localConfig?.theme, themes]);
 
   const handleLogout = async () => {
     try {
@@ -97,10 +154,22 @@ export default function AdminPage() {
       configs.push({ key: 'hero_title', value: localConfig.heroTitle, category: 'hero' });
       configs.push({ key: 'hero_subtitle', value: localConfig.heroSubtitle, category: 'hero' });
 
-      // Theme
-      if (localConfig.theme) {
-        configs.push({ key: 'primary_color', value: localConfig.theme.primaryColor, category: 'theme' });
-        configs.push({ key: 'secondary_color', value: localConfig.theme.secondaryColor, category: 'theme' });
+      // Theme (supports custom object with 4-color palette or preset string)
+      if (localConfig.theme && typeof localConfig.theme === 'object') {
+        if (localConfig.theme.primaryColor)
+          configs.push({ key: 'primary_color', value: localConfig.theme.primaryColor, category: 'theme' });
+        if (localConfig.theme.secondaryColor)
+          configs.push({ key: 'secondary_color', value: localConfig.theme.secondaryColor, category: 'theme' });
+        if (localConfig.theme.accentColor)
+          configs.push({ key: 'accent_color', value: localConfig.theme.accentColor, category: 'theme' });
+        if (localConfig.theme.backgroundColor)
+          configs.push({ key: 'background_color', value: localConfig.theme.backgroundColor, category: 'theme' });
+      } else if (typeof localConfig.theme === 'string' && themes && (themes as any)[localConfig.theme]) {
+        const t: any = (themes as any)[localConfig.theme];
+        configs.push({ key: 'primary_color', value: t.primary, category: 'theme' });
+        configs.push({ key: 'secondary_color', value: t.secondary, category: 'theme' });
+        configs.push({ key: 'accent_color', value: t.accent, category: 'theme' });
+        configs.push({ key: 'background_color', value: t.background, category: 'theme' });
       }
 
       // Categories
@@ -683,7 +752,7 @@ export default function AdminPage() {
                       {themes && Object.entries(themes).map(([key, theme]: [string, any]) => (
                         <button
                           key={key}
-                          onClick={() => setLocalConfig({...localConfig, theme: key})}
+                          onClick={() => setLocalConfig({ ...localConfig, theme: key })}
                           className={`p-4 border-2 rounded-lg ${
                             localConfig.theme === key
                               ? 'border-primary bg-primary/5'
@@ -707,14 +776,179 @@ export default function AdminPage() {
                           <div className="text-sm font-medium">{theme.name}</div>
                         </button>
                       ))}
+                      {/* Custom Theme Card */}
+                      <button
+                        onClick={() => {
+                          // Seed custom from current theme selection or defaults
+                          let seed = {
+                            primaryColor: '#FF8C00',
+                            secondaryColor: '#2C3E50',
+                            accentColor: '#8BC34A',
+                            backgroundColor: '#FFFFFF',
+                          };
+                          const current = localConfig.theme;
+                          if (typeof current === 'string' && themes && themes[current]) {
+                            const t: any = (themes as any)[current];
+                            seed = {
+                              primaryColor: t.primary,
+                              secondaryColor: t.secondary,
+                              accentColor: t.accent,
+                              backgroundColor: t.background,
+                            };
+                          } else if (current && typeof current === 'object') {
+                            seed = {
+                              primaryColor: current.primaryColor || seed.primaryColor,
+                              secondaryColor: current.secondaryColor || seed.secondaryColor,
+                              accentColor: current.accentColor || seed.accentColor,
+                              backgroundColor: current.backgroundColor || seed.backgroundColor,
+                            };
+                          }
+                          setLocalConfig({ ...localConfig, theme: seed });
+                        }}
+                        className={`p-4 border-2 rounded-lg ${
+                          typeof localConfig.theme === 'object' ? 'border-primary bg-primary/5' : 'border-dashed border-border hover:border-primary/50'
+                        }`}
+                        title="Create a custom palette"
+                      >
+                        <div className="flex gap-2 mb-2 justify-center">
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: '#FF8C00' }} />
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: '#2C3E50' }} />
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: '#8BC34A' }} />
+                        </div>
+                        <div className="text-sm font-medium">Custom</div>
+                      </button>
                     </div>
                   </div>
 
-                  {localConfig.theme === 'custom' && (
-                    <div className="p-4 bg-muted rounded-lg">
-                      <p className="text-sm">
-                        Custom theme colors can be configured by editing the theme configuration directly.
-                      </p>
+                  {/* Custom Theme Editor: show when theme is an object */}
+                  {localConfig.theme && typeof localConfig.theme === 'object' && (
+                    <div className="p-4 bg-muted/40 rounded-lg space-y-4">
+                      <h3 className="font-medium">Customize Colors</h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Primary */}
+                        <div className="p-3 border rounded-lg bg-card">
+                          <label className="block text-sm font-medium mb-2">Primary</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={localConfig.theme.primaryColor || '#FF8C00'}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, primaryColor: e.target.value }
+                              })}
+                              className="h-9 w-9 p-0 border rounded"
+                            />
+                            <input
+                              type="text"
+                              value={localConfig.theme.primaryColor || ''}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, primaryColor: e.target.value }
+                              })}
+                              placeholder="#RRGGBB"
+                              className="flex-1 px-3 py-2 border rounded-md text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Secondary */}
+                        <div className="p-3 border rounded-lg bg-card">
+                          <label className="block text-sm font-medium mb-2">Secondary</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={localConfig.theme.secondaryColor || '#2C3E50'}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, secondaryColor: e.target.value }
+                              })}
+                              className="h-9 w-9 p-0 border rounded"
+                            />
+                            <input
+                              type="text"
+                              value={localConfig.theme.secondaryColor || ''}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, secondaryColor: e.target.value }
+                              })}
+                              placeholder="#RRGGBB"
+                              className="flex-1 px-3 py-2 border rounded-md text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Accent */}
+                        <div className="p-3 border rounded-lg bg-card">
+                          <label className="block text-sm font-medium mb-2">Accent</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={localConfig.theme.accentColor || '#8BC34A'}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, accentColor: e.target.value }
+                              })}
+                              className="h-9 w-9 p-0 border rounded"
+                            />
+                            <input
+                              type="text"
+                              value={localConfig.theme.accentColor || ''}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, accentColor: e.target.value }
+                              })}
+                              placeholder="#RRGGBB"
+                              className="flex-1 px-3 py-2 border rounded-md text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Background */}
+                        <div className="p-3 border rounded-lg bg-card">
+                          <label className="block text-sm font-medium mb-2">Background</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={localConfig.theme.backgroundColor || '#FFFFFF'}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, backgroundColor: e.target.value }
+                              })}
+                              className="h-9 w-9 p-0 border rounded"
+                            />
+                            <input
+                              type="text"
+                              value={localConfig.theme.backgroundColor || ''}
+                              onChange={(e) => setLocalConfig({
+                                ...localConfig,
+                                theme: { ...localConfig.theme, backgroundColor: e.target.value }
+                              })}
+                              placeholder="#RRGGBB"
+                              className="flex-1 px-3 py-2 border rounded-md text-sm"
+                            />
+                          </div>
+                          <p className="mt-2 text-xs text-muted-foreground">Text color adjusts automatically for readability.</p>
+                        </div>
+                      </div>
+
+                      {/* Mini preview */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {[
+                          { label: 'Primary', key: 'primaryColor' },
+                          { label: 'Secondary', key: 'secondaryColor' },
+                          { label: 'Accent', key: 'accentColor' },
+                          { label: 'Background', key: 'backgroundColor' },
+                        ].map((c) => (
+                          <div key={c.key} className="p-3 border rounded-lg">
+                            <div
+                              className="h-8 rounded mb-2 border"
+                              style={{ backgroundColor: (localConfig.theme as any)[c.key] || '#ffffff' }}
+                            />
+                            <div className="text-xs text-muted-foreground">{c.label}</div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

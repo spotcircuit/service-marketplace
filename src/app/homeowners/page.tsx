@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Home, Trash2, Calendar, Shield, Clock, CheckCircle, ArrowRight, Phone, Calculator, Ruler, AlertTriangle, Package, Download, BookOpen, DollarSign, HelpCircle, Hammer, Brush, Trees } from 'lucide-react';
 import Link from 'next/link';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
@@ -8,6 +8,19 @@ import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
 export default function HomeownersPage() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [activeCalculator, setActiveCalculator] = useState<'size' | 'cost' | null>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTone = root.getAttribute('data-header-tone');
+    root.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      if (previousTone) {
+        root.setAttribute('data-header-tone', previousTone);
+      } else {
+        root.removeAttribute('data-header-tone');
+      }
+    };
+  }, []);
 
   const residentialSizes = [
     {
@@ -21,17 +34,6 @@ export default function HomeownersPage() {
       pricing: 'Starting at $295'
     },
     {
-      size: '15 Yard',
-      dimensions: '16\' L × 8\' W × 4\' H',
-      capacity: '4-5 pickup truck loads',
-      weight: '2-3 tons',
-      idealFor: 'Medium projects, multi-room cleanouts',
-      projects: ['Kitchen renovation', 'Flooring removal', 'Moving cleanout', 'Shed demolition'],
-      features: ['Most versatile size', 'Good for mixed debris'],
-      popular: true,
-      pricing: 'Starting at $345'
-    },
-    {
       size: '20 Yard',
       dimensions: '22\' L × 8\' W × 5\' H',
       capacity: '8-10 pickup truck loads',
@@ -41,6 +43,16 @@ export default function HomeownersPage() {
       features: ['High capacity', 'Walk-in door available'],
       recommended: true,
       pricing: 'Starting at $395'
+    },
+    {
+      size: '30 Yard',
+      dimensions: '22\' L × 8\' W × 6\' H',
+      capacity: '12-15 pickup truck loads',
+      weight: '4-5 tons',
+      idealFor: 'Major renovations and large cleanouts',
+      projects: ['New home construction', 'Major addition', 'Whole-home renovation', 'Large office cleanout'],
+      features: ['Walk-in door available', 'Best for bulky debris'],
+      pricing: 'Starting at $495'
     }
   ];
 
@@ -92,8 +104,8 @@ export default function HomeownersPage() {
       icon: DollarSign
     },
     {
-      title: 'Same-Day Service',
-      description: 'Quick delivery for urgent projects',
+      title: 'Same-Day Service (some areas)',
+      description: 'Quick delivery for urgent projects where available',
       icon: Clock
     },
     {
@@ -154,11 +166,11 @@ export default function HomeownersPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-primary/90 py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center text-white">
+          <div className="text-center text-hero-foreground">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Dumpster Rental for Homeowners
             </h1>
-            <p className="text-xl mb-8 text-white/90 max-w-3xl mx-auto">
+            <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
               Simple, affordable waste removal for home projects. From small cleanouts to major renovations, 
               we make it easy to get rid of your debris.
             </p>
@@ -167,17 +179,17 @@ export default function HomeownersPage() {
                 onClick={() => setQuoteModalOpen(true)}
                 className="px-8 py-4 bg-white text-primary rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg"
               >
-                Get Instant Quote
+                Get Quote
               </button>
               <Link
                 href="/dumpster-sizes"
-                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition border-2 border-white/50 flex items-center justify-center gap-2"
+                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
               >
                 <Ruler className="h-5 w-5" />
                 Size Calculator
               </Link>
             </div>
-            <p className="mt-6 text-white/80 text-sm">
+            <p className="mt-6 text-hero-foreground/80 text-sm">
               ⚡ Most deliveries within 24 hours • 📞 7-day support • ✓ No hidden fees
             </p>
           </div>
@@ -299,6 +311,14 @@ export default function HomeownersPage() {
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             We offer the perfect size for every home project. All rentals include delivery, pickup, and 7-day rental period.
           </p>
+          {/* Illustration near Popular Sizes */}
+          <div className="flex justify-center mb-10">
+            <img
+              src="/images/dumpstersize.png"
+              alt="Popular residential sizes: 10, 20, 30 yard"
+              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
+            />
+          </div>
           
           <div className="grid md:grid-cols-3 gap-6">
             {residentialSizes.map((item) => (
@@ -308,7 +328,7 @@ export default function HomeownersPage() {
                   item.recommended ? 'border-primary shadow-md' : ''
                 }`}
               >
-                {item.popular && (
+                {item.recommended && (
                   <span className="absolute -top-3 left-6 px-3 py-1 bg-green-600 text-white text-sm rounded-full">
                     Most Popular
                   </span>
@@ -621,14 +641,14 @@ export default function HomeownersPage() {
               onClick={() => setQuoteModalOpen(true)}
               className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition"
             >
-              Get Instant Quote
+              Get Quote
             </button>
             <a
-              href="tel:1-888-555-0123"
+              href="tel:+14342076559"
               className="px-8 py-3 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold hover:bg-primary-foreground/20 transition border-2 border-white/50 flex items-center justify-center gap-2"
             >
               <Phone className="h-5 w-5" />
-              Call 1-888-555-0123
+              Call (434) 207-6559
             </a>
           </div>
           <p className="mt-6 text-white/80 text-sm">

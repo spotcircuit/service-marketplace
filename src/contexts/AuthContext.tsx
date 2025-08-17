@@ -43,23 +43,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
+        // Set initial user from localStorage for quick load
         try {
-          // Set initial user from localStorage for quick load
           setUser(JSON.parse(storedUser));
-          
-          // Fetch fresh user data including address fields
-          const response = await fetch('/api/user/profile');
-          if (response.ok) {
-            const data = await response.json();
-            const fullUser = data.user;
-            setUser(fullUser);
-            localStorage.setItem('user', JSON.stringify(fullUser));
-          }
-        } catch (e) {
+        } catch {}
+      }
+
+      try {
+        // Always attempt to fetch fresh user data to honor active server session
+        const response = await fetch('/api/user/profile');
+        if (response.ok) {
+          const data = await response.json();
+          const fullUser = data.user;
+          setUser(fullUser);
+          localStorage.setItem('user', JSON.stringify(fullUser));
+        } else if (!storedUser) {
+          // No active session found; ensure clean state
+          setUser(null);
           localStorage.removeItem('user');
         }
+      } catch (e) {
+        if (!storedUser) {
+          setUser(null);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     
     initAuth();

@@ -96,6 +96,14 @@ export default function StatePage() {
     setMapCenter(coords);
   }, [stateSlug]);
 
+  useEffect(() => {
+    // Ensure header/hero tone inversion applies via :root attribute
+    document.documentElement.setAttribute('data-header-tone', 'secondary');
+    return () => {
+      document.documentElement.removeAttribute('data-header-tone');
+    };
+  }, []);
+
   const fetchStateData = async () => {
     // Prepare abort controller and timeout outside try so we can clear in finally
     let controller: AbortController | null = null;
@@ -132,13 +140,33 @@ export default function StatePage() {
 
       if (data?.cities && data.cities.length > 0) {
         const normalizedCities = data.cities.map((c: any) => ({
-          city: c.city,
+          city: String(c.city || '').trim(),
           count: Number(c.count) || 0
         }));
-        setCities(normalizedCities);
+
+        // Deduplicate by city name (case-insensitive), aggregate counts
+        const cityMap = new Map<string, { city: string; count: number }>();
+        for (const c of normalizedCities) {
+          const key = c.city.toLowerCase();
+          if (!key) continue;
+          const existing = cityMap.get(key);
+          if (existing) {
+            existing.count += c.count;
+          } else {
+            cityMap.set(key, { city: c.city, count: c.count });
+          }
+        }
+
+        // Sort by count desc, then city name asc
+        const uniqueCities = Array.from(cityMap.values()).sort((a, b) => {
+          if (b.count !== a.count) return b.count - a.count;
+          return a.city.localeCompare(b.city);
+        });
+
+        setCities(uniqueCities);
         setStats({
           total: Number(data.total) || 0,
-          cities: normalizedCities.length
+          cities: uniqueCities.length
         });
       } else {
         console.warn('[StatePage] No cities returned for state', { slug: stateSlug, stateAbbr, url });
@@ -219,7 +247,7 @@ export default function StatePage() {
       </div>
 
       {/* Hero Section with Quote Form */}
-      <section className="hero-gradient-secondary text-white relative">
+      <section className="bg-gradient-to-br from-primary to-primary/90 text-hero-foreground relative">
         <div className="container mx-auto px-4 py-12">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Headlines */}
@@ -227,7 +255,7 @@ export default function StatePage() {
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 Dumpster Rental in {stateName}
               </h1>
-              <p className="text-xl text-white/90 mb-6">
+              <p className="text-xl text-hero-foreground/90 mb-6">
                 Compare quotes from {stats.total}+ verified providers across {stats.cities} cities. 
                 Same-day delivery available.
               </p>
@@ -252,11 +280,11 @@ export default function StatePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                   <div className="text-2xl font-bold">{stats.total}</div>
-                  <div className="text-white/80 text-sm">Service Providers</div>
+                  <div className="text-hero-foreground/80 text-sm">Service Providers</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                   <div className="text-2xl font-bold">{stats.cities}</div>
-                  <div className="text-white/80 text-sm">Cities Covered</div>
+                  <div className="text-hero-foreground/80 text-sm">Cities Covered</div>
                 </div>
               </div>
             </div>
@@ -375,7 +403,7 @@ export default function StatePage() {
                 <div className="text-sm font-medium">All Cities</div>
                 <div className="text-xs text-muted-foreground">{stats.total} providers</div>
               </button>
-              {cities.map(cityData => (
+              {(showAllCities ? cities : cities.slice(0, 20)).map(cityData => (
                 <button
                   key={cityData.city}
                   onClick={() => handleCityClick(cityData.city)}
@@ -392,21 +420,22 @@ export default function StatePage() {
                 </button>
               ))}
             </div>
-            {cities.length > 18 && (
+            {cities.length > 20 && !showAllCities && (
               <div className="text-center mt-4">
-                <Link
-                  href="#all-cities"
+                <button
+                  type="button"
+                  onClick={() => setShowAllCities(true)}
                   className="text-primary hover:text-primary/80 font-medium text-sm"
                 >
                   View all {cities.length} cities →
-                </Link>
+                </button>
               </div>
             )}
           </section>
         )}
 
-        {/* Cities with Provider Counts - Like locations page */}
-        {cities.length > 0 && (
+        {/* Cities with Provider Counts - show only for Virginia to avoid duplicate grids */}
+        {cities.length > 0 && isVirginia && (
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-6">Cities We Serve in {stateName}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
