@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Phone, CheckCircle, ArrowRight, Calendar, MapPin, Shield, Star, Clock, DollarSign, Truck, Info, ChevronDown, Map } from 'lucide-react';
 import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
-import GoogleLocationSearch from '@/components/GoogleLocationSearch';
 
 export default function HomePageClient() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -31,13 +30,54 @@ export default function HomePageClient() {
   const [selectedDate, setSelectedDate] = useState<string>('');
 
 
-  // Detect user location on mount
+  // Detect user location on mount and listen for header location changes
   useEffect(() => {
-    detectUserLocation();
+    // Check localStorage first for saved location
+    const savedLocation = localStorage.getItem('userLocation');
+    if (savedLocation) {
+      try {
+        const location = JSON.parse(savedLocation);
+        if (location.city && location.state) {
+          setUserLocation({ 
+            city: location.city, 
+            state: location.state, 
+            zipcode: location.zipcode || '' 
+          });
+        } else {
+          detectUserLocation();
+        }
+      } catch (e) {
+        detectUserLocation();
+      }
+    } else {
+      detectUserLocation();
+    }
+
+    // Listen for location changes from header
+    const handleLocationChange = (event: CustomEvent) => {
+      console.log('Location change event received:', event.detail);
+      const location = event.detail;
+      if (location.city && location.state) {
+        console.log('Updating location to:', location.city, location.state);
+        setUserLocation({ 
+          city: location.city, 
+          state: location.state, 
+          zipcode: location.zipcode || '' 
+        });
+        // Also update the quote form zipcode
+        setQuoteForm(prev => ({ ...prev, zipcode: location.zipcode || '' }));
+      }
+    };
+
+    window.addEventListener('locationChanged', handleLocationChange as EventListener);
+    return () => {
+      window.removeEventListener('locationChanged', handleLocationChange as EventListener);
+    };
   }, []);
 
   // Fetch providers when location changes
   useEffect(() => {
+    console.log('Location changed, userLocation:', userLocation);
     if (userLocation.city && userLocation.state) {
       fetchLocalProviders(userLocation.city, userLocation.state);
     }
@@ -59,11 +99,15 @@ export default function HomePageClient() {
 
   const fetchLocalProviders = async (city: string, state: string) => {
     try {
+      console.log('Fetching providers for:', city, state);
       setProvidersLoading(true);
-      const response = await fetch(`/api/businesses?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&featured=true&limit=6`);
+      const url = `/api/businesses?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&featured=true&limit=6`;
+      console.log('Fetching from URL:', url);
+      const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch providers');
+        console.error('Response not OK:', response.status, response.statusText);
+        throw new Error(`Failed to fetch providers: ${response.status}`);
       }
       
       const data = await response.json();
@@ -142,11 +186,14 @@ export default function HomePageClient() {
         const detectedLocation = {
           city: data.city,
           state: data.region_code || data.state,
-          zipcode: data.postal || ''
+          zipcode: data.postal || '',
+          formatted: `${data.city}, ${data.region_code || data.state}`
         };
         console.log('Setting user location to:', detectedLocation);
         setUserLocation(detectedLocation);
         setQuoteForm(prev => ({ ...prev, zipcode: data.postal || '' }));
+        // Save to localStorage for header to pick up
+        localStorage.setItem('userLocation', JSON.stringify(detectedLocation));
       } else if (data.error) {
         console.log('Geolocation API returned default location');
         // Still use the default location provided
@@ -310,6 +357,7 @@ export default function HomePageClient() {
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
                   Need a Dumpster in {userLocation.city}? Get a Quote.
                 </h1>
+                
                 <p className="text-xl text-hero-foreground/90 mb-6">
                   10–40 yard roll-offs • Same-day delivery in some areas • Upfront pricing—no surprises.
                 </p>

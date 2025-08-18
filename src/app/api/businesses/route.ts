@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
 
     // Check if database is configured
     if (!sql) {
+      console.log('Database not configured - DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
       return NextResponse.json({
         businesses: [],
         total: 0,

@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, ChevronDown, User, LogOut, Shield, Briefcase, Users, Settings, UserCircle } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Shield, Briefcase, Users, Settings, UserCircle, MapPin } from 'lucide-react';
+import GoogleLocationSearch from '@/components/GoogleLocationSearch';
 
 export default function Header() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -15,7 +16,71 @@ export default function Header() {
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [locationsDropdownOpen, setLocationsDropdownOpen] = useState(false);
   const [quickAccessOpen, setQuickAccessOpen] = useState(false);
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{ city?: string; state?: string; zipcode?: string; formatted: string }>({ formatted: 'Select Location' });
   
+  // Load saved location from localStorage on mount or detect it
+  useEffect(() => {
+    const savedLocation = localStorage.getItem('userLocation');
+    if (savedLocation) {
+      try {
+        const location = JSON.parse(savedLocation);
+        setCurrentLocation(location);
+      } catch (e) {
+        console.error('Error parsing saved location:', e);
+        detectUserLocation();
+      }
+    } else {
+      // No saved location, detect it
+      detectUserLocation();
+    }
+  }, []);
+
+  const detectUserLocation = async () => {
+    try {
+      const response = await fetch('/api/geolocation');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.city && (data.region_code || data.state)) {
+          const detectedLocation = {
+            city: data.city,
+            state: data.region_code || data.state,
+            zipcode: data.postal || '',
+            formatted: `${data.city}, ${data.region_code || data.state}`
+          };
+          setCurrentLocation(detectedLocation);
+          localStorage.setItem('userLocation', JSON.stringify(detectedLocation));
+        }
+      }
+    } catch (error) {
+      console.error('Error detecting location:', error);
+      // Set default location
+      const defaultLocation = {
+        city: 'Ashburn',
+        state: 'VA',
+        zipcode: '20147',
+        formatted: 'Ashburn, VA'
+      };
+      setCurrentLocation(defaultLocation);
+      localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
+    }
+  };
+
+  const handleLocationChange = (location: { city?: string; state?: string; zipcode?: string; formatted: string }) => {
+    // Only update if we have valid city and state
+    if (location.city && location.state) {
+      setCurrentLocation(location);
+      setShowLocationSearch(false);
+      
+      // Save to localStorage
+      localStorage.setItem('userLocation', JSON.stringify(location));
+      // Trigger a custom event so other components can listen for location changes
+      window.dispatchEvent(new CustomEvent('locationChanged', { detail: location }));
+    } else if (!location.formatted || location.formatted === '') {
+      // If empty selection, just close the search without updating
+      setShowLocationSearch(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -301,6 +366,45 @@ export default function Header() {
             >
               About
             </Link>
+
+            {/* Location Selector */}
+            <div className="relative">
+              {!showLocationSearch ? (
+                <button
+                  onClick={() => setShowLocationSearch(true)}
+                  className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  <MapPin className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {currentLocation.city && currentLocation.state 
+                      ? `${currentLocation.city}, ${currentLocation.state}`
+                      : currentLocation.formatted === 'Select Location' 
+                        ? 'Select Location'
+                        : currentLocation.formatted
+                    }
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                </button>
+              ) : (
+                <div className="absolute top-0 right-0 z-50 bg-white rounded-lg shadow-xl border p-3 min-w-[300px]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Change Location</span>
+                    <button
+                      onClick={() => setShowLocationSearch(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <GoogleLocationSearch
+                    value={currentLocation.formatted}
+                    onChange={handleLocationChange}
+                    placeholder="Enter city, state or ZIP"
+                    autofocus={true}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* CTA Button - Always show, different text based on auth */}
             <Link

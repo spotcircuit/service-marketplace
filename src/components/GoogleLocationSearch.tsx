@@ -139,10 +139,10 @@ export default function GoogleLocationSearch({
 
         setInputValue(formatted);
 
-        // Notify parent component
+        // Notify parent component - use state abbreviation for consistency
         onChange({
           city,
-          state,
+          state: stateShort || state, // Use abbreviation if available
           zipcode,
           formatted,
           lat: place.geometry?.location?.lat(),
@@ -172,14 +172,64 @@ export default function GoogleLocationSearch({
     inputRef.current?.focus();
   };
 
+  // Parse manual input like "Richmond, VA" or "Ashburn, VA"
+  const parseManualInput = (input: string) => {
+    const parts = input.split(',').map(s => s.trim());
+    if (parts.length >= 2) {
+      const city = parts[0];
+      const stateOrZip = parts[1];
+      
+      // Check if it's a state abbreviation (2 letters)
+      if (stateOrZip.length === 2) {
+        return {
+          city,
+          state: stateOrZip.toUpperCase(),
+          zipcode: '',
+          formatted: `${city}, ${stateOrZip.toUpperCase()}`
+        };
+      }
+      // Check if it includes state and zip
+      const stateParts = stateOrZip.split(' ').filter(Boolean);
+      if (stateParts.length > 0) {
+        return {
+          city,
+          state: stateParts[0].toUpperCase(),
+          zipcode: stateParts[1] || '',
+          formatted: input
+        };
+      }
+    }
+    return null;
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Prevent form submission on Enter when selecting from dropdown
     if (e.key === 'Enter') {
       const pacContainer = document.querySelector('.pac-container');
       if (pacContainer && (pacContainer as HTMLElement).style.display !== 'none') {
         e.preventDefault();
+      } else {
+        // No dropdown visible, try to parse manual input
+        e.preventDefault();
+        const parsed = parseManualInput(inputValue);
+        if (parsed) {
+          onChange(parsed);
+        }
       }
     }
+  };
+
+  const handleBlur = () => {
+    // Give autocomplete time to fire if user clicked on suggestion
+    setTimeout(() => {
+      // If value changed but no place was selected, try to parse it
+      if (inputValue && inputValue !== value) {
+        const parsed = parseManualInput(inputValue);
+        if (parsed) {
+          onChange(parsed);
+        }
+      }
+    }, 200);
   };
 
   return (
@@ -193,6 +243,7 @@ export default function GoogleLocationSearch({
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         placeholder={placeholder}
         autoFocus={autofocus}
         className={`w-full ${showIcon ? 'pl-10' : 'pl-4'} pr-10 py-2 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary ${className}`}
