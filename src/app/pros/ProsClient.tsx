@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { loadGoogleMaps } from '@/lib/google-maps';
 import {
   DollarSign,
   TrendingUp,
@@ -27,6 +28,7 @@ export default function ProsClient() {
   const [placeDetails, setPlaceDetails] = useState<any>(null);
   const [foundBusiness, setFoundBusiness] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
+  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const autocompleteRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -129,24 +131,35 @@ export default function ProsClient() {
     }
   }, []);
 
-  // Initialize Google Places Autocomplete if available
+  // Initialize Google Places Autocomplete
   useEffect(() => {
     let mounted = true;
+    let autocompleteInstance: any = null;
 
-    const initAutocomplete = () => {
+    const initAutocomplete = async () => {
       try {
         if (!mounted || !inputRef.current) return;
+        
+        // Load Google Maps if not already loaded
+        await loadGoogleMaps();
+        
+        if (!mounted || !inputRef.current) return;
+        
         const g = (globalThis as any).google;
         if (g?.maps?.places) {
-          autocompleteRef.current = new g.maps.places.Autocomplete(inputRef.current, {
+          autocompleteInstance = new g.maps.places.Autocomplete(inputRef.current, {
             types: ['establishment', 'geocode'],
             componentRestrictions: { country: 'us' },
             fields: ['name', 'formatted_address', 'place_id', 'geometry', 'types', 'address_components', 'formatted_phone_number', 'website'],
           });
-          autocompleteRef.current.addListener('place_changed', handlePlaceSelect);
+          
+          autocompleteRef.current = autocompleteInstance;
+          autocompleteInstance.addListener('place_changed', handlePlaceSelect);
+          setGoogleMapsLoaded(true);
         }
       } catch (err) {
         console.error('Error initializing Google Autocomplete:', err);
+        setGoogleMapsLoaded(false);
       }
     };
 
@@ -155,8 +168,8 @@ export default function ProsClient() {
     return () => {
       mounted = false;
       const g = (globalThis as any).google;
-      if (autocompleteRef.current && g?.maps?.event) {
-        g.maps.event.clearInstanceListeners(autocompleteRef.current);
+      if (autocompleteInstance && g?.maps?.event) {
+        g.maps.event.clearInstanceListeners(autocompleteInstance);
       }
     };
   }, [handlePlaceSelect]);
@@ -494,7 +507,12 @@ export default function ProsClient() {
                   />
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Start typing and select your business from the dropdown suggestions for accurate address details</p>
+                {!googleMapsLoaded && (
+                  <p className="text-xs text-amber-600 mt-2">Loading address autocomplete...</p>
+                )}
+                {googleMapsLoaded && (
+                  <p className="text-xs text-muted-foreground mt-2">Start typing and select your business from the dropdown suggestions for accurate address details</p>
+                )}
               </div>
 
               {isLoading && (
