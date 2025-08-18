@@ -1,4 +1,17 @@
+import { Metadata } from 'next';
+import { generateMetadata as generateSEO } from '@/lib/seo-engine';
+
 export const dynamic = 'force-static';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSEO({
+    pageType: 'about',
+    title: 'Terms of Service - Terms & Conditions',
+    description: 'Terms of service and conditions for using our dumpster rental platform. Review our usage policies and user agreements.',
+    keywords: ['terms of service', 'terms and conditions', 'user agreement'],
+    noindex: false
+  });
+}
 
 export default function TermsPage() {
   return (

@@ -1,0 +1,616 @@
+{
+  "niche": "dumpster-rental",
+  "brand": {
+    "name": "Hometown Dumpster Rental",
+    "tagline": "America's #1 Source for Dumpsters and Junk Removal",
+    "usp": "Same-day delivery with transparent pricing and no hidden fees"
+  },
+  
+  "semantic_seo": {
+    "primary_topic": "waste_management_services",
+    "topic_clusters": {
+      "services": {
+        "pillar": "dumpster rental services",
+        "clusters": [
+          "residential dumpster rental",
+          "commercial dumpster rental", 
+          "construction dumpster rental",
+          "roofing dumpster rental",
+          "concrete dumpster rental",
+          "yard waste dumpster rental"
+        ]
+      },
+      "education": {
+        "pillar": "dumpster rental guide",
+        "clusters": [
+          "dumpster sizes guide",
+          "dumpster rental prices",
+          "dumpster rental regulations",
+          "how to rent a dumpster",
+          "what can go in a dumpster",
+          "dumpster rental tips"
+        ]
+      },
+      "local": {
+        "pillar": "local dumpster rental",
+        "clusters": [
+          "dumpster rental near me",
+          "same day dumpster rental",
+          "emergency dumpster rental",
+          "weekend dumpster rental"
+        ]
+      }
+    },
+    "entities": {
+      "brand": "@HometownDumpster",
+      "services": ["@DumpsterRental", "@WasteManagement", "@JunkRemoval", "@DebrisHauling"],
+      "products": ["@RollOffDumpster", "@FrontLoadDumpster", "@RearLoadDumpster"],
+      "relationships": ["provides", "delivers", "serves", "located_in"]
+    }
+  },
+  
+  "keyword_intelligence": {
+    "seed_keywords": [
+      "dumpster rental",
+      "roll off dumpster",
+      "waste container",
+      "debris removal",
+      "junk removal",
+      "waste management"
+    ],
+    "primary_keywords": [
+      "dumpster rental near me",
+      "roll off dumpster rental",
+      "cheap dumpster rental",
+      "dumpster rental prices",
+      "same day dumpster rental",
+      "residential dumpster rental",
+      "commercial dumpster rental",
+      "construction dumpster rental"
+    ],
+    "size_keywords": [
+      "10 yard dumpster",
+      "15 yard dumpster",
+      "20 yard dumpster",
+      "30 yard dumpster",
+      "40 yard dumpster",
+      "small dumpster rental",
+      "large dumpster rental"
+    ],
+    "project_keywords": [
+      "home renovation dumpster",
+      "roofing dumpster rental",
+      "concrete dumpster rental",
+      "yard waste dumpster",
+      "estate cleanout dumpster",
+      "demolition dumpster rental",
+      "construction debris removal",
+      "remodeling dumpster rental"
+    ],
+    "local_modifiers": [
+      "near me",
+      "in my area",
+      "local",
+      "nearby",
+      "[city] dumpster rental",
+      "dumpster rental [zipcode]",
+      "[county] waste management"
+    ],
+    "commercial_intent": [
+      "rent",
+      "hire",
+      "book",
+      "order",
+      "get",
+      "find",
+      "need",
+      "looking for"
+    ],
+    "informational_intent": [
+      "how much",
+      "what size",
+      "how to",
+      "what can",
+      "how long",
+      "when to",
+      "cost of",
+      "price for"
+    ],
+    "comparison_keywords": [
+      "best dumpster rental",
+      "top dumpster companies",
+      "dumpster rental reviews",
+      "compare dumpster prices",
+      "cheapest dumpster rental",
+      "dumpster rental vs junk removal"
+    ],
+    "long_tail_patterns": [
+      "[size] yard dumpster rental [location]",
+      "[modifier] dumpster rental for [project_type]",
+      "how much does [size] dumpster cost in [city]",
+      "[project_type] dumpster rental [location]",
+      "rent [size] dumpster for [duration] in [city]"
+    ]
+  },
+  
+  "structured_data": {
+    "schemas": {
+      "organization": {
+        "type": "Organization",
+        "subType": "LocalBusiness",
+        "additionalType": "WasteManagementService"
+      },
+      "services": [
+        {
+          "type": "Service",
+          "name": "Dumpster Rental",
+          "category": "Waste Management"
+        },
+        {
+          "type": "Service", 
+          "name": "Junk Removal",
+          "category": "Hauling Service"
+        }
+      ],
+      "products": [
+        {
+          "type": "Product",
+          "name": "10 Yard Dumpster",
+          "category": "Waste Container"
+        },
+        {
+          "type": "Product",
+          "name": "20 Yard Dumpster",
+          "category": "Waste Container"
+        },
+        {
+          "type": "Product",
+          "name": "30 Yard Dumpster",
+          "category": "Waste Container"
+        },
+        {
+          "type": "Product",
+          "name": "40 Yard Dumpster",
+          "category": "Waste Container"
+        }
+      ],
+      "faqs": {
+        "questions": [
+          "How much does it cost to rent a dumpster?",
+          "What size dumpster do I need?",
+          "How long can I keep the dumpster?",
+          "What can I put in a dumpster?",
+          "Do I need a permit for a dumpster?",
+          "How quickly can you deliver a dumpster?",
+          "What items are prohibited in dumpsters?"
+        ]
+      },
+      "howTo": [
+        {
+          "name": "How to Rent a Dumpster",
+          "steps": ["Choose size", "Schedule delivery", "Fill dumpster", "Schedule pickup"]
+        },
+        {
+          "name": "How to Choose Dumpster Size",
+          "steps": ["Estimate debris", "Consider space", "Check weight limits", "Select size"]
+        }
+      ]
+    },
+    "rich_results": {
+      "local_pack": true,
+      "faq_snippets": true,
+      "review_stars": true,
+      "knowledge_panel": true,
+      "site_links": true,
+      "price_range": "$$",
+      "service_area": "50 mile radius"
+    }
+  },
+  
+  "content_optimization": {
+    "title_formulas": [
+      "{primary_keyword} in {city} | Same Day Delivery | {brand}",
+      "{city} {primary_keyword} | {size} Yard Dumpsters | Call Now",
+      "{modifier} {primary_keyword} Near Me | {brand} - {city}, {state}",
+      "{size} Yard Dumpster Rental {city} | {project_type} | {brand}",
+      "{project_type} Dumpster Rental in {city} | {modifier} Prices"
+    ],
+    "meta_description_formulas": [
+      "Looking for {primary_keyword} in {city}? {brand} offers {modifier} dumpster rentals with same-day delivery. Sizes from 10-40 yards. No hidden fees. Call {phone}!",
+      "Rent a {size} yard dumpster in {city} starting at ${price}. Perfect for {project_type}. Same-day delivery available. Licensed & insured. Call now for instant quote!",
+      "Need {primary_keyword}? We deliver {size} yard dumpsters to {city} and surrounding areas. {modifier} prices, flexible rental periods. Book online or call {phone}.",
+      "{brand} - Your local {city} dumpster rental company. {size} yard containers for {project_type}. Free delivery, competitive rates, excellent service. Get quote now!"
+    ],
+    "h1_formulas": [
+      "{primary_keyword} in {city}, {state}",
+      "{modifier} {primary_keyword} Services in {city}",
+      "{city} {primary_keyword} - {size} Yard Dumpsters Available",
+      "{project_type} Dumpster Rental {city}"
+    ],
+    "content_sections": [
+      "service_overview",
+      "sizes_and_pricing", 
+      "what_we_accept",
+      "delivery_areas",
+      "how_it_works",
+      "why_choose_us",
+      "customer_reviews",
+      "faqs",
+      "instant_quote"
+    ]
+  },
+  
+  "technical_seo": {
+    "crawl_optimization": {
+      "priority_pages": ["home", "city_pages", "service_pages", "size_pages"],
+      "sitemap_frequency": {
+        "home": "daily",
+        "location": "weekly",
+        "service": "monthly",
+        "blog": "weekly"
+      },
+      "pagination_strategy": "rel_next_prev",
+      "canonical_rules": "lowercase_trailing_slash"
+    },
+    "performance": {
+      "target_metrics": {
+        "lcp": 2.5,
+        "fid": 100,
+        "cls": 0.1,
+        "ttfb": 600
+      },
+      "optimization": {
+        "image_formats": ["webp", "avif"],
+        "critical_resources": ["css", "fonts", "above_fold_images"],
+        "lazy_load": ["images", "videos", "iframes"],
+        "preconnect": ["fonts.googleapis.com", "maps.googleapis.com"]
+      }
+    },
+    "mobile_optimization": {
+      "viewport": "width=device-width, initial-scale=1",
+      "tap_targets": "48px",
+      "font_size": "16px minimum",
+      "responsive_images": true
+    }
+  },
+  
+  "ai_sge_optimization": {
+    "answer_targets": [
+      {
+        "query": "how much does dumpster rental cost",
+        "answer": "Dumpster rental typically costs $300-$600 per week, depending on size and location. 10-yard dumpsters start around $300, while 40-yard dumpsters can reach $600+."
+      },
+      {
+        "query": "what size dumpster do i need",
+        "answer": "For most home projects, a 20-yard dumpster works well. Small cleanouts need 10-15 yards, large renovations need 30-40 yards."
+      },
+      {
+        "query": "can you put concrete in a dumpster",
+        "answer": "Yes, but you need a specific heavy debris dumpster. Concrete is too heavy for regular dumpsters. Most companies offer special concrete/dirt dumpsters."
+      }
+    ],
+    "conversational_snippets": {
+      "pricing": "Dumpster rental costs vary by size and location. A 10-yard dumpster typically costs $300-$400, 20-yard $400-$500, 30-yard $450-$550, and 40-yard $500-$600 for a week rental.",
+      "sizing": "Choose your dumpster size based on your project: 10-yard for small cleanouts, 20-yard for medium renovations, 30-yard for construction, and 40-yard for large demolitions.",
+      "booking": "To rent a dumpster: 1) Choose your size, 2) Select delivery date, 3) Provide delivery address, 4) Confirm rental period. Most companies offer same-day or next-day delivery.",
+      "prohibited": "Never put hazardous materials, tires, batteries, paint, chemicals, asbestos, or medical waste in a dumpster. Most household and construction debris is acceptable."
+    },
+    "featured_snippet_optimization": {
+      "tables": ["dumpster_sizes", "pricing_guide", "weight_limits"],
+      "lists": ["prohibited_items", "accepted_materials", "rental_process"],
+      "paragraphs": ["cost_factors", "permit_requirements", "rental_tips"]
+    }
+  },
+  
+  "local_seo": {
+    "geo_targeting": {
+      "service_radius": "50_miles",
+      "primary_cities": ["target_city_list"],
+      "secondary_areas": ["suburbs", "townships", "counties"],
+      "zip_codes": ["all_serviced_zips"]
+    },
+    "local_keywords": {
+      "patterns": [
+        "dumpster rental {city}",
+        "{city} dumpster rental",
+        "dumpster rental in {city}",
+        "dumpster rental near {landmark}",
+        "{neighborhood} dumpster rental"
+      ]
+    },
+    "local_content": {
+      "city_specific": ["local regulations", "permit info", "disposal locations"],
+      "area_pages": ["neighborhood pages", "zip code pages", "county pages"],
+      "local_proof": ["local photos", "local reviews", "local case studies"]
+    }
+  },
+  
+  "voice_search": {
+    "natural_queries": [
+      "find dumpster rental near me",
+      "I need a dumpster delivered today",
+      "what's the cheapest dumpster rental",
+      "who rents dumpsters in my area",
+      "how do I rent a dumpster",
+      "where can I rent a roll off dumpster"
+    ],
+    "action_queries": [
+      "call dumpster rental company",
+      "book dumpster rental online",
+      "get dumpster rental quote",
+      "order dumpster for delivery"
+    ]
+  },
+  
+  "conversion_optimization": {
+    "cta_variations": [
+      "Get Instant Quote",
+      "Book Now - Same Day Delivery",
+      "Call Now: {phone}",
+      "Reserve Your Dumpster",
+      "Check Availability",
+      "Get Free Quote"
+    ],
+    "urgency_triggers": [
+      "Same day delivery available",
+      "Limited availability this week",
+      "Book now for weekend delivery",
+      "Special pricing today only"
+    ],
+    "trust_signals": [
+      "Licensed & Insured",
+      "4.8★ Google Rating",
+      "10,000+ Satisfied Customers",
+      "Family Owned Since 2010",
+      "BBB Accredited",
+      "No Hidden Fees"
+    ]
+  },
+  
+  "tracking_metrics": {
+    "kpis": [
+      "organic_traffic_growth",
+      "keyword_rankings",
+      "local_pack_positions",
+      "featured_snippets_won",
+      "conversion_rate",
+      "average_position",
+      "click_through_rate",
+      "bounce_rate",
+      "pages_per_session"
+    ],
+    "competitor_monitoring": [
+      "ranking_gaps",
+      "content_gaps",
+      "link_gaps",
+      "review_comparison"
+    ]
+  },
+  
+  "internal_linking": {
+    "strategy": "hub_and_spoke_with_semantic_mesh",
+    "link_depth": 3,
+    "links_per_page": {
+      "minimum": 3,
+      "maximum": 10,
+      "optimal": 5
+    },
+    "pillar_pages": {
+      "main_pillars": [
+        {
+          "url": "/dumpster-rental-guide",
+          "anchor_variations": [
+            "complete dumpster rental guide",
+            "dumpster rental guide",
+            "how to rent a dumpster",
+            "dumpster rental process"
+          ],
+          "linked_clusters": [
+            "/dumpster-sizes",
+            "/dumpster-prices",
+            "/what-can-go-in-dumpster",
+            "/dumpster-permits",
+            "/how-long-keep-dumpster"
+          ]
+        },
+        {
+          "url": "/dumpster-sizes",
+          "anchor_variations": [
+            "dumpster sizes guide",
+            "what size dumpster",
+            "dumpster dimensions",
+            "container sizes"
+          ],
+          "linked_clusters": [
+            "/10-yard-dumpster",
+            "/20-yard-dumpster",
+            "/30-yard-dumpster",
+            "/40-yard-dumpster",
+            "/dumpster-size-calculator"
+          ]
+        },
+        {
+          "url": "/services",
+          "anchor_variations": [
+            "our services",
+            "dumpster rental services",
+            "waste management services"
+          ],
+          "linked_clusters": [
+            "/residential-dumpster-rental",
+            "/commercial-dumpster-rental",
+            "/construction-dumpster-rental",
+            "/junk-removal-service"
+          ]
+        }
+      ]
+    },
+    "semantic_linking": {
+      "contextual_rules": [
+        {
+          "when_mentioning": ["price", "cost", "cheap", "affordable"],
+          "link_to": "/dumpster-rental-prices",
+          "anchor_text": ["dumpster rental prices", "rental costs", "pricing guide"]
+        },
+        {
+          "when_mentioning": ["size", "dimensions", "capacity", "yard"],
+          "link_to": "/dumpster-sizes",
+          "anchor_text": ["dumpster sizes", "size guide", "container dimensions"]
+        },
+        {
+          "when_mentioning": ["permit", "regulations", "rules", "HOA"],
+          "link_to": "/dumpster-permits",
+          "anchor_text": ["dumpster permits", "permit requirements", "local regulations"]
+        },
+        {
+          "when_mentioning": ["prohibited", "banned", "can't put", "not allowed"],
+          "link_to": "/prohibited-items",
+          "anchor_text": ["prohibited items", "what not to put", "banned materials"]
+        }
+      ],
+      "entity_links": [
+        {
+          "entity": "residential_project",
+          "links": ["/residential-dumpster-rental", "/home-renovation-dumpster", "/estate-cleanout"]
+        },
+        {
+          "entity": "commercial_project",
+          "links": ["/commercial-dumpster-rental", "/construction-dumpster", "/business-waste"]
+        },
+        {
+          "entity": "specific_debris",
+          "links": ["/concrete-disposal", "/yard-waste-removal", "/roofing-shingle-disposal"]
+        }
+      ]
+    },
+    "location_interlinking": {
+      "hierarchy": [
+        {
+          "level": "state",
+          "pattern": "/{state}",
+          "links_to": ["cities", "counties", "services"]
+        },
+        {
+          "level": "city",
+          "pattern": "/{state}/{city}",
+          "links_to": ["neighborhoods", "services", "state_page"]
+        },
+        {
+          "level": "neighborhood",
+          "pattern": "/{state}/{city}/{neighborhood}",
+          "links_to": ["city_page", "nearby_neighborhoods", "services"]
+        }
+      ],
+      "cross_location_linking": {
+        "nearby_cities": true,
+        "service_area_map": true,
+        "location_hub_page": "/locations"
+      }
+    },
+    "breadcrumb_structure": {
+      "schemas": [
+        {
+          "pattern": "Home > Services > {Service Type} > {Specific Service}",
+          "example": "Home > Services > Residential > Home Renovation Dumpster"
+        },
+        {
+          "pattern": "Home > Locations > {State} > {City}",
+          "example": "Home > Locations > Virginia > Richmond"
+        },
+        {
+          "pattern": "Home > Resources > {Resource Type} > {Specific Guide}",
+          "example": "Home > Resources > Guides > Dumpster Size Calculator"
+        }
+      ]
+    },
+    "link_equity_flow": {
+      "homepage_links": [
+        "/services",
+        "/locations",
+        "/dumpster-sizes",
+        "/pricing",
+        "/about"
+      ],
+      "high_value_pages": [
+        "/dumpster-rental-near-me",
+        "/{primary_city}-dumpster-rental",
+        "/commercial-dumpster-rental",
+        "/same-day-dumpster-rental"
+      ],
+      "link_sculpting": {
+        "nofollow": ["privacy", "terms", "admin", "login"],
+        "follow": ["all_service_pages", "all_location_pages", "all_guides"]
+      }
+    },
+    "anchor_text_diversity": {
+      "exact_match": "15%",
+      "partial_match": "25%",
+      "branded": "20%",
+      "generic": "20%",
+      "long_tail": "20%",
+      "examples": {
+        "exact": "dumpster rental",
+        "partial": "affordable dumpster rental services",
+        "branded": "Hometown Dumpster",
+        "generic": "click here, learn more",
+        "long_tail": "rent a 20 yard dumpster for home renovation"
+      }
+    },
+    "content_hub_strategy": {
+      "main_hubs": [
+        {
+          "hub": "/resources",
+          "spokes": [
+            "/guides",
+            "/calculators",
+            "/faqs",
+            "/blog"
+          ]
+        },
+        {
+          "hub": "/services",
+          "spokes": [
+            "/residential",
+            "/commercial",
+            "/construction",
+            "/special-events"
+          ]
+        }
+      ],
+      "cross_hub_linking": true,
+      "hub_authority_building": "link_from_all_relevant_pages"
+    },
+    "related_content": {
+      "algorithm": "semantic_similarity_and_user_intent",
+      "display_locations": ["sidebar", "end_of_content", "in_content"],
+      "rules": [
+        {
+          "on_page_type": "size_guide",
+          "show_related": ["pricing", "project_guides", "calculator"]
+        },
+        {
+          "on_page_type": "location",
+          "show_related": ["nearby_locations", "local_services", "local_guides"]
+        },
+        {
+          "on_page_type": "service",
+          "show_related": ["related_services", "size_guide", "pricing", "faqs"]
+        }
+      ]
+    },
+    "link_automation_rules": [
+      {
+        "trigger": "new_location_page",
+        "action": "link_from_state_page_and_nearby_cities"
+      },
+      {
+        "trigger": "new_service_page",
+        "action": "link_from_main_service_hub_and_related_services"
+      },
+      {
+        "trigger": "new_guide",
+        "action": "link_from_relevant_service_and_location_pages"
+      }
+    ]
+  }
+}

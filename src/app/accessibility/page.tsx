@@ -1,4 +1,17 @@
+import { Metadata } from 'next';
+import { generateMetadata as generateSEO } from '@/lib/seo-engine';
+
 export const dynamic = 'force-static';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSEO({
+    pageType: 'about',
+    title: 'Accessibility Statement - Web Accessibility Information',
+    description: 'Our commitment to web accessibility and providing an inclusive experience for all users of our dumpster rental platform.',
+    keywords: ['accessibility statement', 'web accessibility', 'inclusive design'],
+    noindex: false
+  });
+}
 
 export default function AccessibilityPage() {
   return (

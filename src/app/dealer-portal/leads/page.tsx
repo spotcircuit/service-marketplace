@@ -251,8 +251,8 @@ export default function LeadsPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center">
+          <div className="flex items-center justify-between py-4 flex-wrap gap-3">
+            <div className="flex items-center min-w-0">
               <Link
                 href="/dealer-portal"
                 className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition"
@@ -264,15 +264,15 @@ export default function LeadsPage() {
                 <p className="text-sm text-gray-600">Manage and respond to customer inquiries</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg flex-shrink-0">
                 <Coins className="h-5 w-5 text-blue-600" />
                 <span className="font-semibold text-blue-900">{leadCredits}</span>
                 <span className="text-sm text-blue-700">credits</span>
               </div>
               <Link
                 href="/dealer-portal"
-                className="text-sm text-blue-600 hover:text-blue-700 underline"
+                className="text-sm text-blue-600 hover:text-blue-700 underline ml-auto sm:ml-0"
               >
                 Buy Credits
               </Link>
@@ -309,12 +309,12 @@ export default function LeadsPage() {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <Filter className="h-5 w-5 text-gray-500" />
                 <span className="font-medium">Filter by Status:</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto -mx-2 px-2 pb-1">
                 {['all', 'new', 'viewed', 'contacted', 'won', 'lost'].map((status) => (
                   <button
                     key={status}
@@ -347,7 +347,7 @@ export default function LeadsPage() {
                     setSelectedLead(currentLead);
                   }}
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold">
@@ -396,7 +396,8 @@ export default function LeadsPage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 ml-4">
+                    {/* Desktop Actions */}
+                    <div className="hidden sm:flex gap-2 ml-4">
                       {lead.is_revealed ? (
                         <>
                           <a
@@ -437,6 +438,51 @@ export default function LeadsPage() {
                         </button>
                       )}
                     </div>
+                  </div>
+
+                  {/* Mobile Actions */}
+                  <div className="sm:hidden mt-3">
+                    {lead.is_revealed ? (
+                      <div className="flex gap-2">
+                        <a
+                          href={`tel:${lead.phone}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                        >
+                          <Phone className="h-5 w-5" />
+                          Call
+                        </a>
+                        <a
+                          href={`mailto:${lead.email}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        >
+                          <Mail className="h-5 w-5" />
+                          Email
+                        </a>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          revealLead(lead.id);
+                        }}
+                        disabled={revealingLead === lead.id || leadCredits <= 0}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {revealingLead === lead.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Revealing...
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4" />
+                            Reveal (1 Credit)
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
 
                   {/* Quick Actions */}

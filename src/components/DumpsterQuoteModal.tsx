@@ -374,14 +374,14 @@ export default function DumpsterQuoteModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-stretch md:items-center justify-center p-0 md:p-4">
         {/* Backdrop */}
         <div className="fixed inset-0 bg-black/50" onClick={onClose} />
 
         {/* Modal */}
-        <div className="relative bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="relative bg-white rounded-none md:rounded-xl shadow-xl w-full h-full md:max-w-2xl md:h-auto md:max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+          <div className="sticky top-0 bg-white border-b px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold">
                 {businessName ? `Get Quote from ${businessName}` : 'Get Your Dumpster Quote'}
@@ -413,7 +413,7 @@ export default function DumpsterQuoteModal({
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div>
@@ -510,7 +510,7 @@ export default function DumpsterQuoteModal({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       First Name <span className="text-red-500">*</span>
@@ -713,7 +713,7 @@ export default function DumpsterQuoteModal({
                     Have a longer project? Pay less than our standard rate of $15/day for extra days.
                   </p>
                   
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {RENTAL_PERIODS.map((period) => (
                       <button
                         key={period.days}
@@ -852,11 +852,11 @@ export default function DumpsterQuoteModal({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex items-center justify-between">
+          <div className="sticky bottom-0 bg-white border-t px-4 md:px-6 py-3 md:py-4 flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center justify-between">
             <button
               onClick={handleBack}
               disabled={currentStep === 1}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+              className={`px-4 py-3 md:py-2 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto ${
                 currentStep === 1
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-gray-700 hover:bg-gray-100'
@@ -869,7 +869,7 @@ export default function DumpsterQuoteModal({
             <button
               onClick={handleNext}
               disabled={!isStepValid() || isSubmitting}
-              className={`px-6 py-2 rounded-lg flex items-center gap-2 font-medium ${
+              className={`px-6 py-3 md:py-2 rounded-lg flex items-center justify-center gap-2 font-medium w-full sm:w-auto ${
                 isStepValid() && !isSubmitting
                   ? 'bg-primary text-white hover:bg-primary/90'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'

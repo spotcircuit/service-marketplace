@@ -13,7 +13,9 @@ A fully-featured, niche-agnostic service marketplace platform built with Next.js
 - **Data-Driven Architecture** - Everything powered by database with server-side caching
 - **Multi-Theme Support** - Customizable themes separate from niche configuration
 - **Responsive Design** - Mobile-first, works on all devices
-- **SEO Optimized** - Dynamic routes for services, states, and cities
+- **Advanced SEO System** - Centralized SEO engine with structured data, keyword intelligence, and internal linking
+- **Schema.org Integration** - Rich snippets for all page types
+- **Dynamic Meta Tags** - Optimized metadata for every page
 
 ### Business Directory
 - **Featured Listings** - Promote businesses with subscription tiers
@@ -122,18 +124,30 @@ When database is not configured, use these demo accounts:
 - **Business Owner:** dealer@example.com / dealer123
 - **Customer:** customer@example.com / customer123
 
+## 📚 Documentation
+
+Complete documentation is available in the following files:
+
+- **[MIGRATION.md](MIGRATION.md)** - Comprehensive guide for migrating between niches (dumpster rental → medical spa example)
+- **[SEO.md](SEO.md)** - Complete SEO implementation guide with configuration, keywords, schemas, and internal linking
+- **[CLAUDE.md](CLAUDE.md)** - AI assistant instructions and codebase guidelines
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to the project
+
 ## 🎨 Niche Configuration
 
 The platform uses a JSON-based niche configuration system:
 
 1. **Active Niche:** Set in `config/active-niche.json`
 2. **Niche Configs:** Stored in `config/niches/[niche-name].json`
-3. **Default:** Dumpster rental configuration included
+3. **SEO Configs:** Stored in `config/seo/[niche-name].json`
+4. **Default:** Dumpster rental configuration included
 
 To create a new niche:
 1. Copy `config/niches/dumpster-rental.json`
-2. Rename and customize for your niche
-3. Update `config/active-niche.json`
+2. Copy `config/seo/dumpster-rental.json` 
+3. Rename and customize both for your niche
+4. Update `config/active-niche.json`
+5. Follow the [Migration Guide](MIGRATION.md) for detailed steps
 
 ## 📁 Project Structure
 
@@ -155,10 +169,12 @@ src/
 │   ├── cache.ts          # Server-side cache
 │   ├── neon.ts           # Database connection
 │   ├── stripe.ts         # Payment processing
-│   └── niche-config.ts   # Niche configuration
+│   ├── niche-config.ts   # Niche configuration
+│   └── seo-engine.ts     # SEO metadata and schema generation
 └── config/               # Configuration files
     ├── active-niche.json
-    └── niches/           # Niche configurations
+    ├── niches/           # Niche configurations
+    └── seo/              # SEO configurations per niche
 ```
 
 ## 🚀 Deployment

@@ -1,4 +1,17 @@
+import { Metadata } from 'next';
+import { generateMetadata as generateSEO } from '@/lib/seo-engine';
+
 export const dynamic = 'force-static';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSEO({
+    pageType: 'about',
+    title: 'Privacy Policy - Data Protection & Privacy Information',
+    description: 'Our privacy policy explains how we collect, use, and protect your personal information when using our dumpster rental platform.',
+    keywords: ['privacy policy', 'data protection', 'personal information'],
+    noindex: false
+  });
+}
 
 export default function PrivacyPage() {
   return (

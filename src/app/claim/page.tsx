@@ -45,7 +45,6 @@ function ClaimBusinessContent() {
   useEffect(() => {
     checkAuth();
     handleUrlParams();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Page-level header theming: make header use secondary while on /claim
@@ -60,7 +59,6 @@ function ClaimBusinessContent() {
         root.removeAttribute('data-header-tone');
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Debounced search for autocomplete

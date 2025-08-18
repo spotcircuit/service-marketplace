@@ -40,6 +40,19 @@ export default function DealerPortalLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Prevent background scroll when mobile sidebar is open
+  useEffect(() => {
+    const root = document.documentElement;
+    if (sidebarOpen) {
+      root.classList.add('overflow-hidden');
+    } else {
+      root.classList.remove('overflow-hidden');
+    }
+    return () => {
+      root.classList.remove('overflow-hidden');
+    };
+  }, [sidebarOpen]);
+
   const checkAuth = async () => {
     try {
       const response = await fetch('/api/auth/me');
@@ -101,6 +114,8 @@ export default function DealerPortalLayout({
 
       {/* Sidebar */}
       <aside
+        id="dealer-sidebar"
+        aria-hidden={!sidebarOpen}
         className={`fixed top-0 left-0 z-50 h-full w-64 bg-white shadow-lg transform transition-transform lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
@@ -115,6 +130,7 @@ export default function DealerPortalLayout({
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-gray-500 hover:text-gray-700"
+            aria-label="Close menu"
           >
             <X className="h-6 w-6" />
           </button>
@@ -157,11 +173,14 @@ export default function DealerPortalLayout({
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white shadow-sm border-b sticky top-0 z-30">
           <div className="flex items-center justify-between px-4 py-3">
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden text-gray-500 hover:text-gray-700"
+              aria-label="Open menu"
+              aria-controls="dealer-sidebar"
+              aria-expanded={sidebarOpen}
             >
               <Menu className="h-6 w-6" />
             </button>

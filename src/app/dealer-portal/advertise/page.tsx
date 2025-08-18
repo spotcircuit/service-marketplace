@@ -133,7 +133,6 @@ export default function AdvertisePage() {
 
   useEffect(() => {
     fetchBusinessProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -477,7 +476,7 @@ export default function AdvertisePage() {
         {business?.latitude && business?.longitude ? (
           <div>
             <div ref={mapRef} className="w-full h-96 rounded-lg" />
-            <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-green-500 rounded-full opacity-30 border-2 border-green-500"></div>
                 <span>Boost: 5 mile radius</span>
@@ -513,8 +512,8 @@ export default function AdvertisePage() {
 
       {/* Order Summary */}
       {selectedPackage !== null && (
-        <div className="bg-white rounded-2xl shadow-lg p-8 sticky bottom-4">
-          <div className="flex items-center justify-between">
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 md:static md:border-0 md:rounded-2xl md:shadow-lg md:p-8 md:bottom-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Order Summary</h3>
               <p className="text-gray-600 mt-1">
@@ -522,19 +521,17 @@ export default function AdvertisePage() {
                 {selectedAddons.length > 0 && ` + ${selectedAddons.length} addon(s)`}
               </p>
             </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-gray-900">
+            <div className="md:text-right">
+              <div className="text-2xl md:text-3xl font-bold text-gray-900">
                 ${calculateTotal()}
-                <span className="text-lg text-gray-600 ml-2">
-                  total
-                </span>
+                <span className="text-base md:text-lg text-gray-600 ml-2">total</span>
               </div>
               <p className="text-sm text-gray-500">One-time payment</p>
             </div>
             <button
               onClick={handlePurchase}
               disabled={loading}
-              className="ml-8 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50"
+              className="w-full md:w-auto md:ml-8 px-6 md:px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50"
             >
               {loading ? 'Processing...' : 'Start Advertising'}
               <ArrowRight className="inline-block ml-2 h-4 w-4" />

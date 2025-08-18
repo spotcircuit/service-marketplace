@@ -160,7 +160,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
                     <span className="font-medium text-foreground">{business.category}</span>
                     {business.years_in_business && (
                       <span>{business.years_in_business} years in business</span>
@@ -211,7 +211,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                 <button
                   onClick={() => {
                     const initialData: any = {
@@ -224,25 +224,25 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
                     setModalStartStep(1);
                     setShowQuoteModal(true);
                   }}
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium w-full sm:w-auto"
                 >
                   Get Free Quote
                 </button>
                 <a
                   href={`tel:${business.phone}`}
-                  className="px-6 py-3 border border-primary text-primary rounded-lg hover:bg-primary/10 font-medium inline-flex items-center justify-center"
+                  className="px-6 py-3 border border-primary text-primary rounded-lg hover:bg-primary/10 font-medium inline-flex items-center justify-center w-full sm:w-auto"
                 >
                   Call Now
                 </a>
                 {business.is_claimed ? (
-                  <div className="flex items-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-lg font-medium">
+                  <div className="flex items-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-lg font-medium w-full sm:w-auto justify-center">
                     <CheckCircle className="h-5 w-5" />
                     Business Claimed
                   </div>
                 ) : (
                   <Link 
                     href={`/claim?businessId=${resolvedParams.id}&businessName=${encodeURIComponent(business.name)}&address=${encodeURIComponent(business.address || '')}&city=${encodeURIComponent(business.city)}&state=${encodeURIComponent(business.state)}&zipcode=${encodeURIComponent(business.zipcode || '')}&phone=${encodeURIComponent(business.phone || '')}&email=${encodeURIComponent(business.email || '')}&category=${encodeURIComponent(business.category)}&website=${encodeURIComponent(business.website || '')}`} 
-                    className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 font-medium inline-flex items-center gap-2"
+                    className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 font-medium inline-flex items-center gap-2 w-full sm:w-auto justify-center"
                   >
                     <Shield className="h-5 w-5" />
                     Claim This Business
@@ -334,7 +334,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
               </div>
 
               {/* Review Summary */}
-              <div className="flex items-center gap-6 p-4 bg-muted/50 rounded-lg mb-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-4 bg-muted/50 rounded-lg mb-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold">{business.rating}</div>
                   <div className="flex items-center gap-1 mb-1">
@@ -352,7 +352,7 @@ export default function BusinessProfilePage({ params }: { params: Promise<{ id: 
                   <div className="text-sm text-muted-foreground">{business.reviews} reviews</div>
                 </div>
 
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <div className="space-y-2">
                     {[5, 4, 3, 2, 1].map(stars => {
                       const percentage = stars === 5 ? 70 : stars === 4 ? 20 : stars === 3 ? 10 : 0;

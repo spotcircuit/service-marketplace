@@ -417,11 +417,11 @@ export default function DealerDashboard() {
             Each credit lets you view one customer contact information
           </p>
           
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={() => handleBuyCredits(10, 20000)}
               disabled={buyingCredits}
-              className="p-3 border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-left"
             >
               <p className="font-semibold">10 Credits</p>
               <p className="text-sm text-gray-600">$200</p>
@@ -431,7 +431,7 @@ export default function DealerDashboard() {
             <button
               onClick={() => handleBuyCredits(25, 45000)}
               disabled={buyingCredits}
-              className="p-3 border rounded-lg hover:bg-gray-50 transition-colors relative disabled:opacity-50"
+              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors relative disabled:opacity-50 text-left"
             >
               <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">Save $50</span>
               <p className="font-semibold">25 Credits</p>
@@ -442,7 +442,7 @@ export default function DealerDashboard() {
             <button
               onClick={() => handleBuyCredits(50, 80000)}
               disabled={buyingCredits}
-              className="p-3 border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-left"
             >
               <p className="font-semibold">50 Credits</p>
               <p className="text-sm text-gray-600">$800</p>
