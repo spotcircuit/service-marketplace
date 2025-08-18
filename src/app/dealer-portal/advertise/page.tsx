@@ -339,7 +339,7 @@ export default function AdvertisePage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary text-primary-foreground rounded-full mb-4">
           <Megaphone className="h-8 w-8 text-white" />
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -351,30 +351,30 @@ export default function AdvertisePage() {
       </div>
 
       {/* Stats Banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-12 text-white">
+      <div className="bg-primary rounded-2xl p-8 mb-12 text-white">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
             <div className="text-3xl font-bold">3x</div>
-            <div className="text-blue-100">More Visibility</div>
+            <div className="text-white/80">More Visibility</div>
           </div>
           <div>
             <div className="text-3xl font-bold">Top 3</div>
-            <div className="text-blue-100">Search Placement</div>
+            <div className="text-white/80">Search Placement</div>
           </div>
           <div>
             <div className="text-3xl font-bold">30</div>
-            <div className="text-blue-100">Days Featured</div>
+            <div className="text-white/80">Days Featured</div>
           </div>
           <div>
             <div className="text-3xl font-bold">100%</div>
-            <div className="text-blue-100">Risk Free</div>
+            <div className="text-white/80">Risk Free</div>
           </div>
         </div>
       </div>
 
       {/* One-Time Purchase Notice */}
       <div className="text-center mb-8">
-        <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+        <span className="inline-flex items-center px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium">
           <Check className="h-4 w-4 mr-2" />
           One-time payment • No recurring fees • 30 days featured
         </span>
@@ -387,20 +387,20 @@ export default function AdvertisePage() {
             key={index}
             className={`relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all cursor-pointer ${
               selectedPackage === index
-                ? 'ring-4 ring-blue-500 transform scale-105'
+                ? 'ring-4 ring-secondary transform scale-105'
                 : 'hover:shadow-xl'
             }`}
             onClick={() => setSelectedPackage(index)}
           >
             {pkg.popular && (
-              <div className="absolute top-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
                 MOST POPULAR
               </div>
             )}
             
             <div className="p-8">
-              <div className={`inline-flex items-center justify-center w-12 h-12 bg-${pkg.color}-100 rounded-lg mb-4`}>
-                <pkg.icon className={`h-6 w-6 text-${pkg.color}-600`} />
+              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg mb-4 ${index === 0 ? 'bg-accent/10' : index === 1 ? 'bg-primary/10' : 'bg-secondary/10'}`}>
+                <pkg.icon className={`h-6 w-6 ${index === 0 ? 'text-accent' : index === 1 ? 'text-primary' : 'text-secondary'}`} />
               </div>
               
               <h3 className="text-2xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
@@ -418,7 +418,7 @@ export default function AdvertisePage() {
               <ul className="space-y-3 mb-6">
                 {pkg.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start">
-                    <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-accent mr-2 flex-shrink-0 mt-0.5" />
                     <span className="text-gray-700 text-sm">{feature}</span>
                   </li>
                 ))}
@@ -427,7 +427,7 @@ export default function AdvertisePage() {
               <button
                 className={`w-full py-3 rounded-lg font-medium transition ${
                   selectedPackage === index
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-secondary text-secondary-foreground'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -448,7 +448,7 @@ export default function AdvertisePage() {
               onClick={() => toggleAddon(index)}
               className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition ${
                 selectedAddons.includes(index)
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-secondary bg-secondary/10'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -478,21 +478,21 @@ export default function AdvertisePage() {
             <div ref={mapRef} className="w-full h-96 rounded-lg" />
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded-full opacity-30 border-2 border-green-500"></div>
+                <div className="w-4 h-4 bg-accent rounded-full opacity-20 border-2 border-accent"></div>
                 <span>Boost: 5 mile radius</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-yellow-500 rounded-full opacity-30 border-2 border-yellow-500"></div>
+                <div className="w-4 h-4 bg-primary rounded-full opacity-20 border-2 border-primary"></div>
                 <span>Featured: 10 mile radius</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-purple-500 rounded-full opacity-30 border-2 border-purple-500"></div>
+                <div className="w-4 h-4 bg-secondary rounded-full opacity-20 border-2 border-secondary"></div>
                 <span>Premium: 20 mile radius</span>
               </div>
             </div>
             {selectedAddons.includes(2) && (
               <div className="mt-2 flex items-center gap-2 text-sm">
-                <div className="w-4 h-4 bg-blue-500 rounded-full opacity-20 border border-blue-500"></div>
+                <div className="w-4 h-4 bg-secondary rounded-full opacity-10 border border-secondary"></div>
                 <span>Extended coverage with Multi-City addon</span>
               </div>
             )}
@@ -531,7 +531,7 @@ export default function AdvertisePage() {
             <button
               onClick={handlePurchase}
               disabled={loading}
-              className="w-full md:w-auto md:ml-8 px-6 md:px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50"
+              className="w-full md:w-auto md:ml-8 px-6 md:px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition disabled:opacity-50"
             >
               {loading ? 'Processing...' : 'Start Advertising'}
               <ArrowRight className="inline-block ml-2 h-4 w-4" />
@@ -541,12 +541,12 @@ export default function AdvertisePage() {
       )}
 
       {/* Info Section */}
-      <div className="mt-12 bg-blue-50 rounded-lg p-6">
+      <div className="mt-12 bg-secondary/10 rounded-lg p-6">
         <div className="flex items-start">
-          <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
+          <Info className="h-5 w-5 text-secondary mt-0.5 mr-3" />
           <div>
-            <h4 className="font-semibold text-blue-900 mb-2">How It Works</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <h4 className="font-semibold text-gray-900 mb-2">How It Works</h4>
+            <ul className="text-sm text-secondary space-y-1">
               <li>• Your promotion starts immediately after payment</li>
               <li>• Featured placement lasts for 30 days from purchase</li>
               <li>• First-come, first-served for premium positions</li>

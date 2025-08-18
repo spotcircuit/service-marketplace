@@ -114,13 +114,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Validate required fields
-    const { name, email, phone, service_type } = body;
-    if (!name || !email || !service_type) {
-      return NextResponse.json(
-        { error: 'Name, email, and service type are required' },
-        { status: 400 }
-      );
+    // Handle simplified quote from homepage
+    if (body.source === 'homepage') {
+      const { email, phone, zipcode, dumpsterSize } = body;
+      if (!email || !phone || !zipcode || !dumpsterSize) {
+        return NextResponse.json(
+          { error: 'Email, phone, zipcode, and dumpster size are required' },
+          { status: 400 }
+        );
+      }
+      
+      // Use email as name if not provided
+      body.name = body.name || email.split('@')[0];
+      body.service_type = `Dumpster Rental - ${dumpsterSize}`;
+    } else {
+      // Validate required fields for detailed quote
+      const { name, email, phone, service_type } = body;
+      if (!name || !email || !service_type) {
+        return NextResponse.json(
+          { error: 'Name, email, and service type are required' },
+          { status: 400 }
+        );
+      }
     }
 
     // Extract service address and location details
@@ -154,9 +169,9 @@ export async function POST(request: NextRequest) {
         user_agent
       ) VALUES (
         ${userId},
-        ${name},
-        ${email},
-        ${phone || null},
+        ${body.name},
+        ${body.email},
+        ${body.phone || null},
         ${body.zipcode || null},
         ${serviceAddress || null},
         ${serviceCity || null},
@@ -164,8 +179,8 @@ export async function POST(request: NextRequest) {
         ${serviceArea || null},
         ${body.businessId || null},
         ${body.businessName || null},
-        ${service_type},
-        ${body.project_description || null},
+        ${body.service_type},
+        ${body.project_description || body.projectType || body.dumpsterSize || null},
         ${body.timeline || body.deliveryDate || 'flexible'},
         ${body.budget || 'not_sure'},
         'new',
@@ -235,6 +250,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       quote,
+      quoteId: quote.id,
       message: 'Quote request submitted successfully'
     });
   } catch (error) {

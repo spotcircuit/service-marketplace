@@ -269,7 +269,7 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -305,7 +305,7 @@ export default function AdminPage() {
           </div>
           {message && (
             <div className={`mt-4 p-3 rounded-lg ${
-              message.includes('success') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              message.includes('success') ? 'bg-accent/15 text-accent' : 'bg-destructive/15 text-destructive'
             }`}>
               {message}
             </div>
@@ -670,7 +670,7 @@ export default function AdminPage() {
                             const newCategories = localConfig.serviceCategories.filter((_: any, i: number) => i !== index);
                             setLocalConfig({...localConfig, serviceCategories: newCategories});
                           }}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-destructive hover:text-destructive/80"
                         >
                           Remove
                         </button>

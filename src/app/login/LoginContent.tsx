@@ -148,20 +148,20 @@ export default function LoginContent() {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-              <div className="text-sm text-red-700">{error}</div>
+            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+              <div className="text-sm text-destructive">{error}</div>
             </div>
           )}
 
           {/* Demo Credentials Box */}
           {selectedType === 'admin' && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h3 className="text-sm font-semibold text-blue-900 mb-2">Demo Credentials</h3>
+            <div className="mb-6 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">Demo Credentials</h3>
               <button
                 type="button"
                 onClick={handleDemoLogin}
-                className="text-sm text-blue-700 hover:text-blue-800 underline"
+                className="text-sm text-secondary hover:text-secondary/90 underline"
               >
                 Use demo admin account
               </button>
@@ -243,10 +243,10 @@ export default function LoginContent() {
           </div>
 
           {selectedType === 'business' && (
-            <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-800">
+            <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-sm text-primary">
                 <strong>Business Owners:</strong> If you have an existing listing,{' '}
-                <Link href="/claim" className="underline hover:text-orange-900">
+                <Link href="/claim" className="underline hover:text-primary/90">
                   claim your business
                 </Link>{' '}
                 to get started.

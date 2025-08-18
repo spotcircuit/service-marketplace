@@ -20,6 +20,7 @@ import {
   Plus,
   ArrowRight
 } from 'lucide-react';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
 
 interface Quote {
   id: string;
@@ -46,6 +47,7 @@ export default function CustomerDashboard() {
   const [user, setUser] = useState<UserData | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [stats, setStats] = useState({
     total_quotes: 0,
     pending_quotes: 0,
@@ -240,13 +242,13 @@ export default function CustomerDashboard() {
 
         {/* Request New Quote Button */}
         <div className="mb-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          <button
+            onClick={() => setQuoteModalOpen(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-5 w-5" />
             Request New Quote
-          </Link>
+          </button>
         </div>
 
         {/* Recent Quotes */}
@@ -259,13 +261,13 @@ export default function CustomerDashboard() {
             <div className="p-12 text-center">
               <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">No quote requests yet</p>
-              <Link
-                href="/"
+              <button
+                onClick={() => setQuoteModalOpen(true)}
                 className="inline-flex items-center gap-2 text-primary hover:text-primary/80"
               >
                 Get your first quote
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -352,6 +354,12 @@ export default function CustomerDashboard() {
           )}
         </div>
       </div>
+      
+      {/* Quote Modal */}
+      <DumpsterQuoteModalSimple
+        isOpen={quoteModalOpen}
+        onClose={() => setQuoteModalOpen(false)}
+      />
     </div>
   );
 }

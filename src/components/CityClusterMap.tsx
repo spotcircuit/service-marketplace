@@ -75,35 +75,59 @@ export default function CityClusterMap({
   const router = useRouter();
   const [markers, setMarkers] = useState<any[]>([]);
 
+  // Provide a safe default center (continental US midpoint) if incoming center is invalid
+  const safeCenter = (() => {
+    const lat = Number(mapCenter?.lat);
+    const lng = Number(mapCenter?.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    console.warn('[CityClusterMap] Invalid mapCenter provided, using fallback center.', mapCenter);
+    return { lat: 39.8283, lng: -98.5795 }; // USA centroid approx
+  })();
+
   useEffect(() => {
     // Create markers for cities with provider counts
-    const cityMarkers = cities.map(cityData => {
-      const cityLower = cityData.city.toLowerCase();
-      const coords = cityCoordinates[cityLower] || {
-        // Generate approximate position if not in our list
-        lat: mapCenter.lat + (Math.random() - 0.5) * 2,
-        lng: mapCenter.lng + (Math.random() - 0.5) * 3
-      };
+    const cityMarkers = cities
+      .map(cityData => {
+        const cityLower = cityData.city.toLowerCase();
+        const known = cityCoordinates[cityLower];
 
-      return {
-        id: `city-${cityData.city}`,
-        lat: cityData.lat || coords.lat,
-        lng: cityData.lng || coords.lng,
-        title: cityData.city,
-        info: `${cityData.count} provider${cityData.count === 1 ? '' : 's'}`,
-        rating: 0, // Hide rating for city markers
-        reviews: cityData.count,
-        services: [`${cityData.count} Providers Available`],
-        onDetailsClick: () => {
-          // Navigate to city page
-          const citySlug = cityData.city.toLowerCase().replace(/\s+/g, '-');
-          router.push(`/${stateSlug}/${citySlug}`);
+        // Derive base coords
+        const baseLat = Number(
+          cityData.lat ?? (known ? known.lat : safeCenter.lat + (Math.random() - 0.5) * 2)
+        );
+        const baseLng = Number(
+          cityData.lng ?? (known ? known.lng : safeCenter.lng + (Math.random() - 0.5) * 3)
+        );
+
+        if (!Number.isFinite(baseLat) || !Number.isFinite(baseLng)) {
+          console.warn('[CityClusterMap] Skipping city due to invalid coords:', {
+            city: cityData.city,
+            provided: { lat: cityData.lat, lng: cityData.lng },
+            derived: { lat: baseLat, lng: baseLng }
+          });
+          return null;
         }
-      };
-    });
+
+        return {
+          id: `city-${cityData.city}`,
+          lat: baseLat,
+          lng: baseLng,
+          title: cityData.city,
+          info: `${cityData.count} provider${cityData.count === 1 ? '' : 's'}`,
+          rating: 0, // Hide rating for city markers
+          reviews: cityData.count,
+          services: [`${cityData.count} Providers Available`],
+          onDetailsClick: () => {
+            // Navigate to city page
+            const citySlug = cityData.city.toLowerCase().replace(/\s+/g, '-');
+            router.push(`/${stateSlug}/${citySlug}`);
+          }
+        };
+      })
+      .filter((m): m is NonNullable<typeof m> => Boolean(m));
 
     setMarkers(cityMarkers);
-  }, [cities, mapCenter, stateSlug, router]);
+  }, [cities, safeCenter.lat, safeCenter.lng, stateSlug, router]);
 
   const handleMarkerClick = (marker: any) => {
     if (onCitySelect) {
@@ -151,7 +175,7 @@ export default function CityClusterMap({
 
       {/* Google Map */}
       <GoogleMap
-        center={mapCenter}
+        center={safeCenter}
         zoom={7} // State-level zoom
         markers={markers}
         height="100%"

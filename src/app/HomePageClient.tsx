@@ -3,18 +3,21 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Phone, CheckCircle, ArrowRight, Calendar, MapPin, Shield, Star, Clock, DollarSign, Truck, Info, ChevronDown, Map } from 'lucide-react';
-import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
+import { getNearbyCities, getDefaultCitiesForState, getStateCode } from '@/lib/nearby-cities';
 
 export default function HomePageClient() {
+  const router = useRouter();
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
   const [userLocation, setUserLocation] = useState({ city: 'Ashburn', state: 'VA', zipcode: '' });
   const [modalInitialData, setModalInitialData] = useState<any>(null);
-  const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
   const [localProviders, setLocalProviders] = useState<any[]>([]);
   const [providersLoading, setProvidersLoading] = useState(false);
+  const [nearbyAreas, setNearbyAreas] = useState<string[]>([]);
   
   // Quote form state
   const [quoteForm, setQuoteForm] = useState({
@@ -28,7 +31,49 @@ export default function HomePageClient() {
     projectType: '' as string,
   });
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [zipcodeDisplay, setZipcodeDisplay] = useState<string>('');
 
+  // Auto-lookup city/state when zipcode is entered
+  useEffect(() => {
+    const lookupZipcode = async () => {
+      // Only lookup if we have a 5-digit zipcode
+      if (quoteForm.zipcode.length === 5 && /^\d{5}$/.test(quoteForm.zipcode)) {
+        try {
+          const response = await fetch(`/api/zipcode?zip=${quoteForm.zipcode}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.city && data.state) {
+              setZipcodeDisplay(`${data.city}, ${data.state}`);
+              // Also update the user location for consistency
+              setUserLocation({
+                city: data.city,
+                state: data.state,
+                zipcode: quoteForm.zipcode
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to lookup zipcode:', error);
+        }
+      } else {
+        setZipcodeDisplay('');
+      }
+    };
+
+    const debounceTimer = setTimeout(lookupZipcode, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [quoteForm.zipcode]);
+
+  // Update nearby areas when location changes
+  useEffect(() => {
+    if (userLocation.city && userLocation.state) {
+      const cities = getNearbyCities(userLocation.city, userLocation.state);
+      setNearbyAreas(cities.length > 0 ? cities.slice(0, 12) : getDefaultCitiesForState(userLocation.state).slice(0, 12));
+    } else {
+      // Default areas if no location
+      setNearbyAreas(['Richmond', 'Norfolk', 'Virginia Beach', 'Chesapeake', 'Newport News', 'Alexandria', 'Arlington', 'Roanoke', 'Hampton', 'Portsmouth', 'Lynchburg', 'Harrisonburg']);
+    }
+  }, [userLocation]);
 
   // Detect user location on mount and listen for header location changes
   useEffect(() => {
@@ -215,27 +260,79 @@ export default function HomePageClient() {
     }
   };
 
-  const handleQuoteSubmit = (e: React.FormEvent) => {
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quoteForm.consent) {
       alert('Please agree to receive quotes');
       return;
     }
-    const initialData: any = {
+
+    // First, look up city/state from zipcode
+    let city = userLocation.city || '';
+    let state = userLocation.state || '';
+    
+    if (quoteForm.zipcode && (!city || !state)) {
+      try {
+        const zipResponse = await fetch(`/api/zipcode?zip=${quoteForm.zipcode}`);
+        if (zipResponse.ok) {
+          const zipData = await zipResponse.json();
+          city = zipData.city || city;
+          state = zipData.state || state;
+        }
+      } catch (error) {
+        console.error('Failed to lookup zipcode:', error);
+      }
+    }
+
+    // Prepare the quote data
+    const quoteData = {
       customerType,
       zipcode: quoteForm.zipcode,
       debrisType: quoteForm.debrisType,
       dumpsterSize: quoteForm.size,
       email: quoteForm.email,
       phone: quoteForm.phone,
-      projectType: quoteForm.projectType || undefined,
+      projectType: quoteForm.projectType || 'general',
+      deliveryDate: quoteForm.deliveryDate === 'date' ? selectedDate : quoteForm.deliveryDate,
+      source: 'homepage',
+      city,
+      state,
     };
-    if (quoteForm.deliveryDate === 'date' && selectedDate) {
-      initialData.deliveryDate = selectedDate;
+
+    // Submit quote directly
+    try {
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quoteData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Show success message with option to create account
+        setQuoteModalOpen(false);
+        
+        // Store quote info for potential account creation
+        const accountData = {
+          email: quoteForm.email,
+          phone: quoteForm.phone,
+          customerType,
+          quoteId: result.quoteId
+        };
+        sessionStorage.setItem('pendingAccount', JSON.stringify(accountData));
+        
+        // Redirect to success page with offer to create account
+        router.push(`/quote-success?id=${result.quoteId}&email=${encodeURIComponent(quoteForm.email)}`);
+      } else {
+        alert('Failed to submit quote. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting quote:', error);
+      alert('An error occurred. Please try again.');
     }
-    setModalInitialData(initialData);
-    setModalStartStep(1);
-    setQuoteModalOpen(true);
   };
 
   type SizeCard = {
@@ -432,13 +529,22 @@ export default function HomePageClient() {
                   </div>
                   {/* ZIP Code */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">ZIP Code</label>
+                    <label className="block text-sm font-medium mb-1">
+                      ZIP Code
+                      {zipcodeDisplay && (
+                        <span className="ml-2 text-xs font-normal text-green-600">
+                          {zipcodeDisplay}
+                        </span>
+                      )}
+                    </label>
                     <input
                       type="text"
                       value={quoteForm.zipcode}
-                      onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value})}
+                      onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value.replace(/\D/g, '').slice(0, 5)})}
                       placeholder="Enter ZIP"
                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      maxLength={5}
+                      pattern="[0-9]{5}"
                       required
                     />
                   </div>
@@ -663,7 +769,6 @@ export default function HomePageClient() {
                     initialData.deliveryDate = selectedDate;
                   }
                   setModalInitialData(initialData);
-                  setModalStartStep(1);
                   setQuoteModalOpen(true);
                 }}
               >
@@ -870,7 +975,6 @@ export default function HomePageClient() {
                           initialData.deliveryDate = selectedDate;
                         }
                         setModalInitialData(initialData);
-                        setModalStartStep(1);
                         setQuoteModalOpen(true);
                       }}
                       className="px-4 py-2 btn-primary rounded-lg"
@@ -905,23 +1009,39 @@ export default function HomePageClient() {
       <section className="py-16 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Service Areas Near {userLocation.city}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Service Areas Near {userLocation.city || 'You'}
+            </h2>
             <p className="text-xl text-muted-foreground">
-              We serve all of Northern Virginia and surrounding areas
+              We serve {userLocation.city ? `${userLocation.city} and` : ''} surrounding areas
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {['Reston', 'Sterling', 'Leesburg', 'Herndon', 'Fairfax', 'Chantilly', 
-              'Arlington', 'Alexandria', 'McLean', 'Vienna', 'Falls Church', 'Manassas'].map(city => (
-              <Link
-                key={city}
-                href={`/virginia/${city.toLowerCase()}`}
-                className="text-center p-3 bg-white rounded-lg hover:shadow-md transition"
-              >
-                <p className="font-medium">{city}</p>
-              </Link>
-            ))}
+            {nearbyAreas.map(city => {
+              // Get the state slug for URL
+              const stateSlug = userLocation.state === 'VA' ? 'virginia' : 
+                               userLocation.state === 'MD' ? 'maryland' : 
+                               userLocation.state === 'NC' ? 'north-carolina' :
+                               userLocation.state === 'PA' ? 'pennsylvania' :
+                               userLocation.state === 'FL' ? 'florida' :
+                               userLocation.state === 'TX' ? 'texas' :
+                               userLocation.state === 'CA' ? 'california' :
+                               userLocation.state === 'NY' ? 'new-york' :
+                               userLocation.state === 'GA' ? 'georgia' :
+                               userLocation.state === 'NJ' ? 'new-jersey' :
+                               'locations';
+              
+              return (
+                <Link
+                  key={city}
+                  href={`/${stateSlug}/${city.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-center p-3 bg-white rounded-lg hover:shadow-md transition"
+                >
+                  <p className="font-medium">{city}</p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1017,7 +1137,6 @@ export default function HomePageClient() {
                 initialData.deliveryDate = selectedDate;
               }
               setModalInitialData(initialData);
-              setModalStartStep(1);
               setQuoteModalOpen(true);
             }}
             className="flex-1 py-3 btn-primary rounded-lg"
@@ -1035,19 +1154,17 @@ export default function HomePageClient() {
       </div>
 
       {/* Quote Modal */}
-      <DumpsterQuoteModal
+      <DumpsterQuoteModalSimple
         isOpen={quoteModalOpen}
         onClose={() => {
           setQuoteModalOpen(false);
           setSelectedProvider(null);
           setModalInitialData(null);
-          setModalStartStep(undefined);
         }}
         businessId={selectedProvider?.id}
         businessName={selectedProvider?.name}
         initialCustomerType={customerType}
         initialData={modalInitialData}
-        startAtStep={modalStartStep}
       />
     </div>
   );

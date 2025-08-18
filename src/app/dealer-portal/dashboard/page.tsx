@@ -20,7 +20,8 @@ import {
   AlertCircle,
   Sparkles,
   Coins,
-  Calendar
+  Calendar,
+  ArrowRight
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -33,6 +34,20 @@ interface DashboardStats {
   listing_views: number;
   response_rate: number;
   lead_credits?: number;
+  recent_leads?: RecentLead[];
+}
+
+interface RecentLead {
+  id: string;
+  status: string;
+  created_at: string;
+  viewed_at?: string;
+  service_type: string;
+  city?: string;
+  state?: string;
+  zipcode: string;
+  timeline: string;
+  project_description: string;
 }
 
 interface BusinessInfo {
@@ -45,6 +60,17 @@ interface BusinessInfo {
   reviews: number;
   featured_until?: string;
 }
+
+const getTimeAgo = (date: string) => {
+  const now = new Date();
+  const past = new Date(date);
+  const diff = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+};
 
 export default function DealerDashboard() {
   const router = useRouter();
@@ -185,17 +211,17 @@ export default function DealerDashboard() {
     <div className="space-y-6">
       {/* Success Message */}
       {showSuccessMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CheckCircle className="h-6 w-6 text-green-600" />
+            <CheckCircle className="h-6 w-6 text-primary" />
             <div>
-              <p className="font-semibold text-green-900">{paymentMessage}</p>
-              <p className="text-sm text-green-700">Your account has been updated.</p>
+              <p className="font-semibold text-accent">{paymentMessage}</p>
+              <p className="text-sm text-accent/80">Your account has been updated.</p>
             </div>
           </div>
           <button 
             onClick={() => setShowSuccessMessage(false)}
-            className="text-green-600 hover:text-green-700"
+            className="text-accent hover:text-accent/90"
           >
             ✕
           </button>
@@ -211,17 +237,23 @@ export default function DealerDashboard() {
             </h1>
             <p className="text-gray-600 mt-1">
               {business?.name || 'Your Business'}
+              {stats.new_leads > 0 && (
+                <span className="ml-3 inline-flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive rounded-full text-sm font-semibold">
+                  <span className="animate-pulse">●</span>
+                  {stats.new_leads} new {stats.new_leads === 1 ? 'lead' : 'leads'} waiting
+                </span>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-2">
             {business?.is_verified && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent rounded-full text-sm">
                 <CheckCircle className="h-4 w-4" />
                 Verified
               </span>
             )}
             {business?.is_featured && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                 <Star className="h-4 w-4" />
                 Featured
               </span>
@@ -239,8 +271,8 @@ export default function DealerDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Building2 className="h-6 w-6 text-blue-600" />
+                <div className="p-2 bg-secondary/10 rounded-lg">
+                  <Building2 className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="font-semibold text-gray-900">Edit Business Profile</h3>
               </div>
@@ -259,8 +291,8 @@ export default function DealerDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Megaphone className="h-6 w-6 text-yellow-600" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Megaphone className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="font-semibold text-gray-900">Advertise & Feature</h3>
               </div>
@@ -279,8 +311,8 @@ export default function DealerDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Edit className="h-6 w-6 text-purple-600" />
+                <div className="p-2 bg-secondary/10 rounded-lg">
+                  <Edit className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="font-semibold text-gray-900">Account Settings</h3>
               </div>
@@ -295,11 +327,11 @@ export default function DealerDashboard() {
 
       {/* Featured Status Card - Show if Featured */}
       {business?.is_featured && (
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow p-6">
+        <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Star className="h-8 w-8 text-yellow-600" />
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Star className="h-8 w-8 text-primary" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Featured Listing Active</h3>
@@ -307,13 +339,13 @@ export default function DealerDashboard() {
                 {business.featured_until && (
                   <div className="mt-2">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-yellow-600" />
-                      <p className="text-sm text-yellow-700 font-medium">
+                      <Calendar className="h-4 w-4 text-primary" />
+                      <p className="text-sm text-primary font-medium">
                         Featured until: {new Date(business.featured_until).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="mt-1">
-                      <p className="text-lg font-bold text-yellow-700">
+                      <p className="text-lg font-bold text-primary">
                         {(() => {
                           const daysLeft = Math.ceil((new Date(business.featured_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                           if (daysLeft <= 0) return 'Expiring today';
@@ -331,24 +363,24 @@ export default function DealerDashboard() {
               <p className="text-lg font-bold text-gray-900 mb-2">Premium Spotlight</p>
               <Link
                 href="/dealer-portal/advertise"
-                className="text-sm text-blue-600 hover:text-blue-700 underline"
+                className="text-sm text-secondary hover:text-secondary/90 underline"
               >
                 Extend or Upgrade
               </Link>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-yellow-200">
+          <div className="mt-4 pt-4 border-t border-primary/20">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-yellow-600">3x</p>
+                <p className="text-2xl font-bold text-primary">3x</p>
                 <p className="text-xs text-gray-600">More Visibility</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-yellow-600">#1</p>
+                <p className="text-2xl font-bold text-primary">#1</p>
                 <p className="text-xs text-gray-600">Search Position</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-yellow-600">20mi</p>
+                <p className="text-2xl font-bold text-primary">20mi</p>
                 <p className="text-xs text-gray-600">Coverage Area</p>
               </div>
             </div>
@@ -358,20 +390,25 @@ export default function DealerDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-2">
-            <Users className="h-8 w-8 text-blue-500" />
-            <span className="text-2xl font-bold text-gray-900">{stats.total_leads}</span>
+        <Link href="/dealer-portal/leads" className="block">
+          <div className="bg-white rounded-lg shadow p-6 relative hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center justify-between mb-2">
+              <Users className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-gray-900">{stats.total_leads}</span>
+            </div>
+            <p className="text-sm text-gray-600">Total Leads</p>
+            {stats.new_leads > 0 && (
+              <p className="text-xs text-accent mt-1">+{stats.new_leads} new</p>
+            )}
+            <div className="absolute bottom-2 right-2">
+              <ArrowRight className="h-4 w-4 text-gray-400" />
+            </div>
           </div>
-          <p className="text-sm text-gray-600">Total Leads</p>
-          {stats.new_leads > 0 && (
-            <p className="text-xs text-green-600 mt-1">+{stats.new_leads} new</p>
-          )}
-        </div>
+        </Link>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-2">
-            <Eye className="h-8 w-8 text-purple-500" />
+            <Eye className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-gray-900">{stats.listing_views}</span>
           </div>
           <p className="text-sm text-gray-600">Listing Views</p>
@@ -380,7 +417,7 @@ export default function DealerDashboard() {
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-2">
-            <TrendingUp className="h-8 w-8 text-green-500" />
+            <TrendingUp className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-gray-900">{stats.response_rate}%</span>
           </div>
           <p className="text-sm text-gray-600">Response Rate</p>
@@ -389,7 +426,7 @@ export default function DealerDashboard() {
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-2">
-            <Star className="h-8 w-8 text-yellow-500" />
+            <Star className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-gray-900">
               {business?.rating || 0}
             </span>
@@ -403,7 +440,7 @@ export default function DealerDashboard() {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Coins className="h-6 w-6 text-blue-600" />
+            <Coins className="h-6 w-6 text-primary" />
             <h3 className="text-lg font-semibold">Lead Credits</h3>
           </div>
           <div className="text-right">
@@ -425,7 +462,7 @@ export default function DealerDashboard() {
             >
               <p className="font-semibold">10 Credits</p>
               <p className="text-sm text-gray-600">$200</p>
-              <p className="text-xs text-green-600">$20/lead</p>
+              <p className="text-xs text-accent">$20/lead</p>
             </button>
             
             <button
@@ -433,10 +470,10 @@ export default function DealerDashboard() {
               disabled={buyingCredits}
               className="p-4 border rounded-lg hover:bg-gray-50 transition-colors relative disabled:opacity-50 text-left"
             >
-              <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">Save $50</span>
+              <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full">Save $50</span>
               <p className="font-semibold">25 Credits</p>
               <p className="text-sm text-gray-600">$450</p>
-              <p className="text-xs text-green-600">$18/lead</p>
+              <p className="text-xs text-accent">$18/lead</p>
             </button>
             
             <button
@@ -446,7 +483,7 @@ export default function DealerDashboard() {
             >
               <p className="font-semibold">50 Credits</p>
               <p className="text-sm text-gray-600">$800</p>
-              <p className="text-xs text-green-600">$16/lead</p>
+              <p className="text-xs text-accent">$16/lead</p>
             </button>
           </div>
         </div>
@@ -454,11 +491,11 @@ export default function DealerDashboard() {
 
       {/* Featured Listing Promotion */}
       {!business?.is_featured && (
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg shadow p-6 border border-yellow-200">
+        <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg shadow p-6 border border-primary/20">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Sparkles className="h-8 w-8 text-yellow-600" />
+                <div className="p-3 bg-primary/10 rounded-lg">
+                <Sparkles className="h-8 w-8 text-primary" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -472,7 +509,7 @@ export default function DealerDashboard() {
                 </ul>
                 <Link
                   href="/dealer-portal/advertise"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   <Megaphone className="h-4 w-4" />
                   Get Featured Now
@@ -489,25 +526,42 @@ export default function DealerDashboard() {
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
+                {stats.new_leads > 0 && (
+                  <span className="bg-destructive text-destructive-foreground text-xs px-2 py-0.5 rounded-full font-semibold">
+                    {stats.new_leads} new
+                  </span>
+                )}
+              </div>
               <Link
                 href="/dealer-portal/leads"
-                className="text-sm text-primary hover:text-primary/80"
+                className="text-sm text-primary hover:text-primary/80 flex items-center gap-1"
               >
                 View all
+                <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
           </div>
           <div className="p-6">
-            {stats.new_leads > 0 ? (
+            {stats.recent_leads && stats.recent_leads.length > 0 ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">New lead received</p>
-                    <p className="text-sm text-gray-600">Dumpster Rental - Houston, TX</p>
+                {stats.recent_leads.slice(0, 3).map((lead) => (
+                  <div key={lead.id} className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">{lead.service_type}</p>
+                      <p className="text-sm text-gray-600">
+                        {lead.city ? `${lead.city}, ${lead.state}` : `ZIP: ${lead.zipcode}`} - {lead.timeline}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                        {lead.project_description}
+                      </p>
+                    </div>
+                    <span className="text-xs text-secondary">
+                      {getTimeAgo(lead.created_at)}
+                    </span>
                   </div>
-                  <span className="text-xs text-blue-600">2 hours ago</span>
-                </div>
+                ))}
               </div>
             ) : (
               <p className="text-gray-500 text-center py-8">No new leads</p>
@@ -523,7 +577,7 @@ export default function DealerDashboard() {
           <div className="p-6">
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <p className="font-medium text-gray-900">Complete your profile</p>
                   <p className="text-sm text-gray-600">
@@ -532,7 +586,7 @@ export default function DealerDashboard() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <p className="font-medium text-gray-900">Great response time!</p>
                   <p className="text-sm text-gray-600">

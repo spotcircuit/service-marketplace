@@ -16,14 +16,16 @@ export async function POST(request: NextRequest) {
     // First try to find businesses that explicitly list this city in their service areas
     let businesses = await sql`
       SELECT DISTINCT b.id, b.name, b.is_featured, b.featured_until,
-             bs.lead_credits,
+             bs.lead_credits, b.created_at,
              CASE 
                WHEN b.is_featured = true AND b.featured_until > NOW() THEN 1
                ELSE 2
              END as priority
       FROM businesses b
       LEFT JOIN business_subscriptions bs ON b.id = bs.business_id
-      WHERE b.is_active = true
+      WHERE (
+          b.is_claimed = true OR b.is_verified = true
+        )
         AND (
           -- Check if city is in their service_areas JSON array
           b.service_areas::jsonb @> ${JSON.stringify([city])}::jsonb
@@ -47,7 +49,9 @@ export async function POST(request: NextRequest) {
                END as priority
         FROM businesses b
         LEFT JOIN business_subscriptions bs ON b.id = bs.business_id
-        WHERE b.is_active = true
+        WHERE (
+            b.is_claimed = true OR b.is_verified = true
+          )
           AND b.state = ${state}
           AND b.category = 'Dumpster Rental'
         ORDER BY priority, b.created_at DESC

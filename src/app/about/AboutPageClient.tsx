@@ -84,7 +84,7 @@ export default function AboutPageClient() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="flex items-center mb-4">
-                <Target className="h-8 w-8 text-orange-600 mr-3" />
+                <Target className="h-8 w-8 text-primary mr-3" />
                 <h2 className="text-3xl font-bold">Our Mission</h2>
               </div>
               <p className="text-gray-600 mb-6">
@@ -101,7 +101,7 @@ export default function AboutPageClient() {
                 supporting local businesses in growing their customer base.
               </p>
             </div>
-            <div className="bg-orange-100 rounded-lg p-8">
+            <div className="bg-primary/10 rounded-lg p-8">
               <blockquote className="text-lg italic text-gray-700">
                 "Our vision is to become the most trusted platform for connecting
                 customers with service providers, fostering local economic growth
@@ -120,7 +120,7 @@ export default function AboutPageClient() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <stat.icon className="h-8 w-8 text-orange-600 mx-auto mb-4" />
+                <stat.icon className="h-8 w-8 text-primary mx-auto mb-4" />
                 <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
                 <div className="text-gray-600">{stat.label}</div>
               </div>
@@ -136,8 +136,8 @@ export default function AboutPageClient() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="h-8 w-8 text-orange-600" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <value.icon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{value.title}</h3>
                 <p className="text-gray-600">{value.description}</p>
@@ -201,11 +201,11 @@ export default function AboutPageClient() {
             {timeline.map((item, index) => (
               <div key={index} className="flex items-start mb-8">
                 <div className="flex-shrink-0 w-24 text-right mr-8">
-                  <span className="text-orange-600 font-bold">{item.year}</span>
+                  <span className="text-primary font-bold">{item.year}</span>
                 </div>
-                <div className="flex-shrink-0 w-4 h-4 bg-orange-600 rounded-full mt-1.5 mr-8 relative">
+                <div className="flex-shrink-0 w-4 h-4 bg-primary rounded-full mt-1.5 mr-8 relative">
                   {index < timeline.length - 1 && (
-                    <div className="absolute top-4 left-1.5 w-0.5 h-16 bg-orange-200"></div>
+                    <div className="absolute top-4 left-1.5 w-0.5 h-16 bg-primary/20"></div>
                   )}
                 </div>
                 <div className="flex-1">
@@ -218,24 +218,24 @@ export default function AboutPageClient() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-orange-600">
+      <section className="py-20 px-4 bg-primary">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-6">
             Join Our Growing Community
           </h2>
-          <p className="text-xl text-orange-100 mb-8">
+          <p className="text-xl text-white/90 mb-8">
             Whether you&apos;re looking for services or providing them, we&apos;re here to help you succeed
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/directory"
-              className="px-8 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50 transition"
+              className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Find Services
             </Link>
             <Link
               href="/for-business"
-              className="px-8 py-3 bg-orange-700 text-white rounded-lg font-semibold hover:bg-orange-800 transition"
+              className="px-8 py-3 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold hover:bg-primary-foreground/20 transition border-2 border-white/50"
             >
               List Your Business
             </Link>

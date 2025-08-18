@@ -91,7 +91,7 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
       </div>
 
       {/* Hero */}
-      <section className="bg-gradient-to-r from-orange-600 to-orange-700 py-16 px-4">
+      <section className="bg-gradient-to-r from-primary to-primary/90 py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6">
             <Calculator className="h-8 w-8 text-white" />
@@ -99,7 +99,7 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
           <h1 className="text-4xl font-bold text-white mb-4">
             Dumpster Size Calculator
           </h1>
-          <p className="text-xl text-orange-100">
+          <p className="text-xl text-white/90">
             Find the perfect dumpster size for your project in just a few clicks
           </p>
         </div>
@@ -131,12 +131,12 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
                       onClick={() => setProjectType(type.value)}
                       className={`p-4 border-2 rounded-lg text-center transition ${
                         projectType === type.value
-                          ? 'border-orange-600 bg-orange-50'
+                          ? 'border-primary bg-primary/10'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <type.icon className={`h-6 w-6 mx-auto mb-2 ${
-                        projectType === type.value ? 'text-orange-600' : 'text-gray-400'
+                        projectType === type.value ? 'text-primary' : 'text-gray-400'
                       }`} />
                       <span className="text-sm font-medium">{type.label}</span>
                     </button>
@@ -182,7 +182,7 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
                       onClick={() => setDebrisType(type.value)}
                       className={`p-3 border-2 rounded-lg text-center transition ${
                         debrisType === type.value
-                          ? 'border-orange-600 bg-orange-50'
+                          ? 'border-primary bg-primary/10'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -196,7 +196,7 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
               <button
                 onClick={calculateSize}
                 disabled={!projectType}
-                className="w-full py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition disabled:bg-gray-300"
+                className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition disabled:bg-gray-300"
               >
                 Calculate Recommended Size
               </button>
@@ -204,14 +204,14 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
           ) : (
             <div className="space-y-6">
               {/* Recommended Size */}
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+              <div className="bg-accent/10 border-2 border-accent rounded-lg p-6">
                 <div className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-green-600 mt-1 mr-3" />
+                  <CheckCircle className="h-6 w-6 text-accent mt-1 mr-3" />
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-green-900 mb-2">
+                    <h3 className="text-xl font-semibold text-accent mb-2">
                       Recommended: {recommendedSize?.size} Yard Dumpster
                     </h3>
-                    <p className="text-green-700 mb-4">{recommendedSize?.description}</p>
+                    <p className="text-accent/80 mb-4">{recommendedSize?.description}</p>
                     <div className="grid md:grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="font-medium">Dimensions:</span> {recommendedSize?.dimensions}
@@ -228,7 +228,7 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
                     </div>
                     <div className="mt-4">
                       <p className="font-medium mb-2">Ideal for:</p>
-                      <ul className="list-disc list-inside text-green-700 space-y-1">
+                      <ul className="list-disc list-inside text-accent/80 space-y-1">
                         {recommendedSize?.ideal_for.map((item, index) => (
                           <li key={index}>{item}</li>
                         ))}
@@ -247,14 +247,14 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
                       key={size.size}
                       className={`border-2 rounded-lg p-4 ${
                         size.size === recommendedSize?.size
-                          ? 'border-orange-600 bg-orange-50'
+                          ? 'border-primary bg-primary/10'
                           : 'border-gray-200'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold text-lg">{size.size} Yard</h4>
                         {size.size === recommendedSize?.size && (
-                          <span className="text-xs bg-orange-600 text-white px-2 py-1 rounded">
+                          <span className="text-xs bg-primary text-white px-2 py-1 rounded">
                             Recommended
                           </span>
                         )}
@@ -276,7 +276,7 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
                 </button>
                 <Link
                   href="/"
-                  className="flex-1 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition text-center"
+                  className="flex-1 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition text-center"
                 >
                   Get Quotes Now
                 </Link>
@@ -285,12 +285,12 @@ export default function SizeCalculatorClient({ dumpsterSizes }: SizeCalculatorCl
           )}
 
           {/* Tips Section */}
-          <div className="mt-12 bg-blue-50 rounded-lg p-6">
+          <div className="mt-12 bg-secondary/5 rounded-lg p-6">
             <div className="flex items-start">
-              <Info className="h-6 w-6 text-blue-600 mt-1 mr-3" />
+              <Info className="h-6 w-6 text-secondary mt-1 mr-3" />
               <div>
-                <h3 className="font-semibold text-blue-900 mb-2">Pro Tips</h3>
-                <ul className="text-sm text-blue-700 space-y-1">
+                <h3 className="font-semibold text-secondary mb-2">Pro Tips</h3>
+                <ul className="text-sm text-secondary/80 space-y-1">
                   <li>• It's better to order slightly larger than you think you need</li>
                   <li>• Heavy materials like concrete may require a smaller dumpster due to weight limits</li>
                   <li>• Check local regulations for permit requirements</li>

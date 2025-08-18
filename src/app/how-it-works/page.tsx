@@ -125,7 +125,7 @@ export default function HowItWorksPage() {
   const nicheContent = getNicheContent();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-white">
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -146,12 +146,12 @@ export default function HowItWorksPage() {
               <div key={index} className="relative">
                 {/* Connection Line */}
                 {index < nicheContent.steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-orange-200 -z-10" />
+                  <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-primary/20 -z-10" />
                 )}
 
                 <div className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                    <step.icon className="h-6 w-6 text-orange-600" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <step.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">
                     Step {index + 1}: {step.title}
@@ -162,7 +162,7 @@ export default function HowItWorksPage() {
                   <ul className="space-y-1">
                     {step.details.map((detail: string, i: number) => (
                       <li key={i} className="flex items-start text-sm text-gray-500">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-accent mr-2 mt-0.5 flex-shrink-0" />
                         {detail}
                       </li>
                     ))}
@@ -180,21 +180,21 @@ export default function HowItWorksPage() {
           <h2 className="text-3xl font-bold text-center mb-12">Why Choose {config?.siteName || 'Our Platform'}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <Shield className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Verified Providers</h3>
               <p className="text-gray-600">
                 All service providers are verified for licenses, insurance, and customer satisfaction
               </p>
             </div>
             <div className="text-center">
-              <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <Clock className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Save Time</h3>
               <p className="text-gray-600">
                 Get multiple quotes in minutes, not days. Compare everything in one place
               </p>
             </div>
             <div className="text-center">
-              <DollarSign className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <DollarSign className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Best Prices</h3>
               <p className="text-gray-600">
                 Competition drives better pricing. Get the best value for your project
@@ -220,24 +220,24 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-orange-600">
+      <section className="py-20 px-4 bg-primary">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-xl text-orange-100 mb-8">
+          <p className="text-xl text-white/90 mb-8">
             Join thousands of satisfied customers who found their perfect service provider
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/directory"
-              className="px-8 py-3 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50 transition"
+              className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Find a Provider
             </Link>
             <Link
               href="/for-business"
-              className="px-8 py-3 bg-orange-700 text-white rounded-lg font-semibold hover:bg-orange-800 transition"
+              className="px-8 py-3 bg-primary-foreground/10 backdrop-blur text-white rounded-lg font-semibold hover:bg-primary-foreground/20 transition border-2 border-white/50"
             >
               List Your Business
             </Link>

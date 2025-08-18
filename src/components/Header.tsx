@@ -109,7 +109,7 @@ export default function Header() {
       <header className="site-header sticky top-0 z-50 shadow-sm">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="text-2xl font-bold text-primary-foreground">Loading...</div>
+            <div className="text-2xl font-bold text-primary">Loading...</div>
           </div>
         </nav>
       </header>
@@ -409,7 +409,7 @@ export default function Header() {
             {/* CTA Button - Always show, different text based on auth */}
             <Link
               href={!user ? '/pros' : user.role === 'business_owner' ? '/dealer-portal' : '/pros'}
-              className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-md font-semibold transition-all duration-200"
+              className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-semibold transition-all duration-200"
             >
               {!user ? 'Join as a Pro' : user.role === 'business_owner' ? 'Partner Portal' : 'For Pros'}
             </Link>

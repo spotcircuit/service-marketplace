@@ -207,11 +207,11 @@ export default function LeadsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800';
-      case 'viewed': return 'bg-yellow-100 text-yellow-800';
-      case 'contacted': return 'bg-purple-100 text-purple-800';
-      case 'won': return 'bg-green-100 text-green-800';
-      case 'lost': return 'bg-red-100 text-red-800';
+      case 'new': return 'bg-secondary/10 text-secondary';
+      case 'viewed': return 'bg-primary/10 text-primary';
+      case 'contacted': return 'bg-secondary/10 text-secondary';
+      case 'won': return 'bg-accent/10 text-accent';
+      case 'lost': return 'bg-destructive/10 text-destructive';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -241,7 +241,7 @@ export default function LeadsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -265,14 +265,14 @@ export default function LeadsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg flex-shrink-0">
-                <Coins className="h-5 w-5 text-blue-600" />
-                <span className="font-semibold text-blue-900">{leadCredits}</span>
-                <span className="text-sm text-blue-700">credits</span>
+              <div className="flex items-center gap-2 px-3 py-2 bg-secondary/10 rounded-lg flex-shrink-0">
+                <Coins className="h-5 w-5 text-secondary" />
+                <span className="font-semibold text-secondary">{leadCredits}</span>
+                <span className="text-sm text-secondary">credits</span>
               </div>
               <Link
                 href="/dealer-portal"
-                className="text-sm text-blue-600 hover:text-blue-700 underline ml-auto sm:ml-0"
+                className="text-sm text-secondary hover:text-secondary/90 underline ml-auto sm:ml-0"
               >
                 Buy Credits
               </Link>
@@ -289,19 +289,19 @@ export default function LeadsPage() {
             <div className="text-sm text-gray-600">Total Leads</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-2xl font-bold text-blue-600">{stats.new}</div>
+            <div className="text-2xl font-bold text-secondary">{stats.new}</div>
             <div className="text-sm text-gray-600">New</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-2xl font-bold text-purple-600">{stats.contacted}</div>
+            <div className="text-2xl font-bold text-secondary">{stats.contacted}</div>
             <div className="text-sm text-gray-600">Contacted</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-2xl font-bold text-green-600">{stats.won}</div>
+            <div className="text-2xl font-bold text-accent">{stats.won}</div>
             <div className="text-sm text-gray-600">Won</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-2xl font-bold text-orange-600">{stats.conversionRate}%</div>
+            <div className="text-2xl font-bold text-primary">{stats.conversionRate}%</div>
             <div className="text-sm text-gray-600">Conversion</div>
           </div>
         </div>
@@ -321,7 +321,7 @@ export default function LeadsPage() {
                     onClick={() => setFilter(status)}
                     className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
                       filter === status
-                        ? 'bg-orange-600 text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -357,7 +357,7 @@ export default function LeadsPage() {
                           {lead.status}
                         </span>
                         {lead.status === 'new' && (
-                          <span className="text-xs text-orange-600 font-medium">
+                          <span className="text-xs text-primary font-medium">
                             Respond quickly!
                           </span>
                         )}
@@ -403,14 +403,14 @@ export default function LeadsPage() {
                           <a
                             href={`tel:${lead.phone}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition"
+                            className="p-2 bg-accent/10 text-accent rounded-lg hover:bg-accent/20 transition"
                           >
                             <Phone className="h-5 w-5" />
                           </a>
                           <a
                             href={`mailto:${lead.email}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"
+                            className="p-2 bg-secondary/10 text-secondary rounded-lg hover:bg-secondary/20 transition"
                           >
                             <Mail className="h-5 w-5" />
                           </a>
@@ -422,7 +422,7 @@ export default function LeadsPage() {
                             revealLead(lead.id);
                           }}
                           disabled={revealingLead === lead.id || leadCredits <= 0}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {revealingLead === lead.id ? (
                             <>
@@ -447,7 +447,7 @@ export default function LeadsPage() {
                         <a
                           href={`tel:${lead.phone}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition"
                         >
                           <Phone className="h-5 w-5" />
                           Call
@@ -455,7 +455,7 @@ export default function LeadsPage() {
                         <a
                           href={`mailto:${lead.email}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition"
                         >
                           <Mail className="h-5 w-5" />
                           Email
@@ -468,7 +468,7 @@ export default function LeadsPage() {
                           revealLead(lead.id);
                         }}
                         disabled={revealingLead === lead.id || leadCredits <= 0}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {revealingLead === lead.id ? (
                           <>
@@ -495,7 +495,7 @@ export default function LeadsPage() {
                               e.stopPropagation();
                               updateLeadStatus(lead.id, 'contacted');
                             }}
-                            className="px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200 transition"
+                            className="px-3 py-1 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition"
                           >
                             Mark as Contacted
                           </button>
@@ -504,7 +504,7 @@ export default function LeadsPage() {
                               e.stopPropagation();
                               updateLeadStatus(lead.id, 'viewed');
                             }}
-                            className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-sm hover:bg-yellow-200 transition"
+                            className="px-3 py-1 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition"
                           >
                             Mark as Viewed
                           </button>
@@ -517,7 +517,7 @@ export default function LeadsPage() {
                               e.stopPropagation();
                               updateLeadStatus(lead.id, 'won');
                             }}
-                            className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200 transition"
+                            className="px-3 py-1 bg-accent/10 text-accent rounded text-sm hover:bg-accent/20 transition"
                           >
                             <Check className="h-4 w-4 inline mr-1" />
                             Won
@@ -527,7 +527,7 @@ export default function LeadsPage() {
                               e.stopPropagation();
                               updateLeadStatus(lead.id, 'lost');
                             }}
-                            className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition"
+                            className="px-3 py-1 bg-destructive/10 text-destructive rounded text-sm hover:bg-destructive/20 transition"
                           >
                             <X className="h-4 w-4 inline mr-1" />
                             Lost
@@ -547,7 +547,7 @@ export default function LeadsPage() {
                 </p>
                 <Link
                   href="/dealer-portal/advertise"
-                  className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                  className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition"
                 >
                   Get Featured
                 </Link>
@@ -608,14 +608,14 @@ export default function LeadsPage() {
                   <div className="flex gap-3 pt-4">
                     <a
                       href={`tel:${selectedLead.phone}`}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition"
                     >
                       <Phone className="h-5 w-5" />
                       Call Customer
                     </a>
                     <a
                       href={`mailto:${selectedLead.email}`}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition"
                     >
                       <Mail className="h-5 w-5" />
                       Send Email
@@ -642,7 +642,7 @@ export default function LeadsPage() {
 
                   <div className="mb-4">
                     <p className="text-sm text-gray-600">
-                      You have <span className="font-semibold text-blue-600">{leadCredits} credits</span> remaining
+                      You have <span className="font-semibold text-secondary">{leadCredits} credits</span> remaining
                     </p>
                   </div>
 
@@ -650,7 +650,7 @@ export default function LeadsPage() {
                     <button
                       onClick={() => revealLead(selectedLead.id)}
                       disabled={revealingLead === selectedLead.id}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                      className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition disabled:opacity-50"
                     >
                       {revealingLead === selectedLead.id ? (
                         <>
@@ -667,7 +667,7 @@ export default function LeadsPage() {
                   ) : (
                     <Link
                       href="/dealer-portal"
-                      className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                      className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition"
                     >
                       Buy More Credits
                     </Link>

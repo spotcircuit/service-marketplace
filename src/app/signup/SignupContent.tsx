@@ -204,19 +204,19 @@ export default function SignupContent() {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-              <div className="text-sm text-red-700">{error}</div>
+            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+              <div className="text-sm text-destructive">{error}</div>
             </div>
           )}
 
           {accountType === 'business' && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="mb-6 p-4 bg-accent/10 border border-accent/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-accent mt-0.5" />
                 <div>
-                  <h3 className="text-sm font-semibold text-green-900 mb-2">Business Benefits</h3>
-                  <ul className="text-sm text-green-700 space-y-1">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Business Benefits</h3>
+                  <ul className="text-sm text-accent space-y-1">
                     <li>• Receive qualified leads in your area</li>
                     <li>• Manage your business profile</li>
                     <li>• Access to dealer portal</li>
@@ -246,20 +246,20 @@ export default function SignupContent() {
             {accountType === 'business' && (
               <>
                 {businessName && (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="mb-6 p-4 bg-accent/10 border border-accent/20 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 text-accent mt-0.5" />
                       <div>
-                        <h3 className="text-sm font-semibold text-green-900 mb-1">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1">
                           {claim === 'true' ? 'Claiming Business' : 'Creating Business'}
                         </h3>
-                        <p className="text-sm text-green-700 font-medium">{businessName}</p>
-                        <p className="text-sm text-green-600 mt-1">
+                        <p className="text-sm text-accent font-medium">{businessName}</p>
+                        <p className="text-sm text-accent mt-1">
                           {formData.address}, {formData.city}, {formData.state} {formData.zipcode}
                         </p>
                         <Link 
                           href="/business-setup" 
-                          className="text-sm text-green-700 underline hover:text-green-800 mt-2 inline-block"
+                          className="text-sm text-accent underline hover:text-accent/90 mt-2 inline-block"
                         >
                           Edit business details
                         </Link>
@@ -269,16 +269,16 @@ export default function SignupContent() {
                 )}
 
                 {!businessName && (
-                  <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="mb-6 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                      <AlertCircle className="h-5 w-5 text-secondary mt-0.5" />
                       <div>
-                        <p className="text-sm text-yellow-700">
+                        <p className="text-sm text-secondary">
                           You need to set up your business details first.
                         </p>
                         <Link 
                           href="/business-setup" 
-                          className="text-sm text-yellow-700 underline hover:text-yellow-800 mt-2 inline-block font-medium"
+                          className="text-sm text-secondary underline hover:text-secondary/90 mt-2 inline-block font-medium"
                         >
                           Go to Business Setup
                         </Link>
@@ -428,10 +428,10 @@ export default function SignupContent() {
           </div>
 
           {accountType === 'business' && (
-            <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-800">
+            <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-sm text-primary">
                 <strong>Have an existing listing?</strong> You can{' '}
-                <Link href="/claim" className="underline hover:text-orange-900">
+                <Link href="/claim" className="underline hover:text-primary/90">
                   claim your business
                 </Link>{' '}
                 instead of creating a new account.
