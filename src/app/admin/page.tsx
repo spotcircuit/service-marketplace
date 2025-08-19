@@ -160,6 +160,7 @@ export default function AdminPage() {
     { id: 'services', name: 'Service Categories', icon: Database },
     { id: 'theme', name: 'Theme & Colors', icon: Palette },
     { id: 'export', name: 'Export/Import', icon: Download },
+    { id: 'business-data', name: 'Business Data', icon: Database },
   ];
 
   const niches = [
@@ -1014,7 +1015,156 @@ export default function AdminPage() {
                 </div>
               )}
 
-              {/* Export/Import */}
+              {/* Business Data Import/Export */}
+              {activeTab === 'business-data' && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-semibold mb-4">Business Data Management</h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Export Businesses */}
+                    <div className="p-4 border rounded-lg">
+                      <h3 className="font-medium mb-2 flex items-center gap-2">
+                        <Download className="h-4 w-4" />
+                        Export Businesses
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Export all businesses to CSV format with contacts
+                      </p>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/admin/businesses/export');
+                            if (!response.ok) throw new Error('Export failed');
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `businesses-${new Date().toISOString().split('T')[0]}.csv`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            setMessage('Businesses exported successfully!');
+                          } catch (error) {
+                            setMessage('Failed to export businesses');
+                          }
+                        }}
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+                      >
+                        Export All Businesses
+                      </button>
+                    </div>
+
+                    {/* Import Businesses */}
+                    <div className="p-4 border rounded-lg">
+                      <h3 className="font-medium mb-2 flex items-center gap-2">
+                        <Upload className="h-4 w-4" />
+                        Import Businesses
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Import businesses from CSV file
+                      </p>
+                      <label className="px-4 py-2 bg-primary text-primary-foreground rounded-lg cursor-pointer inline-block hover:bg-primary/90">
+                        Select CSV File
+                        <input
+                          type="file"
+                          accept=".csv"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            
+                            try {
+                              setMessage('Importing businesses...');
+                              const response = await fetch('/api/admin/businesses/import', {
+                                method: 'POST',
+                                body: formData
+                              });
+                              
+                              const result = await response.json();
+                              if (response.ok) {
+                                setMessage(`Successfully imported ${result.imported} businesses!`);
+                              } else {
+                                setMessage(`Import failed: ${result.error}`);
+                              }
+                            } catch (error) {
+                              setMessage('Failed to import businesses');
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* CSV Template */}
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-medium mb-2">CSV Format Template</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Download a template CSV file with the correct format for importing businesses
+                    </p>
+                    <button
+                      onClick={() => {
+                        const csvContent = `name,phone,email,website,address,city,state,zipcode,category,rating,reviews,latitude,longitude,hours,services,description,logo_url,gallery_urls
+"Sample Business Inc","555-0100","info@sample.com; sales@sample.com","https://sample.com","123 Main St","New York","NY","10001","Dumpster Rental",4.5,125,40.7128,-74.0060,"Mon-Fri: 8am-6pm","10 yard; 20 yard; 30 yard","Professional service","",""`;
+                        
+                        const blob = new Blob([csvContent], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'business-import-template.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                      }}
+                      className="px-4 py-2 border rounded-lg hover:bg-muted"
+                    >
+                      Download Template
+                    </button>
+                  </div>
+
+                  {/* Instructions */}
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">Import Instructions:</h4>
+                    <ol className="text-sm space-y-1 list-decimal list-inside">
+                      <li>Download the template to see the correct format</li>
+                      <li>Fill in your business data (only 'name' is required)</li>
+                      <li>Multiple emails: separate with semicolons (email1@example.com; email2@example.com)</li>
+                      <li>Services and gallery URLs: also use semicolons for multiple values</li>
+                      <li>Upload your CSV file to import businesses</li>
+                      <li>Duplicates are automatically detected and skipped</li>
+                    </ol>
+                  </div>
+
+                  {/* Database Stats */}
+                  <div className="p-4 bg-card border rounded-lg">
+                    <h4 className="font-medium mb-3">Database Statistics</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <div className="text-2xl font-bold">{quickStats.total_businesses}</div>
+                        <div className="text-xs text-muted-foreground">Total Businesses</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{quickStats.verified_count}</div>
+                        <div className="text-xs text-muted-foreground">Verified</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{quickStats.featured_count}</div>
+                        <div className="text-xs text-muted-foreground">Featured</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{quickStats.total_reviews}</div>
+                        <div className="text-xs text-muted-foreground">Reviews</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Configuration Export/Import */}
               {activeTab === 'export' && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-semibold mb-4">Export/Import Configuration</h2>
