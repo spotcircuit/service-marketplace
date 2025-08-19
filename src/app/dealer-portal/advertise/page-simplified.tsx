@@ -34,13 +34,9 @@ export default function AdvertisePage() {
   const [business, setBusiness] = useState<BusinessInfo | null>(null);
   const [isCurrentlyFeatured, setIsCurrentlyFeatured] = useState(false);
   const [featuredUntil, setFeaturedUntil] = useState<string | null>(null);
-  const [trialEligible, setTrialEligible] = useState(false);
-  const [isTrial, setIsTrial] = useState(false);
-  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     fetchBusinessProfile();
-    checkFeaturedStatus();
   }, []);
 
   const fetchBusinessProfile = async () => {
@@ -49,28 +45,18 @@ export default function AdvertisePage() {
       if (response.ok) {
         const data = await response.json();
         setBusiness(data.business);
-      }
-    } catch (error) {
-      console.error('Error fetching business profile:', error);
-    }
-  };
-
-  const checkFeaturedStatus = async () => {
-    try {
-      const response = await fetch('/api/dealer-portal/featured');
-      if (response.ok) {
-        const data = await response.json();
-        setTrialEligible(data.trialEligible);
-        setIsCurrentlyFeatured(data.isCurrentlyFeatured);
         
-        if (data.featuredListing) {
-          const expiryDate = new Date(data.featuredListing.expires_at);
-          setFeaturedUntil(expiryDate.toLocaleDateString());
-          setIsTrial(data.featuredListing.is_trial);
+        // Check if currently featured
+        if (data.business.is_featured && data.business.featured_until) {
+          const expiryDate = new Date(data.business.featured_until);
+          if (expiryDate > new Date()) {
+            setIsCurrentlyFeatured(true);
+            setFeaturedUntil(expiryDate.toLocaleDateString());
+          }
         }
       }
     } catch (error) {
-      console.error('Error checking featured status:', error);
+      console.error('Error fetching business profile:', error);
     }
   };
 
@@ -78,31 +64,30 @@ export default function AdvertisePage() {
     setLoading(true);
     
     try {
-      // Create checkout session (with or without trial)
+      // Create checkout session for featured listing subscription
       const response = await fetch('/api/dealer-portal/subscription/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          mode: 'payment',
+          mode: 'subscription',
           lineItems: [{
             price_data: {
               currency: 'usd',
               product_data: {
-                name: trialEligible ? 'Featured Listing - 30 Day Free Trial' : 'Featured Listing - 30 Days',
-                description: trialEligible 
-                  ? 'FREE trial - Featured placement in your service area for 30 days'
-                  : 'Featured placement in your service area for 30 days'
+                name: 'Featured Listing',
+                description: 'Monthly featured placement in your service area'
               },
-              unit_amount: trialEligible ? 0 : 4900 // $0 for trial, $49 for regular
+              unit_amount: 9900, // $99/month
+              recurring: {
+                interval: 'month'
+              }
             },
             quantity: 1
           }],
           metadata: {
             type: 'featured_listing',
-            business_id: business?.id,
-            duration_days: '30',
-            is_trial: trialEligible ? 'true' : 'false'
+            business_id: business?.id
           }
         })
       });
@@ -119,39 +104,10 @@ export default function AdvertisePage() {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to process request. Please try again.');
+      console.error('Error starting checkout:', error);
+      alert('Failed to process payment. Please try again.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCancel = async () => {
-    if (!confirm('Are you sure you want to cancel your featured listing?')) {
-      return;
-    }
-
-    setCancelLoading(true);
-    
-    try {
-      const response = await fetch('/api/dealer-portal/featured', {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        alert(data.message || 'Featured listing cancelled');
-        await checkFeaturedStatus();
-      } else {
-        alert(data.error || 'Failed to cancel');
-      }
-    } catch (error) {
-      console.error('Error cancelling:', error);
-      alert('Failed to cancel. Please try again.');
-    } finally {
-      setCancelLoading(false);
     }
   };
 
@@ -191,19 +147,15 @@ export default function AdvertisePage() {
                 <Check className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-green-900">
-                  You're Currently Featured!
-                  {isTrial && <span className="ml-2 text-xs bg-green-200 px-2 py-1 rounded">Free Trial</span>}
-                </h3>
+                <h3 className="font-semibold text-green-900">You're Currently Featured!</h3>
                 <p className="text-sm text-green-700">Your featured listing is active until {featuredUntil}</p>
               </div>
             </div>
             <button
-              onClick={handleCancel}
-              disabled={cancelLoading}
-              className="text-red-600 hover:text-red-700 underline text-sm disabled:opacity-50"
+              onClick={() => router.push('/dealer-portal/subscription')}
+              className="text-green-700 hover:text-green-800 underline text-sm"
             >
-              {cancelLoading ? 'Cancelling...' : 'Cancel Featured'}
+              Manage Subscription
             </button>
           </div>
         </div>
@@ -215,22 +167,11 @@ export default function AdvertisePage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Featured Listing</h2>
-              <p className="text-white/90">
-                {trialEligible ? '30-day free trial · No credit card required' : '30-day periods · Cancel anytime'}
-              </p>
+              <p className="text-white/90">Monthly subscription · Cancel anytime</p>
             </div>
             <div className="text-right">
-              {trialEligible ? (
-                <>
-                  <p className="text-4xl font-bold">FREE</p>
-                  <p className="text-sm text-white/90">for 30 days</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-4xl font-bold">$49</p>
-                  <p className="text-sm text-white/90">per 30 days</p>
-                </>
-              )}
+              <p className="text-4xl font-bold">$99</p>
+              <p className="text-sm text-white/90">per month</p>
             </div>
           </div>
         </div>
@@ -313,7 +254,7 @@ export default function AdvertisePage() {
                 </>
               ) : (
                 <>
-                  {trialEligible ? 'Start Free 30-Day Trial' : 'Get Featured for 30 Days'}
+                  Start 30-Day Free Trial
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
@@ -348,9 +289,9 @@ export default function AdvertisePage() {
           <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 text-primary rounded-lg mb-3">
             <Shield className="h-6 w-6" />
           </div>
-          <h3 className="font-semibold mb-2">{trialEligible ? 'Free Trial Available' : 'Flexible Terms'}</h3>
+          <h3 className="font-semibold mb-2">Risk-Free Trial</h3>
           <p className="text-sm text-gray-600">
-            {trialEligible ? 'Try it free for 30 days. Cancel anytime!' : 'Month-to-month payments. Cancel anytime.'}
+            Try it free for 30 days. Cancel anytime if you're not satisfied
           </p>
         </div>
       </div>
@@ -368,18 +309,9 @@ export default function AdvertisePage() {
           </div>
 
           <div>
-            <h3 className="font-medium mb-2">How much does it cost?</h3>
-            <p className="text-sm text-gray-600">
-              {trialEligible 
-                ? "Your first 30 days are completely FREE! After that, it's $49 per 30-day period if you choose to continue."
-                : "Featured listings are $49 per 30-day period. You can cancel anytime."}
-            </p>
-          </div>
-
-          <div>
             <h3 className="font-medium mb-2">Can I cancel anytime?</h3>
             <p className="text-sm text-gray-600">
-              Yes! You can cancel at any time. If you're on the free trial, you can cancel without any charges. For paid periods, you'll remain featured until the end of your current 30-day period.
+              Yes! There's no long-term contract. You can cancel your subscription at any time and you'll remain featured until the end of your billing period.
             </p>
           </div>
 

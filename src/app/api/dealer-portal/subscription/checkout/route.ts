@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { createOrGetStripeCustomer, createCheckoutSession } from '@/lib/stripe';
+import { createOrGetStripeCustomer, createCheckoutSession, getStripe } from '@/lib/stripe';
 import { sql } from '@/lib/neon';
 import Stripe from 'stripe';
 
@@ -76,6 +76,73 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { priceId, planName, mode, lineItems, metadata } = body;
 
+    // Handle subscription mode with dynamic pricing (when no price ID)
+    if (mode === 'subscription' && !priceId && lineItems && lineItems.length > 0) {
+      // Create Stripe subscription with dynamic pricing
+      const stripeCustomerId = await createOrGetStripeCustomer(
+        businessId!,
+        user.id,
+        user.email,
+        user.name || user.email
+      );
+
+      if (!stripeCustomerId) {
+        return NextResponse.json(
+          { error: 'Failed to create customer. Please check Stripe configuration.' },
+          { status: 500 }
+        );
+      }
+
+      const stripe = await getStripe();
+      if (!stripe) {
+        return NextResponse.json(
+          { error: 'Stripe is not configured' },
+          { status: 500 }
+        );
+      }
+
+      try {
+        const host = request.headers.get('host') || 'localhost:3000';
+        const protocol = host.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${host}`;
+        
+        const subParams: Stripe.Checkout.SessionCreateParams = {
+          customer: stripeCustomerId as string,
+          payment_method_types: ['card'],
+          line_items: lineItems as Stripe.Checkout.SessionCreateParams.LineItem[],
+          mode: 'subscription',
+          success_url: `${baseUrl}/dealer-portal/dashboard?payment=success&type=subscription`,
+          cancel_url: `${baseUrl}/dealer-portal/dashboard?payment=cancelled`,
+          metadata: {
+            ...metadata,
+            business_id: String(businessId),
+            user_id: String(user.id),
+          },
+          subscription_data: {
+            metadata: {
+              business_id: String(businessId),
+              user_id: String(user.id),
+              type: 'monthly_subscription',
+            },
+          },
+        };
+        const session = await stripe.checkout.sessions.create(subParams);
+
+        console.log('Subscription checkout session created:', session.id);
+
+        return NextResponse.json({
+          sessionId: session.id,
+          url: session.url
+        });
+      } catch (stripeError: any) {
+        console.error('Stripe subscription error:', stripeError);
+        return NextResponse.json(
+          { error: 'Failed to create subscription: ' + (stripeError.message || 'Unknown error') },
+          { status: 500 }
+        );
+      }
+    }
+
     // Handle custom line items for one-time payments (credits, featured listings)
     if (mode === 'payment' && lineItems && lineItems.length > 0) {
       // This is a one-time payment, not a subscription
@@ -93,19 +160,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create Stripe instance
-      if (!process.env.STRIPE_SECRET_KEY) {
-        console.error('Stripe secret key not configured');
+      // Get shared Stripe instance
+      const stripe = await getStripe();
+      if (!stripe) {
         return NextResponse.json(
-          { error: 'Payment system not configured. Please contact support.' },
+          { error: 'Stripe is not configured' },
           { status: 500 }
         );
       }
-      
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: '2025-07-30.basil' as any,
-        typescript: true,
-      });
       
       try {
         // Create checkout session for one-time payment
@@ -114,19 +176,20 @@ export async function POST(request: NextRequest) {
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const baseUrl = `${protocol}://${host}`;
         
-        const session = await stripe.checkout.sessions.create({
-          customer: stripeCustomerId,
+        const payParams: Stripe.Checkout.SessionCreateParams = {
+          customer: stripeCustomerId as string,
           payment_method_types: ['card'],
-          line_items: lineItems,
+          line_items: lineItems as Stripe.Checkout.SessionCreateParams.LineItem[],
           mode: 'payment',
-          success_url: `${baseUrl}/dealer-portal/dashboard?payment=success`,
-          cancel_url: `${baseUrl}/dealer-portal/dashboard`,
+          success_url: `${baseUrl}/dealer-portal/dashboard?payment=success&type=${metadata?.type || 'purchase'}`,
+          cancel_url: `${baseUrl}/dealer-portal/dashboard?payment=cancelled`,
           metadata: {
             ...metadata,
-            business_id: businessId,
-            user_id: user.id
-          }
-        });
+            business_id: String(businessId),
+            user_id: String(user.id),
+          },
+        };
+        const session = await stripe.checkout.sessions.create(payParams);
 
         console.log('Checkout session created:', session.id);
 

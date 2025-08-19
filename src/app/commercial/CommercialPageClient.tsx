@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Building, Building2, Truck, Calendar, Shield, Clock, Package, CheckCircle, ArrowRight, Phone, Users, Briefcase, Award, Calculator, Hammer, Home } from 'lucide-react';
 import Link from 'next/link';
-import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
 
 export default function CommercialPageClient() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -154,13 +154,12 @@ export default function CommercialPageClient() {
               >
                 Get Commercial Quote
               </button>
-              <a
-                href="tel:+14342076559"
-                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg hover:bg-primary-foreground/20 transition flex items-center justify-center gap-2"
+              <div
+                className="px-8 py-4 bg-primary-foreground/10 backdrop-blur text-hero-foreground rounded-lg font-semibold text-lg flex items-center justify-center gap-2 select-text"
               >
                 <Phone className="h-5 w-5" />
-                Call for Volume Pricing
-              </a>
+                (434) 207-6559
+              </div>
             </div>
           </div>
         </div>
@@ -481,9 +480,10 @@ export default function CommercialPageClient() {
       </section>
 
       {/* Quote Modal */}
-      <DumpsterQuoteModal
+      <DumpsterQuoteModalSimple
         isOpen={quoteModalOpen}
         onClose={() => setQuoteModalOpen(false)}
+        initialCustomerType="commercial"
       />
     </div>
   );

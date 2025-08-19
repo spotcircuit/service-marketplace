@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   Bell,
-  User
+  User,
+  CreditCard
 } from 'lucide-react';
 
 interface User {
@@ -114,8 +115,9 @@ export default function DealerPortalLayout({
   const navigation = [
     { name: 'Dashboard', href: '/dealer-portal/dashboard', icon: LayoutDashboard },
     { name: 'Leads', href: '/dealer-portal/leads', icon: Users },
-    { name: 'Business Profile', href: '/dealer-portal/profile', icon: Building2 },
+    { name: 'Subscription', href: '/dealer-portal/subscription', icon: CreditCard },
     { name: 'Advertise & Feature', href: '/dealer-portal/advertise', icon: Megaphone },
+    { name: 'Business Profile', href: '/dealer-portal/profile', icon: Building2 },
     { name: 'Account Settings', href: '/dealer-portal/settings', icon: Settings },
   ];
 

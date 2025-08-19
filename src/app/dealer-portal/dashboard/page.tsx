@@ -90,19 +90,39 @@ export default function DealerDashboard() {
   const [business, setBusiness] = useState<BusinessInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [buyingCredits, setBuyingCredits] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     // Check for payment success in URL
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('payment') === 'success') {
+    const paymentStatus = urlParams.get('payment');
+    const purchaseType = urlParams.get('type');
+    
+    if (paymentStatus === 'success') {
       setShowSuccessMessage(true);
-      setPaymentMessage('Payment successful! Your purchase is being processed.');
+      
+      // Set specific message based on purchase type
+      if (purchaseType === 'featured') {
+        setPaymentMessage('🎉 Featured listing activated! Your business is now prominently displayed.');
+      } else if (purchaseType === 'subscription') {
+        setPaymentMessage('✅ Monthly subscription activated! You now have 10 lead credits.');
+      } else if (purchaseType === 'credits') {
+        setPaymentMessage('💰 Credits purchased successfully! Check your balance above.');
+      } else {
+        setPaymentMessage('Payment successful! Your purchase is being processed.');
+      }
+      
       // Clean URL
       window.history.replaceState({}, '', '/dealer-portal/dashboard');
       // Refresh data to show new credits/featured status
       setTimeout(() => {
         fetchDashboardData();
+        // Hide message after 10 seconds
+        setTimeout(() => setShowSuccessMessage(false), 10000);
       }, 2000);
+    } else if (paymentStatus === 'cancelled') {
+      // Handle cancelled payment
+      window.history.replaceState({}, '', '/dealer-portal/dashboard');
     }
     
     fetchDashboardData();
@@ -171,6 +191,54 @@ export default function DealerDashboard() {
       alert('Failed to process payment. Please check your connection and try again.');
     } finally {
       setBuyingCredits(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    setSubscribing(true);
+    try {
+      const response = await fetch('/api/dealer-portal/subscription/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          mode: 'subscription',
+          lineItems: [{
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: 'Monthly Lead Credits',
+                description: '10 credits every month with automatic renewal'
+              },
+              unit_amount: 9900, // $99/month
+              recurring: {
+                interval: 'month'
+              }
+            },
+            quantity: 1
+          }],
+          metadata: {
+            type: 'monthly_subscription',
+            credits_per_month: '10'
+          }
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || 'Failed to start subscription');
+        return;
+      }
+      
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error starting subscription:', error);
+      alert('Failed to process subscription. Please try again.');
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -453,6 +521,39 @@ export default function DealerDashboard() {
           <p className="text-sm text-gray-600 mb-4">
             Each credit lets you view one customer contact information
           </p>
+          
+          {/* Monthly Subscription Option */}
+          <div className="mb-4 p-4 bg-primary/5 border-2 border-primary rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h4 className="font-semibold text-lg flex items-center gap-2">
+                  Monthly Subscription
+                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">Save 50%</span>
+                </h4>
+                <p className="text-sm text-gray-600">10 credits every month, auto-renewed</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold">$99<span className="text-sm font-normal">/mo</span></p>
+                <p className="text-xs text-gray-500 line-through">$200 value</p>
+              </div>
+            </div>
+            <button
+              onClick={handleSubscribe}
+              disabled={subscribing}
+              className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 font-semibold"
+            >
+              {subscribing ? 'Processing...' : 'Subscribe & Save'}
+            </button>
+          </div>
+          
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500">Or buy one-time credits</span>
+            </div>
+          </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button

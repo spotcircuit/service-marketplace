@@ -146,11 +146,11 @@ export default function Header() {
                       </button>
 
                       {quickAccessOpen && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border p-2 z-50">
+                        <div className="absolute right-0 mt-2 w-56 bg-popover text-popover-foreground rounded-lg shadow-xl border p-2 z-50">
                           <div className="space-y-1">
                             <Link
                               href={getDashboardLink()}
-                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors"
+                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors text-foreground"
                               onClick={() => setQuickAccessOpen(false)}
                             >
                               <User className="h-5 w-5 text-primary mt-0.5 mr-3" />
@@ -162,7 +162,7 @@ export default function Header() {
 
                             <Link
                               href="/profile"
-                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors"
+                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors text-foreground"
                               onClick={() => setQuickAccessOpen(false)}
                             >
                               <Settings className="h-5 w-5 text-primary mt-0.5 mr-3" />
@@ -174,7 +174,7 @@ export default function Header() {
 
                             <button
                               onClick={() => { handleLogout(); setQuickAccessOpen(false); }}
-                              className="flex w-full items-start p-3 rounded-md hover:bg-muted transition-colors text-left"
+                              className="flex w-full items-start p-3 rounded-md hover:bg-muted transition-colors text-left text-foreground"
                             >
                               <LogOut className="h-5 w-5 text-primary mt-0.5 mr-3" />
                               <div>
@@ -198,11 +198,11 @@ export default function Header() {
                       </button>
 
                       {quickAccessOpen && (
-                        <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border p-2 z-50">
+                        <div className="absolute right-0 mt-2 w-72 bg-popover text-popover-foreground rounded-lg shadow-xl border p-2 z-50">
                           <div className="space-y-1">
                             <Link
                               href="/login?type=customer"
-                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors"
+                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors text-foreground"
                               onClick={() => setQuickAccessOpen(false)}
                             >
                               <Users className="h-5 w-5 text-primary mt-0.5 mr-3" />
@@ -214,7 +214,7 @@ export default function Header() {
 
                             <Link
                               href="/login?type=business"
-                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors"
+                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors text-foreground"
                               onClick={() => setQuickAccessOpen(false)}
                             >
                               <Briefcase className="h-5 w-5 text-primary mt-0.5 mr-3" />
@@ -226,7 +226,7 @@ export default function Header() {
 
                             <Link
                               href="/login?type=admin"
-                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors"
+                              className="flex items-start p-3 rounded-md hover:bg-muted transition-colors text-foreground"
                               onClick={() => setQuickAccessOpen(false)}
                             >
                               <Shield className="h-5 w-5 text-primary mt-0.5 mr-3" />
@@ -313,44 +313,44 @@ export default function Header() {
 
               {locationsDropdownOpen && (
                 <div className="absolute top-full left-0 pt-2 w-56 z-50">
-                  <div className="bg-white rounded-lg shadow-xl border p-4 max-h-96 overflow-y-auto">
+                  <div className="bg-popover text-popover-foreground rounded-lg shadow-xl border p-4 max-h-96 overflow-y-auto">
                     <Link
                       href="/directory"
-                      className="block px-3 py-2 rounded-md hover:bg-muted transition-colors font-medium mb-2"
+                      className="block px-3 py-2 rounded-md hover:bg-muted transition-colors font-medium mb-2 text-foreground"
                     >
                       🔍 Search Business Directory
                     </Link>
                     <Link
                       href="/locations"
-                      className="block px-3 py-2 rounded-md hover:bg-muted transition-colors font-medium mb-2"
+                      className="block px-3 py-2 rounded-md hover:bg-muted transition-colors font-medium mb-2 text-foreground"
                     >
                       📍 View All Service Areas
                     </Link>
                     <div className="border-t my-2"></div>
                     <p className="text-xs text-muted-foreground px-3 pb-2">Select a state:</p>
                     <div className="space-y-1">
-                      <Link href="/virginia" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/virginia" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         Virginia
                       </Link>
-                      <Link href="/maryland" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/maryland" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         Maryland
                       </Link>
-                      <Link href="/district-of-columbia" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/district-of-columbia" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         District of Columbia
                       </Link>
-                      <Link href="/north-carolina" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/north-carolina" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         North Carolina
                       </Link>
-                      <Link href="/pennsylvania" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/pennsylvania" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         Pennsylvania
                       </Link>
-                      <Link href="/west-virginia" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/west-virginia" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         West Virginia
                       </Link>
-                      <Link href="/delaware" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/delaware" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         Delaware
                       </Link>
-                      <Link href="/new-jersey" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium">
+                      <Link href="/new-jersey" className="block px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm font-medium text-foreground">
                         New Jersey
                       </Link>
                     </div>
@@ -386,7 +386,7 @@ export default function Header() {
                   <ChevronDown className="h-4 w-4 text-gray-500" />
                 </button>
               ) : (
-                <div className="absolute top-0 right-0 z-50 bg-white rounded-lg shadow-xl border p-3 min-w-[300px]">
+                <div className="absolute top-0 right-0 z-50 bg-popover text-popover-foreground rounded-lg shadow-xl border p-3 min-w-[300px]">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Change Location</span>
                     <button

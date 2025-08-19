@@ -50,6 +50,8 @@ export async function GET(request: NextRequest) {
         insurance,
         services,
         service_areas,
+        service_radius_miles,
+        service_zipcodes,
         hours,
         rating,
         reviews,
@@ -116,7 +118,9 @@ export async function PUT(request: NextRequest) {
       license_number,
       insurance,
       services,
-      service_areas
+      service_areas,
+      service_radius_miles,
+      service_zipcodes
     } = body;
 
     // Update business
@@ -139,6 +143,8 @@ export async function PUT(request: NextRequest) {
         insurance = ${insurance || false},
         services = ${services ? JSON.stringify(services) : null},
         service_areas = ${service_areas ? JSON.stringify(service_areas) : null},
+        service_radius_miles = ${service_radius_miles || 25},
+        service_zipcodes = ${service_zipcodes && service_zipcodes.length > 0 ? service_zipcodes : null},
         updated_at = NOW()
       WHERE id = ${userResult[0].business_id}::uuid
       RETURNING id

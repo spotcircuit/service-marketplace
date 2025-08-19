@@ -27,7 +27,7 @@ export default function HomePageClient() {
     deliveryDate: 'asap', // 'asap' | 'week' | 'date'
     phone: '',
     email: '',
-    consent: false,
+    consent: true,
     projectType: '' as string,
   });
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -495,18 +495,27 @@ export default function HomePageClient() {
               </div>
 
               {/* Right: Quote Form */}
-              <div className="bg-white rounded-xl shadow-2xl p-6 text-gray-900">
-                <h2 className="text-2xl font-bold mb-4">Get Quotes</h2>
-                
-                <form onSubmit={handleQuoteSubmit} className="space-y-4">
+              <div className="bg-white rounded-xl shadow-2xl p-2 md:p-2.5 text-gray-900 -mt-2 md:-mt-3 lg:-mt-6 relative">
+                {/* Call button anchored to the card's top-right corner */}
+                <a
+                  href="tel:+14342076559"
+                  className="hidden sm:inline-flex items-center gap-1.5 absolute top-2 right-2 bg-primary text-white px-2.5 py-1 rounded-md text-xs md:text-sm shadow hover:bg-primary/90"
+                  aria-label="Call Now"
+                >
+                  <Phone className="h-4 w-4" />
+                  (434) 207-6559
+                </a>
+                <h2 className="text-base md:text-lg font-semibold mb-1 pr-16">Get Quotes</h2>
+
+                <form onSubmit={handleQuoteSubmit} className="space-y-1">
                   {/* Customer Type */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">Customer Type</label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <label className="block text-xs md:text-sm font-medium mb-0.5">Customer Type</label>
+                    <div className="grid grid-cols-2 gap-1.5">
                       <button
                         type="button"
                         onClick={() => setCustomerType('residential')}
-                        className={`p-2 border rounded-lg text-sm transition-all ${
+                        className={`p-1.5 border rounded-lg text-sm transition-all ${
                           customerType === 'residential' 
                             ? 'border-primary bg-primary/10 text-primary font-semibold' 
                             : 'border-gray-300 hover:border-primary/50'
@@ -517,7 +526,7 @@ export default function HomePageClient() {
                       <button
                         type="button"
                         onClick={() => setCustomerType('commercial')}
-                        className={`p-2 border rounded-lg text-sm transition-all ${
+                        className={`p-1.5 border rounded-lg text-sm transition-all ${
                           customerType === 'commercial' 
                             ? 'border-primary bg-primary/10 text-primary font-semibold' 
                             : 'border-gray-300 hover:border-primary/50'
@@ -529,7 +538,7 @@ export default function HomePageClient() {
                   </div>
                   {/* ZIP Code */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-xs md:text-sm font-medium mb-0.5">
                       ZIP Code
                       {zipcodeDisplay && (
                         <span className="ml-2 text-xs font-normal text-green-600">
@@ -542,7 +551,7 @@ export default function HomePageClient() {
                       value={quoteForm.zipcode}
                       onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value.replace(/\D/g, '').slice(0, 5)})}
                       placeholder="Enter ZIP"
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                       maxLength={5}
                       pattern="[0-9]{5}"
                       required
@@ -551,19 +560,19 @@ export default function HomePageClient() {
 
                   {/* Size Selection (filtered by customer type) */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="block text-xs md:text-sm font-medium mb-0.5">
                       Dumpster Size
                       <button type="button" className="ml-2 text-primary text-xs underline">
                         Not sure?
                       </button>
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {sizesForCustomer.map((size: SizeCard) => (
                         <button
                           key={size.id}
                           type="button"
                           onClick={() => setQuoteForm({...quoteForm, size: size.id})}
-                          className={`p-2 border rounded-lg text-sm transition ${
+                          className={`p-1.5 border rounded-lg text-sm transition ${
                             quoteForm.size === size.id 
                               ? 'border-primary bg-primary/10 font-semibold' 
                               : 'border-gray-300 hover:border-primary'
@@ -578,11 +587,11 @@ export default function HomePageClient() {
 
                   {/* Debris Type */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">Debris Type</label>
+                    <label className="block text-xs md:text-sm font-medium mb-0.5">Debris Type</label>
                     <select
                       value={quoteForm.debrisType}
                       onChange={(e) => setQuoteForm({...quoteForm, debrisType: e.target.value})}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-2.5 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                     >
                       <option value="general">General Waste</option>
                       <option value="construction">Construction Debris</option>
@@ -592,14 +601,14 @@ export default function HomePageClient() {
 
                   {/* Project Type (matches modal options) */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">Project Type</label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <label className="block text-xs md:text-sm font-medium mb-0.5">Project Type</label>
+                    <div className="grid grid-cols-2 gap-1.5">
                       {(customerType === 'commercial' ? projectTypesCommercial : projectTypesResidential).map((p) => (
                         <button
                           key={p.id}
                           type="button"
                           onClick={() => setQuoteForm({ ...quoteForm, projectType: p.id })}
-                          className={`p-2 border rounded-lg text-sm ${
+                          className={`p-1.5 border rounded-lg text-sm ${
                             quoteForm.projectType === p.id ? 'border-primary bg-primary/10 font-semibold' : 'border-gray-300'
                           }`}
                         >
@@ -611,12 +620,12 @@ export default function HomePageClient() {
 
                   {/* Delivery Date */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">When do you need it?</label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <label className="block text-xs md:text-sm font-medium mb-0.5">When do you need it?</label>
+                    <div className="grid grid-cols-3 gap-1.5">
                       <button
                         type="button"
                         onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'asap'})}
-                        className={`p-2 border rounded-lg text-sm ${
+                        className={`p-1.5 border rounded-lg text-sm ${
                           quoteForm.deliveryDate === 'asap' 
                             ? 'border-primary bg-primary/10' 
                             : 'border-gray-300'
@@ -627,7 +636,7 @@ export default function HomePageClient() {
                       <button
                         type="button"
                         onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'week'})}
-                        className={`p-2 border rounded-lg text-sm ${
+                        className={`p-1.5 border rounded-lg text-sm ${
                           quoteForm.deliveryDate === 'week' 
                             ? 'border-primary bg-primary/10' 
                             : 'border-gray-300'
@@ -638,7 +647,7 @@ export default function HomePageClient() {
                       <button
                         type="button"
                         onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'date'})}
-                        className={`p-2 border rounded-lg text-sm ${
+                        className={`p-1.5 border rounded-lg text-sm ${
                           quoteForm.deliveryDate === 'date' 
                             ? 'border-primary bg-primary/10' 
                             : 'border-gray-300'
@@ -648,27 +657,27 @@ export default function HomePageClient() {
                       </button>
                     </div>
                     {quoteForm.deliveryDate === 'date' && (
-                      <div className="mt-2">
+                      <div className="mt-0.5">
                         <input
                           type="date"
                           value={selectedDate}
                           onChange={(e) => setSelectedDate(e.target.value)}
                           min={new Date().toISOString().split('T')[0]}
                           max={new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                          className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                         />
                       </div>
                     )}
                   </div>
 
                   {/* Contact */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5">
                     <input
                       type="tel"
                       placeholder="Phone"
                       value={quoteForm.phone}
                       onChange={(e) => setQuoteForm({...quoteForm, phone: e.target.value})}
-                      className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                      className="px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                       required
                     />
                     <input
@@ -676,7 +685,7 @@ export default function HomePageClient() {
                       placeholder="Email"
                       value={quoteForm.email}
                       onChange={(e) => setQuoteForm({...quoteForm, email: e.target.value})}
-                      className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                      className="px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                       required
                     />
                   </div>
@@ -697,24 +706,17 @@ export default function HomePageClient() {
                   </div>
 
                   {/* CTAs */}
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <button
                       type="submit"
-                      className="w-full py-3 btn-primary rounded-lg text-lg"
+                      className="w-full py-1.5 btn-primary rounded-lg text-sm"
                     >
                       Get Quotes →
                     </button>
-                    <a
-                      href="tel:+14342076559"
-                      className="w-full py-3 btn-ghost-primary rounded-lg flex items-center justify-center gap-2"
-                    >
-                      <Phone className="h-5 w-5" />
-                      Call Now: (434) 207-6559
-                    </a>
                   </div>
 
                   {/* Micro-trust */}
-                  <div className="flex items-center justify-center gap-4 text-xs text-gray-600">
+                  <div className="hidden">
                     <span>✓ Same-day in some areas</span>
                     <span>✓ No spam</span>
                     <span>✓ Free quotes</span>
