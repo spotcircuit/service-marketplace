@@ -142,3 +142,6 @@ temp/
 /public/sw.js.map
 /public/workbox-*.js
 /public/workbox-*.js.map
+
+# Imports (local data dumps)
+/imports/
