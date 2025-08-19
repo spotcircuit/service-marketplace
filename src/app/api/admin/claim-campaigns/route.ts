@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     params.push(limit);
     params.push(offset);
     
-    // Fetch unclaimed businesses
+    // Fetch unclaimed businesses with contacts
     const query = `
       SELECT 
         b.id,
@@ -88,7 +88,19 @@ export async function GET(request: NextRequest) {
         cc.email_sent_at,
         cc.email_opened_at,
         cc.link_clicked_at,
-        cc.expires_at
+        cc.expires_at,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', con.id,
+              'email', con.email,
+              'is_primary', con.is_primary,
+              'is_selected', con.is_selected,
+              'email_sent_at', con.email_sent_at
+            )
+          ) FILTER (WHERE con.id IS NOT NULL),
+          '[]'::json
+        ) as contacts
       FROM businesses b
       LEFT JOIN LATERAL (
         SELECT * FROM claim_campaigns 
@@ -96,7 +108,11 @@ export async function GET(request: NextRequest) {
         ORDER BY created_at DESC 
         LIMIT 1
       ) cc ON true
+      LEFT JOIN claim_contacts con ON cc.id = con.claim_campaign_id
       WHERE ${conditions.join(' AND ')}
+      GROUP BY b.id, b.name, b.email, b.phone, b.address, b.city, b.state, 
+               b.zipcode, b.category, b.website, b.rating, b.reviews, b.created_at,
+               cc.claim_token, cc.email_sent_at, cc.email_opened_at, cc.link_clicked_at, cc.expires_at
       ORDER BY b.reviews DESC, b.rating DESC
       LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
     `;

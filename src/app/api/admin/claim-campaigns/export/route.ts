@@ -3,6 +3,13 @@ import { sql } from '@/lib/neon';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 
+interface ContactRow {
+  contact_id: string;
+  contact_email: string;
+  is_primary: boolean;
+  is_selected: boolean;
+}
+
 interface BusinessRow {
   id: string;
   name: string;
@@ -19,6 +26,7 @@ interface BusinessRow {
   claim_token: string | null;
   email_sent_at: string | null;
   expires_at: string | null;
+  contacts?: ContactRow[];
 }
 
 // GET: Export unclaimed businesses as CSV
@@ -94,7 +102,7 @@ export async function GET(request: NextRequest) {
       params.push(businessIds);
     }
     
-    // Fetch unclaimed businesses
+    // Fetch unclaimed businesses with their contacts
     const query = `
       SELECT 
         b.id,
@@ -111,7 +119,18 @@ export async function GET(request: NextRequest) {
         b.reviews,
         cc.claim_token,
         cc.email_sent_at,
-        cc.expires_at
+        cc.expires_at,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'contact_id', con.id,
+              'contact_email', con.email,
+              'is_primary', con.is_primary,
+              'is_selected', con.is_selected
+            )
+          ) FILTER (WHERE con.id IS NOT NULL AND con.is_selected = true),
+          '[]'::json
+        ) as contacts
       FROM businesses b
       LEFT JOIN LATERAL (
         SELECT * FROM claim_campaigns 
@@ -119,9 +138,12 @@ export async function GET(request: NextRequest) {
         ORDER BY created_at DESC 
         LIMIT 1
       ) cc ON true
+      LEFT JOIN claim_contacts con ON cc.id = con.claim_campaign_id
       WHERE ${conditions.join(' AND ')}
+      GROUP BY b.id, b.name, b.email, b.phone, b.address, b.city, b.state,
+               b.zipcode, b.category, b.website, b.rating, b.reviews,
+               cc.claim_token, cc.email_sent_at, cc.expires_at
       ORDER BY b.reviews DESC, b.rating DESC
-      LIMIT 10000
     `;
     
     const businesses = await sql(query, params);
@@ -131,11 +153,12 @@ export async function GET(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-    // Create CSV content
+    // Create CSV content - flat file with one row per email
     const csvHeaders = [
       'Business ID',
       'Business Name',
-      'Email',
+      'Contact Email',
+      'Is Primary',
       'Phone',
       'Address',
       'City',
@@ -151,36 +174,73 @@ export async function GET(request: NextRequest) {
       'Token Expires'
     ];
 
-    const csvRows = (businesses as unknown as BusinessRow[]).map((b: BusinessRow) => {
-      // All businesses should have tokens now (auto-generated)
+    const csvRows: string[] = [];
+    
+    (businesses as unknown as BusinessRow[]).forEach((b: BusinessRow) => {
       const shortUrl = b.claim_token ? `${baseUrl}/claim/${b.claim_token}` : '';
       const longUrl = `${baseUrl}/claim?businessId=${b.id}&businessName=${encodeURIComponent(b.name)}&email=${encodeURIComponent(b.email || '')}&phone=${encodeURIComponent(b.phone || '')}&address=${encodeURIComponent(b.address || '')}&city=${encodeURIComponent(b.city || '')}&state=${encodeURIComponent(b.state || '')}&zipcode=${encodeURIComponent(b.zipcode || '')}&category=${encodeURIComponent(b.category || '')}&website=${encodeURIComponent(b.website || '')}`;
       
-      return [
-        b.id,
-        b.name,
-        b.email || '',
-        b.phone || '',
-        b.address || '',
-        b.city || '',
-        b.state || '',
-        b.zipcode || '',
-        b.category || '',
-        b.website || '',
-        b.rating || '',
-        b.reviews || '0',
-        longUrl,
-        shortUrl,
-        b.email_sent_at ? new Date(b.email_sent_at).toISOString() : 'No',
-        b.expires_at ? new Date(b.expires_at).toISOString() : ''
-      ].map(field => {
-        // Escape fields that contain commas or quotes
-        const str = String(field);
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-          return `"${str.replace(/"/g, '""')}"`;
-        }
-        return str;
-      }).join(',');
+      // If business has contacts, create a row for each selected contact
+      if (b.contacts && b.contacts.length > 0) {
+        b.contacts.forEach((contact: ContactRow) => {
+          const row = [
+            b.id,
+            b.name,
+            contact.contact_email,
+            contact.is_primary ? 'Yes' : 'No',
+            b.phone || '',
+            b.address || '',
+            b.city || '',
+            b.state || '',
+            b.zipcode || '',
+            b.category || '',
+            b.website || '',
+            b.rating || '',
+            b.reviews || '0',
+            longUrl,
+            shortUrl,
+            b.email_sent_at ? new Date(b.email_sent_at).toISOString() : 'No',
+            b.expires_at ? new Date(b.expires_at).toISOString() : ''
+          ].map(field => {
+            // Escape fields that contain commas or quotes
+            const str = String(field);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+              return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+          }).join(',');
+          csvRows.push(row);
+        });
+      } else {
+        // Fallback to business email if no contacts
+        const row = [
+          b.id,
+          b.name,
+          b.email || '',
+          'Yes', // Consider business email as primary
+          b.phone || '',
+          b.address || '',
+          b.city || '',
+          b.state || '',
+          b.zipcode || '',
+          b.category || '',
+          b.website || '',
+          b.rating || '',
+          b.reviews || '0',
+          longUrl,
+          shortUrl,
+          b.email_sent_at ? new Date(b.email_sent_at).toISOString() : 'No',
+          b.expires_at ? new Date(b.expires_at).toISOString() : ''
+        ].map(field => {
+          // Escape fields that contain commas or quotes
+          const str = String(field);
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return `"${str.replace(/"/g, '""')}"`;
+          }
+          return str;
+        }).join(',');
+        csvRows.push(row);
+      }
     });
 
     const csv = [csvHeaders.join(','), ...csvRows].join('\n');

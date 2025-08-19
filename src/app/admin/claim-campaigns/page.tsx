@@ -5,6 +5,14 @@ import { Download, Mail, RefreshCw, Check, X, Copy, ExternalLink, Filter, Search
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+interface Contact {
+  id: string;
+  email: string;
+  is_primary: boolean;
+  is_selected: boolean;
+  email_sent_at?: string;
+}
+
 interface Business {
   id: string;
   name: string;
@@ -23,6 +31,7 @@ interface Business {
   email_opened_at?: string;
   link_clicked_at?: string;
   expires_at?: string;
+  contacts?: Contact[];
 }
 
 export default function ClaimCampaignsPage() {
@@ -432,7 +441,7 @@ export default function ClaimCampaignsPage() {
               ) : (
                 <>
                   <Download className="h-4 w-4" />
-                  Export {selectedBusinesses.size > 0 ? `Selected (${selectedBusinesses.size})` : filteredBusinesses.length > 0 ? `Filtered (${filteredBusinesses.length})` : 'All'} to CSV
+                  Export {selectedBusinesses.size > 0 ? `Selected (${selectedBusinesses.size})` : 'All'} to CSV
                 </>
               )}
             </button>
@@ -443,7 +452,7 @@ export default function ClaimCampaignsPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-y">
                 <tr>
-                  <th className="px-4 py-3 text-left">
+                  <th className="px-2 py-2 text-left">
                     <input
                       type="checkbox"
                       checked={selectedBusinesses.size === filteredBusinesses.length && filteredBusinesses.length > 0}
@@ -451,76 +460,101 @@ export default function ClaimCampaignsPage() {
                       className="rounded"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Business</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Contact</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Location</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Stats</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Campaign Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Business</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Contact</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Location</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Stats</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Status</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Claim URL</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {filteredBusinesses.map((business) => (
                   <tr key={business.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-1">
                       <input
                         type="checkbox"
                         checked={selectedBusinesses.has(business.id)}
                         onChange={() => handleSelectBusiness(business.id)}
-                        className="rounded"
+                        className="rounded h-3 w-3"
                       />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-1">
                       <div>
-                        <p className="font-medium">{business.name}</p>
-                        <p className="text-sm text-gray-500">{business.category}</p>
+                        <p className="text-xs font-medium truncate max-w-[150px]">{business.name}</p>
+                        <p className="text-xs text-gray-500 truncate max-w-[150px]">{business.category}</p>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm">
-                        <p>{business.email}</p>
-                        <p className="text-gray-500">{business.phone}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm">
-                        <p>{business.city}, {business.state}</p>
-                        <p className="text-gray-500">{business.zipcode}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm">
-                        <p>⭐ {business.rating}</p>
-                        <p className="text-gray-500">{business.reviews} reviews</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1 text-xs">
-                        {business.claim_token ? (
-                          <>
-                            <span className="flex items-center gap-1">
-                              <Check className="h-3 w-3 text-green-600" />
-                              Token Generated
-                            </span>
-                            {business.email_sent_at && (
-                              <span className="flex items-center gap-1">
-                                <Mail className="h-3 w-3 text-blue-600" />
-                                Email Sent
-                              </span>
+                    <td className="px-2 py-1">
+                      <div className="text-xs">
+                        {business.contacts && business.contacts.length > 0 ? (
+                          <div className="space-y-0.5">
+                            {business.contacts.slice(0, 2).map((contact) => (
+                              <div key={contact.id} className="flex items-center gap-1">
+                                <input
+                                  type="checkbox"
+                                  checked={contact.is_selected}
+                                  onChange={() => {
+                                    // TODO: Handle email selection toggle
+                                  }}
+                                  className="h-3 w-3 rounded"
+                                />
+                                <span className="truncate max-w-[150px]" title={contact.email}>
+                                  {contact.email}
+                                </span>
+                              </div>
+                            ))}
+                            {business.contacts.length > 2 && (
+                              <span className="text-gray-500">+{business.contacts.length - 2} more</span>
                             )}
-                            {business.link_clicked_at && (
-                              <span className="flex items-center gap-1">
-                                <ExternalLink className="h-3 w-3 text-purple-600" />
-                                Link Clicked
-                              </span>
-                            )}
-                          </>
+                          </div>
                         ) : (
-                          <span className="text-gray-400">No token</span>
+                          <p className="text-gray-400 truncate max-w-[150px]">{business.email || 'No email'}</p>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-1">
+                      <div className="text-xs">
+                        <p className="truncate max-w-[100px]">{business.city}, {business.state}</p>
+                        <p className="text-gray-500">{business.zipcode}</p>
+                      </div>
+                    </td>
+                    <td className="px-2 py-1">
+                      <div className="text-xs">
+                        <p>⭐ {business.rating}</p>
+                        <p className="text-gray-500">{business.reviews}</p>
+                      </div>
+                    </td>
+                    <td className="px-2 py-1">
+                      <div className="flex flex-col gap-0.5 text-xs">
+                        {business.claim_token ? (
+                          <>
+                            {business.link_clicked_at ? (
+                              <span className="text-purple-600">Clicked</span>
+                            ) : business.email_sent_at ? (
+                              <span className="text-blue-600">Sent</span>
+                            ) : (
+                              <span className="text-green-600">Ready</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-2 py-1">
+                      {business.claim_token ? (
+                        <div className="text-xs">
+                          <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-700 truncate block max-w-[200px]" title={`${window.location.origin}/claim/${business.claim_token}`}>
+                            /claim/{business.claim_token}
+                          </code>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-2 py-1">
                       {business.claim_token && (
                         <div className="flex items-center gap-2">
                           <button
