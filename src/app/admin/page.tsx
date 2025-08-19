@@ -16,6 +16,15 @@ export default function AdminPage() {
   const [message, setMessage] = useState('');
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  // Quick stats state
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [quickStats, setQuickStats] = useState<{
+    total_businesses: number;
+    featured_count: number;
+    verified_count: number;
+    total_reviews: number;
+  }>({ total_businesses: 0, featured_count: 0, verified_count: 0, total_reviews: 0 });
 
   const checkAuth = useCallback(async () => {
     try {
@@ -108,6 +117,32 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localConfig?.theme, themes]);
 
+  // Load quick stats (businesses) once authenticated
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!user) return;
+      try {
+        setStatsLoading(true);
+        setStatsError(null);
+        const res = await fetch('/api/businesses/stats', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Stats fetch failed: ${res.status}`);
+        const data = await res.json();
+        const s = data?.stats || {};
+        setQuickStats({
+          total_businesses: Number(s.total_businesses || 0),
+          featured_count: Number(s.featured_count || 0),
+          verified_count: Number(s.verified_count || 0),
+          total_reviews: Number(s.total_reviews || 0),
+        });
+      } catch (e: any) {
+        setStatsError(e?.message || 'Failed to load stats');
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    loadStats();
+  }, [user]);
+
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -148,8 +183,16 @@ export default function AdminPage() {
       // General settings
       configs.push({ key: 'site_name', value: localConfig.siteName, category: 'general' });
       configs.push({ key: 'site_tagline', value: localConfig.siteTagline, category: 'general' });
-      configs.push({ key: 'contact_email', value: localConfig.contactEmail, category: 'general' });
-      configs.push({ key: 'contact_phone', value: localConfig.contactPhone, category: 'general' });
+      if (localConfig.contactEmail !== undefined)
+        configs.push({ key: 'contact_email', value: localConfig.contactEmail, category: 'general' });
+      if (localConfig.contactPhone !== undefined)
+        configs.push({ key: 'contact_phone', value: localConfig.contactPhone, category: 'general' });
+      if (localConfig.contactPhoneDisplay !== undefined)
+        configs.push({ key: 'contact_phone_display', value: localConfig.contactPhoneDisplay, category: 'general' });
+      if (localConfig.contactPhoneE164 !== undefined)
+        configs.push({ key: 'contact_phone_e164', value: localConfig.contactPhoneE164, category: 'general' });
+      if (localConfig.supportHours !== undefined)
+        configs.push({ key: 'support_hours', value: localConfig.supportHours, category: 'general' });
 
       // Hero settings
       configs.push({ key: 'hero_title', value: localConfig.heroTitle, category: 'hero' });
@@ -385,68 +428,38 @@ export default function AdminPage() {
                       </p>
                     </Link>
                     <Link
-                      href="/admin/leads"
+                      href="/admin/claim-campaigns"
                       className="p-6 bg-card border-2 rounded-lg hover:border-primary transition-all"
                     >
-                      <h3 className="text-lg font-semibold mb-2">Lead Management</h3>
+                      <h3 className="text-lg font-semibold mb-2">Claim Campaigns</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        View and manage customer inquiries, quote requests, and lead status
+                        Manage email campaigns for unclaimed businesses
                       </p>
-                      <span className="text-primary font-medium">Manage Leads →</span>
-                    </Link>
-
-                    <Link
-                      href="/directory"
-                      className="p-6 bg-card border-2 rounded-lg hover:border-primary transition-all"
-                    >
-                      <h3 className="text-lg font-semibold mb-2">Business Directory</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Browse and manage business listings in the directory
-                      </p>
-                      <span className="text-primary font-medium">View Directory →</span>
-                    </Link>
-
-                    <Link
-                      href="/claim"
-                      className="p-6 bg-card border-2 rounded-lg hover:border-primary transition-all"
-                    >
-                      <h3 className="text-lg font-semibold mb-2">Business Claims</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Process and verify business ownership claims
-                      </p>
-                      <span className="text-primary font-medium">View Claims →</span>
-                    </Link>
-
-                    <Link
-                      href="/for-business"
-                      className="p-6 bg-card border-2 rounded-lg hover:border-primary transition-all"
-                    >
-                      <h3 className="text-lg font-semibold mb-2">Business Packages</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Manage pricing tiers and featured listing packages
-                      </p>
-                      <span className="text-primary font-medium">View Packages →</span>
+                      <span className="text-primary font-medium">Manage Campaigns →</span>
                     </Link>
                   </div>
 
                   <div className="p-4 bg-muted rounded-lg">
                     <h3 className="font-semibold mb-2">Quick Stats</h3>
+                    {statsError && (
+                      <div className="text-sm text-destructive mb-2">{statsError}</div>
+                    )}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                       <div>
-                        <div className="text-2xl font-bold">5</div>
+                        <div className="text-2xl font-bold">{statsLoading ? '…' : quickStats.total_businesses}</div>
                         <div className="text-sm text-muted-foreground">Total Businesses</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold">3</div>
+                        <div className="text-2xl font-bold">{statsLoading ? '…' : quickStats.featured_count}</div>
                         <div className="text-sm text-muted-foreground">Featured Listings</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold">0</div>
-                        <div className="text-sm text-muted-foreground">Pending Claims</div>
+                        <div className="text-2xl font-bold">{statsLoading ? '…' : quickStats.verified_count}</div>
+                        <div className="text-sm text-muted-foreground">Verified Businesses</div>
                       </div>
                       <div>
-                        <div className="text-2xl font-bold">0</div>
-                        <div className="text-sm text-muted-foreground">New Leads</div>
+                        <div className="text-2xl font-bold">{statsLoading ? '…' : quickStats.total_reviews}</div>
+                        <div className="text-sm text-muted-foreground">Total Reviews</div>
                       </div>
                     </div>
                   </div>
@@ -540,6 +553,52 @@ export default function AdminPage() {
                       rows={3}
                       className="w-full px-3 py-2 border rounded-lg"
                     />
+                  </div>
+
+                  {/* Contact Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Contact Email</label>
+                      <input
+                        type="email"
+                        value={localConfig.contactEmail || ''}
+                        onChange={(e) => setLocalConfig({ ...localConfig, contactEmail: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Support Hours</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Mon–Fri 8AM–6PM ET"
+                        value={localConfig.supportHours || ''}
+                        onChange={(e) => setLocalConfig({ ...localConfig, supportHours: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Business Phone (Display)</label>
+                      <input
+                        type="text"
+                        placeholder="(XXX) XXX-XXXX"
+                        value={localConfig.contactPhoneDisplay || ''}
+                        onChange={(e) => setLocalConfig({ ...localConfig, contactPhoneDisplay: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Business Phone (E.164)</label>
+                      <input
+                        type="text"
+                        placeholder="+1XXXXXXXXXX"
+                        value={localConfig.contactPhoneE164 || ''}
+                        onChange={(e) => setLocalConfig({ ...localConfig, contactPhoneE164: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">

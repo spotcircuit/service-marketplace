@@ -77,6 +77,25 @@ export default function DumpsterQuoteModalSimple({
     consent: false,
   });
 
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        customerType: initialData.customerType || prev.customerType,
+        zipcode: initialData.zipcode || prev.zipcode,
+        city: initialData.city || prev.city,
+        state: initialData.state || prev.state,
+        dumpsterSize: initialData.dumpsterSize || prev.dumpsterSize,
+        debrisType: initialData.debrisType || prev.debrisType,
+        deliveryDate: initialData.deliveryDate || prev.deliveryDate,
+        projectType: initialData.projectType || prev.projectType,
+        phone: initialData.phone || prev.phone,
+        email: initialData.email || prev.email,
+      }));
+    }
+  }, [initialData]);
+
   // Auto-lookup city/state when zipcode is entered
   useEffect(() => {
     const lookupZipcode = async () => {

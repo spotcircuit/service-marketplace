@@ -6,7 +6,9 @@ import { useState, useEffect } from 'react';
 import BusinessDirectory from '@/components/BusinessDirectory';
 import LocationMap from '@/components/LocationMap';
 import CityClusterMap from '@/components/CityClusterMap';
-import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
+import DirectoryDisclaimer from '@/components/DirectoryDisclaimer';
+import { useConfig } from '@/contexts/ConfigContext';
 
 // State coordinates for centering map
 const stateCoordinates: Record<string, {lat: number, lng: number}> = {
@@ -64,8 +66,105 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
     deliveryDate: 'asap',
     phone: '',
     email: '',
-    consent: false
+    consent: true,
+    projectType: '' as string,
   });
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [zipcodeDisplay, setZipcodeDisplay] = useState<string>('');
+  const { config } = useConfig();
+
+  // Dumpster sizes data
+  type SizeCard = {
+    size: string;
+    id: string;
+    dimensions: string;
+    capacity: string;
+    projects: string;
+    price: string;
+    image: string;
+    popular?: boolean;
+  };
+
+  const dumpsterSizes: SizeCard[] = [
+    {
+      size: '10-Yard',
+      id: '10-yard',
+      dimensions: '14\' × 8\' × 3.5\'',
+      capacity: '4 pickup loads',
+      projects: 'Single room, garage cleanout',
+      price: `$295-$395`,
+      image: '🚛',
+    },
+    {
+      size: '20-Yard',
+      id: '20-yard',
+      dimensions: '16\' × 8\' × 5.5\'',
+      capacity: '8 pickup loads',
+      projects: 'Kitchen remodel, flooring',
+      price: `$395-$595`,
+      image: '🚛',
+      popular: true,
+    },
+    {
+      size: '30-Yard',
+      id: '30-yard',
+      dimensions: '20\' × 8\' × 6\'',
+      capacity: '12 pickup loads',
+      projects: 'Full home renovation',
+      price: `$495-$695`,
+      image: '🚚',
+    },
+    {
+      size: '40-Yard',
+      id: '40-yard',
+      dimensions: '22\' × 8\' × 8\'',
+      capacity: '16 pickup loads',
+      projects: 'Major construction',
+      price: `$595-$795`,
+      image: '🚚',
+    },
+  ];
+
+  const projectTypesResidential = [
+    { id: 'home-cleanout', label: 'Home Clean Out' },
+    { id: 'moving', label: 'Moving' },
+    { id: 'construction', label: 'Construction/Demolition' },
+    { id: 'heavy-debris', label: 'Heavy Debris' },
+    { id: 'landscaping', label: 'Landscaping/Other' },
+  ];
+
+  const projectTypesCommercial = [
+    { id: 'office-cleanout', label: 'Office Cleanout' },
+    { id: 'retail-fitout', label: 'Retail Build-Out/Closeout' },
+    { id: 'construction', label: 'Construction/Demolition' },
+    { id: 'industrial-heavy', label: 'Industrial/Heavy Debris' },
+    { id: 'landscaping', label: 'Landscaping/Events' },
+  ];
+
+  // Auto-lookup city/state when zipcode is entered
+  useEffect(() => {
+    const lookupZipcode = async () => {
+      // Only lookup if we have a 5-digit zipcode
+      if (quoteForm.zipcode.length === 5 && /^\d{5}$/.test(quoteForm.zipcode)) {
+        try {
+          const response = await fetch(`/api/zipcode?zip=${quoteForm.zipcode}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.city && data.state) {
+              setZipcodeDisplay(`${data.city}, ${data.state}`);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to lookup zipcode:', error);
+        }
+      } else {
+        setZipcodeDisplay('');
+      }
+    };
+
+    const debounceTimer = setTimeout(lookupZipcode, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [quoteForm.zipcode]);
 
   useEffect(() => {
     console.log('=== STATE PAGE LOADED ===');
@@ -174,32 +273,78 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
     // For now, we'll let the LocationMap handle filtering
   };
 
-  const handleQuoteSubmit = (e: React.FormEvent) => {
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quoteForm.consent) {
       alert('Please agree to receive quotes');
       return;
     }
+
+    // First, look up city from zipcode if needed
+    let city = '';
+    let state = stateName;
     
-    // Prepare initial data for the modal
-    const initialData: any = {
-      customerType: customerType === 'commercial' ? 'commercial' : 'residential',
+    if (quoteForm.zipcode) {
+      try {
+        const zipResponse = await fetch(`/api/zipcode?zip=${quoteForm.zipcode}`);
+        if (zipResponse.ok) {
+          const zipData = await zipResponse.json();
+          city = zipData.city || '';
+          state = zipData.state || stateName;
+        }
+      } catch (error) {
+        console.error('Failed to lookup zipcode:', error);
+      }
+    }
+
+    // Prepare the quote data
+    const quoteData = {
+      customerType,
       zipcode: quoteForm.zipcode,
-      dumpsterSize: quoteForm.size,
       debrisType: quoteForm.debrisType,
+      dumpsterSize: quoteForm.size,
       email: quoteForm.email,
       phone: quoteForm.phone,
-      state: stateName
+      projectType: quoteForm.projectType || 'general',
+      deliveryDate: quoteForm.deliveryDate === 'date' ? selectedDate : quoteForm.deliveryDate,
+      source: 'state-page',
+      city,
+      state,
     };
-    
-    // Add delivery date if specified
-    if (quoteForm.deliveryDate !== 'asap') {
-      initialData.deliveryDate = quoteForm.deliveryDate;
+
+    // Submit quote directly
+    try {
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quoteData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Show success and open modal for additional options
+        const initialData: any = {
+          customerType,
+          zipcode: quoteForm.zipcode,
+          dumpsterSize: quoteForm.size,
+          debrisType: quoteForm.debrisType,
+          email: quoteForm.email,
+          phone: quoteForm.phone,
+          city,
+          state,
+        };
+        
+        setModalInitialData(initialData);
+        setQuoteModalOpen(true);
+      } else {
+        alert('Failed to submit quote. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting quote:', error);
+      alert('An error occurred. Please try again.');
     }
-    
-    setModalInitialData(initialData);
-    setModalStartStep(1); // Start at step 1 (skip customer type selection)
-    setQuoteModalOpen(true);
   };
 
   if (loading) {
@@ -238,19 +383,19 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
                 Dumpster Rental in {stateName}
               </h1>
               <p className="text-xl text-hero-foreground/90 mb-6">
-                Compare quotes from {stats.total}+ verified providers across {stats.cities} cities. 
-                Same-day delivery available.
+                Compare quotes from {stats.total}+ local providers across {stats.cities} cities. 
+                Same-day or next-day delivery may be available.
               </p>
               
               {/* Trust Indicators */}
               <div className="flex flex-wrap gap-4 mb-6">
                 <div className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                  <span>Licensed & Insured</span>
+                  <span>Provider credentials vary</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  <span>Same-Day Available</span>
+                  <span>Same-day may be available</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 fill-current" />
@@ -271,54 +416,190 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
               </div>
             </div>
 
-            {/* Right: Quick Quote Form */}
-            <div className="bg-white rounded-xl shadow-2xl p-6 text-gray-900">
-              <h2 className="text-2xl font-bold mb-4">Get Instant Quotes</h2>
-              
-              <form onSubmit={handleQuoteSubmit} className="space-y-4">
+            {/* Right: Quote Form */}
+            <div className="bg-white rounded-xl shadow-2xl p-2 md:p-2.5 text-gray-900 -mt-2 md:-mt-3 lg:-mt-6 relative">
+              {/* Call button anchored to the card's top-right corner */}
+              <a
+                href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
+                className="hidden sm:inline-flex items-center gap-1.5 absolute top-2 right-2 bg-primary text-white px-2.5 py-1 rounded-md text-xs md:text-sm shadow hover:bg-primary/90"
+                aria-label="Call Now"
+              >
+                <Phone className="h-4 w-4" />
+                {config?.contactPhoneDisplay || config?.contactPhone || 'Call'}
+              </a>
+              <h2 className="text-base md:text-lg font-semibold mb-1 pr-16">Get Quotes</h2>
+
+              <form onSubmit={handleQuoteSubmit} className="space-y-1">
+                {/* Customer Type */}
+                <div>
+                  <label className="block text-xs md:text-sm font-medium mb-0.5">Customer Type</label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setCustomerType('residential')}
+                      className={`p-1.5 border rounded-lg text-sm transition-all ${
+                        customerType === 'residential' 
+                          ? 'border-primary bg-primary/10 text-primary font-semibold' 
+                          : 'border-gray-300 hover:border-primary/50'
+                      }`}
+                    >
+                      Residential
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCustomerType('commercial')}
+                      className={`p-1.5 border rounded-lg text-sm transition-all ${
+                        customerType === 'commercial' 
+                          ? 'border-primary bg-primary/10 text-primary font-semibold' 
+                          : 'border-gray-300 hover:border-primary/50'
+                      }`}
+                    >
+                      Commercial
+                    </button>
+                  </div>
+                </div>
                 {/* ZIP Code */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">ZIP Code in {stateName}</label>
+                  <label className="block text-xs md:text-sm font-medium mb-0.5">
+                    ZIP Code
+                    {zipcodeDisplay && (
+                      <span className="ml-2 text-xs font-normal text-green-600">
+                        {zipcodeDisplay}
+                      </span>
+                    )}
+                  </label>
                   <input
                     type="text"
                     value={quoteForm.zipcode}
-                    onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value})}
+                    onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value.replace(/\D/g, '').slice(0, 5)})}
                     placeholder="Enter ZIP"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    maxLength={5}
+                    pattern="[0-9]{5}"
                     required
                   />
                 </div>
 
-                {/* Size Selection */}
+                {/* Size Selection (filtered by customer type) */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Dumpster Size</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['10-yard', '20-yard', '30-yard', '40-yard'].map((size) => (
+                  <label className="block text-xs md:text-sm font-medium mb-0.5">
+                    Dumpster Size
+                    <button type="button" className="ml-2 text-primary text-xs underline">
+                      Not sure?
+                    </button>
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {dumpsterSizes.map((size) => (
                       <button
-                        key={size}
+                        key={size.id}
                         type="button"
-                        onClick={() => setQuoteForm({...quoteForm, size})}
-                        className={`p-2 border rounded-lg text-sm transition ${
-                          quoteForm.size === size 
+                        onClick={() => setQuoteForm({...quoteForm, size: size.id})}
+                        className={`p-1.5 border rounded-lg text-sm transition ${
+                          quoteForm.size === size.id 
                             ? 'border-primary bg-primary/10 font-semibold' 
                             : 'border-gray-300 hover:border-primary'
                         }`}
                       >
-                        {size.replace('-', ' ')}
-                        {size === '20-yard' && <span className="text-xs text-primary ml-1">Popular</span>}
+                        {size.size}
+                        {size.popular && <span className="text-xs text-primary ml-1">Popular</span>}
                       </button>
                     ))}
                   </div>
                 </div>
 
+                {/* Debris Type */}
+                <div>
+                  <label className="block text-xs md:text-sm font-medium mb-0.5">Debris Type</label>
+                  <select
+                    value={quoteForm.debrisType}
+                    onChange={(e) => setQuoteForm({...quoteForm, debrisType: e.target.value})}
+                    className="w-full px-2.5 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  >
+                    <option value="general">General Waste</option>
+                    <option value="construction">Construction Debris</option>
+                    <option value="heavy">Heavy Materials (concrete, dirt, brick)</option>
+                  </select>
+                </div>
+
+                {/* Project Type (matches modal options) */}
+                <div>
+                  <label className="block text-xs md:text-sm font-medium mb-0.5">Project Type</label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {(customerType === 'commercial' ? projectTypesCommercial : projectTypesResidential).map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setQuoteForm({ ...quoteForm, projectType: p.id })}
+                        className={`p-1.5 border rounded-lg text-sm ${
+                          quoteForm.projectType === p.id ? 'border-primary bg-primary/10 font-semibold' : 'border-gray-300'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Delivery Date */}
+                <div>
+                  <label className="block text-xs md:text-sm font-medium mb-0.5">When do you need it?</label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'asap'})}
+                      className={`p-1.5 border rounded-lg text-sm ${
+                        quoteForm.deliveryDate === 'asap' 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-gray-300'
+                      }`}
+                    >
+                      ASAP
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'week'})}
+                      className={`p-1.5 border rounded-lg text-sm ${
+                        quoteForm.deliveryDate === 'week' 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-gray-300'
+                      }`}
+                    >
+                      This Week
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'date'})}
+                      className={`p-1.5 border rounded-lg text-sm ${
+                        quoteForm.deliveryDate === 'date' 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-gray-300'
+                      }`}
+                    >
+                      Pick Date
+                    </button>
+                  </div>
+                  {quoteForm.deliveryDate === 'date' && (
+                    <div className="mt-0.5">
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        max={new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                        className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
+
                 {/* Contact */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   <input
                     type="tel"
                     placeholder="Phone"
                     value={quoteForm.phone}
                     onChange={(e) => setQuoteForm({...quoteForm, phone: e.target.value})}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    className="px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                     required
                   />
                   <input
@@ -326,7 +607,7 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
                     placeholder="Email"
                     value={quoteForm.email}
                     onChange={(e) => setQuoteForm({...quoteForm, email: e.target.value})}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    className="px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                     required
                   />
                 </div>
@@ -342,25 +623,25 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
                     required
                   />
                   <label htmlFor="consent" className="text-xs text-gray-600">
-                    I agree to receive quotes via phone/text. Message rates may apply.
+                    I agree to receive quotes via phone/text about my request. Message rates may apply.
                   </label>
                 </div>
 
                 {/* CTAs */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <button
                     type="submit"
-                    className="w-full py-3 btn-primary rounded-lg font-semibold"
+                    className="w-full py-1.5 btn-primary rounded-lg text-sm"
                   >
-                    Get Quotes from {stateName} Providers
+                    Get Quotes →
                   </button>
-                  <a
-                    href="tel:1-855-DUMPSTER"
-                    className="w-full py-2 btn-ghost-primary rounded-lg font-medium flex items-center justify-center gap-2"
-                  >
-                    <Phone className="h-4 w-4" />
-                    Call: 1-855-DUMPSTER
-                  </a>
+                </div>
+
+                {/* Micro-trust */}
+                <div className="hidden">
+                  <span>✓ Same-day in some areas</span>
+                  <span>✓ No spam</span>
+                  <span>✓ Free quotes</span>
                 </div>
               </form>
             </div>
@@ -524,15 +805,12 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
             </h2>
             <p className="text-muted-foreground mb-4">
               Finding the right dumpster rental company in {stateName} has never been easier. Our marketplace connects 
-              you with {stats.total} verified local providers across {stats.cities} cities, ensuring you get competitive 
-              pricing and reliable service for your project. Whether you need a 10-yard dumpster for a small home cleanout 
-              or a 40-yard container for major construction, our network of providers has you covered.
+              you with {stats.total} local providers across {stats.cities} cities, helping you compare options for 
+              your project. Whether you need a 10-yard dumpster for a small home cleanout or a 40-yard container for 
+              major construction, our network of providers has you covered.
             </p>
             <p className="text-muted-foreground mb-4">
-              {stateName} contractors and homeowners trust our platform to deliver transparent pricing, same-day delivery 
-              options, and professional service. Every provider in our network is vetted for proper licensing and insurance, 
-              giving you peace of mind that your waste disposal needs are handled professionally and in compliance with 
-              local regulations.
+              {stateName} pros and homeowners use our platform to compare transparent pricing, check availability, and find professional service. Many providers are licensed and insured; credentials vary—please verify details directly with the provider.
             </p>
             <p className="text-muted-foreground">
               Popular services in {stateName} include residential dumpster rentals for home renovations, commercial containers 
@@ -541,10 +819,12 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
             </p>
           </div>
         </section>
+        {/* Directory Disclaimer */}
+        <DirectoryDisclaimer />
       </div>
 
       {/* Quote Modal */}
-      <DumpsterQuoteModal
+      <DumpsterQuoteModalSimple
         isOpen={quoteModalOpen}
         onClose={() => {
           setQuoteModalOpen(false);
@@ -552,11 +832,7 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
           setModalInitialData(null);
           setModalStartStep(undefined);
         }}
-        businessId={selectedProvider?.id}
-        businessName={selectedProvider?.name}
-        initialCustomerType={customerType === 'commercial' ? 'commercial' : 'residential'}
-        initialData={modalInitialData}
-        startAtStep={modalStartStep}
+        initialData={modalInitialData || { dumpsterSize: "20-yard" }}
       />
     </div>
   );

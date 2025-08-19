@@ -23,7 +23,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' as const },
     { path: '/terms', priority: 0.3, changeFrequency: 'yearly' as const },
     { path: '/accessibility', priority: 0.3, changeFrequency: 'yearly' as const },
-    { path: '/trust-safety', priority: 0.4, changeFrequency: 'monthly' as const },
   ];
 
   // Location pages - states

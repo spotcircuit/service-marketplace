@@ -40,6 +40,9 @@ export default function ClaimForm({ business, isNewBusiness = false, businessDat
     setError('');
 
     try {
+      // Get claim token from session if available
+      const claimToken = typeof window !== 'undefined' ? sessionStorage.getItem('claimToken') : null;
+      
       // For existing businesses, create account and link
       if (!isNewBusiness || (business && isNewBusiness)) {
         // If we have a business ID (either from directory or from pros page)
@@ -57,7 +60,8 @@ export default function ClaimForm({ business, isNewBusiness = false, businessDat
             businessWebsite: businessData?.website || '',
             role: 'business_owner',
             password: formData.password,
-            verificationMethod: 'email'
+            verificationMethod: 'email',
+            claimToken: claimToken // Include token for tracking
           })
         });
 
@@ -67,6 +71,18 @@ export default function ClaimForm({ business, isNewBusiness = false, businessDat
         }
 
         const data = await response.json();
+        
+        // Track claim completion if we have a token
+        if (claimToken && data.success) {
+          await fetch(`/api/claim/token/${claimToken}/track`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              action: 'account_created',
+              userId: data.userId
+            })
+          }).catch(err => console.error('Failed to track claim:', err));
+        }
         
         // Show success message
         if (data.success) {

@@ -66,10 +66,16 @@ export default function Footer() {
 
             {/* Contact Info */}
             <div className="space-y-2 mb-4">
-              <a href="tel:+14342076559" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
+              <a
+                href={`tel:${config.contactPhoneE164 || config.contactPhone || ''}`}
+                className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors"
+              >
                 <Phone className="h-4 w-4" />
-                (434) 207-6559
+                {config.contactPhoneDisplay || config.contactPhone || 'Contact'}
               </a>
+              {config.supportHours && (
+                <div className="ml-6 text-xs text-secondary-foreground/70">{config.supportHours}</div>
+              )}
               <a href="mailto:support@dumpquote.co" className="flex items-center gap-2 text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                 <Mail className="h-4 w-4" />
                 support@dumpquote.co
@@ -150,11 +156,6 @@ export default function Footer() {
                   Commercial Services
                 </Link>
               </li>
-              <li>
-                <Link href="/pricing" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
-                  Pricing Guide
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -175,11 +176,6 @@ export default function Footer() {
               <li>
                 <Link href="/dealer-portal" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
                   Dealer Portal
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing/business" className="text-sm text-secondary-foreground/80 hover:text-primary transition-colors">
-                  Business Pricing
                 </Link>
               </li>
               <li>

@@ -90,6 +90,7 @@ function ClaimBusinessContent() {
     const fromPros = searchParams.get('fromPros') === 'true';
     const searchText = searchParams.get('searchText'); // Text user typed without selecting
     const needsAddress = searchParams.get('needsAddress') === 'true';
+    const token = searchParams.get('token'); // Claim token from shortened URL
     
     // Get all business details from URL params (when coming from business details page)
     const address = searchParams.get('address') || '';
@@ -100,6 +101,11 @@ function ClaimBusinessContent() {
     const email = searchParams.get('email') || '';
     const website = searchParams.get('website') || '';
     const category = searchParams.get('category') || 'Dumpster Rental';
+    
+    // Store token in session for tracking
+    if (token) {
+      sessionStorage.setItem('claimToken', token);
+    }
     
     // Handle new business from pros page
     if (isNew || (fromPros && !businessId)) {

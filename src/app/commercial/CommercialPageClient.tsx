@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import { Building, Building2, Truck, Calendar, Shield, Clock, Package, CheckCircle, ArrowRight, Phone, Users, Briefcase, Award, Calculator, Hammer, Home } from 'lucide-react';
 import Link from 'next/link';
 import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
+import SizeCalculator from '@/components/SizeCalculator';
+import DumpsterSizeComparison from '@/components/DumpsterSizeComparison';
 
 export default function CommercialPageClient() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string>('30-yard'); // Default to 30-yard for commercial
 
   useEffect(() => {
     const root = document.documentElement;
@@ -144,12 +148,15 @@ export default function CommercialPageClient() {
               Commercial Dumpster Rental Solutions
             </h1>
             <p className="text-xl mb-8 text-hero-foreground/90 max-w-3xl mx-auto">
-              Reliable waste management for businesses, contractors, and industrial facilities. 
+              Reliable waste management for businesses, pros, and industrial facilities. 
               Flexible terms, competitive pricing, and dedicated support.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => setQuoteModalOpen(true)}
+                onClick={() => {
+                  setSelectedSize('30-yard'); // Default commercial size
+                  setQuoteModalOpen(true);
+                }}
                 className="px-8 py-4 bg-primary text-white rounded-lg font-semibold text-lg hover:bg-primary/90 transition shadow-lg"
               >
                 Get Commercial Quote
@@ -172,14 +179,6 @@ export default function CommercialPageClient() {
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             From office cleanouts to major construction projects. Multiple containers available for large jobs.
           </p>
-          {/* Illustration for commercial sizes */}
-          <div className="flex justify-center mb-10">
-            <img
-              src="/images/dumpstersize.png"
-              alt="Commercial dumpster sizes illustration"
-              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
-            />
-          </div>
           
           <div className="grid md:grid-cols-3 gap-6">
             {commercialSizes.map((item) => (
@@ -230,7 +229,10 @@ export default function CommercialPageClient() {
                     ))}
                   </div>
                   <button
-                    onClick={() => setQuoteModalOpen(true)}
+                    onClick={() => {
+                      setSelectedSize(item.size.split(' ')[0].toLowerCase() + '-yard');
+                      setQuoteModalOpen(true);
+                    }}
                     className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
                   >
                     Request Quote
@@ -252,6 +254,21 @@ export default function CommercialPageClient() {
         </div>
       </section>
 
+
+      {/* Visual Size Comparison */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Compare our commercial container sizes to find the right fit for your project
+          </p>
+          
+          <DumpsterSizeComparison 
+            selectedSize={selectedSize}
+            onSizeSelect={setSelectedSize}
+            showImage={true}
+          />
+        </div>
+      </section>
       {/* Industries We Serve */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
@@ -334,14 +351,48 @@ export default function CommercialPageClient() {
         </div>
       </section>
 
+      {/* Size Calculator Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <Calculator className="h-12 w-12 text-primary mx-auto mb-6" />
+            <h2 className="text-3xl font-bold mb-4">Calculate Your Commercial Dumpster Size</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Use our calculator to find the perfect size for your commercial project
+            </p>
+          </div>
+          {!showCalculator ? (
+            <div className="text-center">
+              <button
+                onClick={() => setShowCalculator(true)}
+                className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2 mx-auto"
+              >
+                <Calculator className="h-5 w-5" />
+                Open Size Calculator
+              </button>
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-6">
+              <SizeCalculator 
+                embedded={true}
+                onQuoteClick={(size) => {
+                  setSelectedSize(size ? `${size}-yard` : '30-yard');
+                  setShowCalculator(false);
+                  setQuoteModalOpen(true);
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Volume Calculator */}
       <section className="py-16 px-4 bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <Calculator className="h-12 w-12 text-primary mx-auto mb-6" />
+          <Briefcase className="h-12 w-12 text-primary mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Need Multiple Containers?</h2>
           <p className="text-xl mb-8 text-gray-300">
-            Get custom pricing for large projects and ongoing service contracts. 
-            Save up to 30% with volume discounts.
+            Get custom pricing for large projects and ongoing service contracts.
           </p>
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <div className="bg-gray-800 rounded-lg p-4">
@@ -361,7 +412,10 @@ export default function CommercialPageClient() {
             </div>
           </div>
           <button
-            onClick={() => setQuoteModalOpen(true)}
+            onClick={() => {
+              setSelectedSize('40-yard'); // Largest size for volume
+              setQuoteModalOpen(true);
+            }}
             className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
           >
             Get Volume Quote
@@ -369,19 +423,19 @@ export default function CommercialPageClient() {
         </div>
       </section>
 
-      {/* Contractor Section */}
-      <section id="contractors" className="py-16 px-4 bg-gray-50">
+      {/* Pro Section */}
+      <section id="pros" className="py-16 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Special Contractor Rates</h2>
+            <h2 className="text-3xl font-bold mb-4">Special Pro Rates</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Contractors get priority service and volume discounts. Same-day delivery available in some areas.
+              Pros get priority service and volume discounts. Same-day delivery available in some areas.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             <div className="bg-white rounded-lg p-6 shadow">
-              <h3 className="text-lg font-bold mb-3">Contractor Benefits</h3>
+              <h3 className="text-lg font-bold mb-3">Pro Benefits</h3>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
@@ -427,7 +481,7 @@ export default function CommercialPageClient() {
             <div className="bg-white rounded-lg p-6 shadow">
               <h3 className="text-lg font-bold mb-3">Quick Order Hotline</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Contractors get priority service on our dedicated line
+                Pros get priority service on our dedicated line
               </p>
               <a 
                 href="tel:+14342076559"
@@ -435,12 +489,15 @@ export default function CommercialPageClient() {
               >
                 (434) 207-6559
               </a>
-              <p className="text-xs text-muted-foreground mt-2">Press 2 for contractor service</p>
+              <p className="text-xs text-muted-foreground mt-2">Press 2 for pro service</p>
               <button
-                onClick={() => setQuoteModalOpen(true)}
+                onClick={() => {
+                  setSelectedSize('20-yard'); // Common pro size
+                  setQuoteModalOpen(true);
+                }}
                 className="w-full mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition text-sm"
               >
-                Get Contractor Quote
+                Get Pro Quote
               </button>
             </div>
           </div>
@@ -448,7 +505,7 @@ export default function CommercialPageClient() {
           <div className="bg-primary/10 rounded-lg p-6 text-center">
             <p className="text-lg font-semibold mb-2">Already working with multiple containers?</p>
             <p className="text-muted-foreground">
-              Ask about our high-volume contractor accounts with custom pricing and dedicated account management.
+              Ask about our high-volume pro accounts with custom pricing and dedicated account management.
             </p>
           </div>
         </div>
@@ -459,11 +516,14 @@ export default function CommercialPageClient() {
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to Streamline Your Waste Management?</h2>
           <p className="text-xl mb-8 text-white/90">
-            Join thousands of businesses and contractors that trust us for reliable, cost-effective dumpster rental.
+            Join thousands of businesses and pros that trust us for reliable, cost-effective dumpster rental.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => setQuoteModalOpen(true)}
+              onClick={() => {
+                setSelectedSize('30-yard'); // Default commercial size
+                setQuoteModalOpen(true);
+              }}
               className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Get Commercial Quote
@@ -482,8 +542,12 @@ export default function CommercialPageClient() {
       {/* Quote Modal */}
       <DumpsterQuoteModalSimple
         isOpen={quoteModalOpen}
-        onClose={() => setQuoteModalOpen(false)}
+        onClose={() => {
+          setQuoteModalOpen(false);
+          setSelectedSize('30-yard');
+        }}
         initialCustomerType="commercial"
+        initialData={{ dumpsterSize: selectedSize }}
       />
     </div>
   );

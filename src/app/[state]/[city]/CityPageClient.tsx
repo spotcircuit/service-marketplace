@@ -22,7 +22,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import LocationMap from '@/components/LocationMap';
-import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
+import { useConfig } from '@/contexts/ConfigContext';
 
 export interface CityPageClientProps {
   stateSlug: string;
@@ -115,6 +116,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
   const [showMap, setShowMap] = useState(true);
   const [modalInitialData, setModalInitialData] = useState<any>(null);
   const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
+  const { config } = useConfig();
   
   // Get nearby cities for this location
   const nearbyCities = nearbyCitiesData[citySlug] || [];
@@ -236,7 +238,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
               Dumpster Rental in {cityName}, {stateCode}
             </h1>
             <p className="text-xl text-hero-foreground/90 mb-6">
-              Compare {stats.total || 'multiple'} verified providers serving {cityName} and surrounding areas. 
+              Compare {stats.total || 'multiple'} local providers serving {cityName} and surrounding areas. 
               Get free quotes in 60 seconds.
             </p>
             
@@ -266,7 +268,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => handleQuoteClick()}
-                className="px-6 py-3 bg-white text-secondary hover:bg-white/90 font-semibold rounded-lg transition"
+                className="px-6 py-3 bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold rounded-lg transition"
               >
                 Get Free Quotes →
               </button>
@@ -278,11 +280,11 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
                 {showMap ? 'Hide Map' : 'View on Map'}
               </button>
               <a
-                href="tel:+14342076559"
+                href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
                 className="px-6 py-3 bg-white/20 backdrop-blur hover:bg-white/30 font-semibold rounded-lg transition flex items-center gap-2"
               >
                 <Phone className="h-5 w-5" />
-                Call (434) 207-6559
+                {`Call ${config?.contactPhoneDisplay || config?.contactPhone || ''}`}
               </a>
             </div>
           </div>
@@ -324,11 +326,11 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
             <div className="hidden md:flex items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <Shield className="h-4 w-4 text-green-600" />
-                Licensed & Insured
+                Provider credentials vary
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-4 w-4 text-blue-600" />
-                Same Day Available
+                Same-day may be available
               </span>
             </div>
           </div>
@@ -432,7 +434,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
                               <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
                                 <span className="flex items-center gap-1">
                                   <Truck className="h-4 w-4" />
-                                  Same Day Available
+                                  Same-day may be available
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <DollarSign className="h-4 w-4" />
@@ -506,7 +508,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
                             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
                               <span className="flex items-center gap-1">
                                 <Truck className="h-4 w-4" />
-                                Same Day Available
+                                Same-day may be available
                               </span>
                               <span className="flex items-center gap-1">
                                 <DollarSign className="h-4 w-4" />
@@ -618,7 +620,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
                 <div className="grid md:grid-cols-2 gap-3 mt-3">
                   <div className="flex gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span>Licensed and insured companies</span>
+                    <span>Many companies are licensed and insured (verify with provider)</span>
                   </div>
                   <div className="flex gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -626,11 +628,11 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
                   </div>
                   <div className="flex gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span>Same-day and next-day delivery</span>
+                    <span>Same-day or next-day delivery may be available</span>
                   </div>
                   <div className="flex gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span>Flexible rental periods</span>
+                    <span>Local, trusted providers</span>
                   </div>
                   <div className="flex gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -675,10 +677,10 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
               <div className="mt-4 text-center">
                 <p className="text-xs text-muted-foreground mb-2">Or call for immediate assistance:</p>
                 <a
-                  href="tel:+14342076559"
+                  href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
                   className="text-lg font-bold text-primary hover:text-primary/80"
                 >
-                  (434) 207-6559
+                  {config?.contactPhoneDisplay || config?.contactPhone || ''}
                 </a>
               </div>
               
@@ -787,18 +789,18 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
               Get Free Quotes Now
             </button>
             <a
-              href="tel:+14342076559"
+              href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
               className="px-8 py-3 btn-ghost-primary rounded-lg font-semibold flex items-center gap-2"
             >
               <Phone className="h-5 w-5" />
-              Call (434) 207-6559
+              {`Call ${config?.contactPhoneDisplay || config?.contactPhone || ''}`}
             </a>
           </div>
         </div>
       </section>
 
       {/* Quote Modal */}
-      <DumpsterQuoteModal
+      <DumpsterQuoteModalSimple
         isOpen={quoteModalOpen}
         onClose={() => {
           setQuoteModalOpen(false);
@@ -806,11 +808,7 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
           setModalInitialData(null);
           setModalStartStep(undefined);
         }}
-        businessId={selectedProvider?.id}
-        businessName={selectedProvider?.name}
-        initialCustomerType={customerType}
-        initialData={modalInitialData}
-        startAtStep={modalStartStep}
+        initialData={modalInitialData || { dumpsterSize: "20-yard" }}
       />
     </div>
   );

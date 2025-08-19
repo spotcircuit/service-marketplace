@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
       businessWebsite,
       businessCategory,
       verificationMethod,
-      verificationCode
+      verificationCode,
+      claimToken // Add support for claim token
     } = body;
 
     // Validate input
@@ -246,6 +247,26 @@ export async function POST(request: NextRequest) {
       ON CONFLICT (business_id) DO NOTHING
     `;
 
+    // Track claim completion if we have a token
+    if (claimToken) {
+      try {
+        // Update campaign to track account creation and claim completion
+        await sql`
+          UPDATE claim_campaigns 
+          SET 
+            account_created_at = COALESCE(account_created_at, NOW()),
+            claim_completed_at = NOW(),
+            claimed_at = NOW(),
+            claimed_by_user_id = ${userId},
+            updated_at = NOW()
+          WHERE claim_token = ${claimToken}
+        `;
+      } catch (trackError) {
+        console.error('Failed to track claim completion:', trackError);
+        // Don't fail the claim if tracking fails
+      }
+    }
+
     // Set auth cookie
     const cookieStore = await cookies();
     cookieStore.set('auth-token', token, {
@@ -259,7 +280,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Business claimed successfully!',
-      redirect: '/dealer-portal'
+      redirect: '/dealer-portal',
+      userId: userId // Return userId for frontend tracking
     });
 
   } catch (error) {

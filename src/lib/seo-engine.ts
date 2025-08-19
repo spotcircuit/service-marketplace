@@ -111,6 +111,7 @@ class SEOEngine {
 
     // Replace variables
     let title = formula;
+    const envPhone = process.env.NEXT_PUBLIC_CONTACT_PHONE_DISPLAY || process.env.NEXT_PUBLIC_CONTACT_PHONE || '';
     const replacements: Record<string, string> = {
       '{brand}': config.brand.name,
       '{primary_keyword}': config.keyword_intelligence.primary_keywords[0] || 'Service',
@@ -120,7 +121,7 @@ class SEOEngine {
       '{size}': size || '',
       '{project_type}': service || '',
       '{modifier}': this.getRandomModifier(config),
-      '{phone}': '(434) 207-6559' // This should come from a config
+      '{phone}': envPhone
     };
 
     for (const [key, value] of Object.entries(replacements)) {
@@ -160,6 +161,7 @@ class SEOEngine {
 
     // Replace variables
     let description = formula;
+    const envPhone = process.env.NEXT_PUBLIC_CONTACT_PHONE_DISPLAY || process.env.NEXT_PUBLIC_CONTACT_PHONE || '';
     const replacements: Record<string, string> = {
       '{brand}': config.brand.name,
       '{primary_keyword}': config.keyword_intelligence.primary_keywords[0] || 'service',
@@ -172,8 +174,8 @@ class SEOEngine {
       '{benefit}': this.getRandomBenefit(config),
       '{cta}': this.getRandomCTA(config),
       '{price}': '$300',
-      '{phone}': '(434) 207-6559',
-      '{urgency}': 'Same-day delivery available'
+      '{phone}': envPhone,
+      '{urgency}': 'Same-day availability in some areas'
     };
 
     for (const [key, value] of Object.entries(replacements)) {
@@ -237,6 +239,7 @@ class SEOEngine {
   }): any[] {
     const config = this.loadConfig();
     const schemas: any[] = [];
+    const envPhone = process.env.NEXT_PUBLIC_CONTACT_PHONE_DISPLAY || process.env.NEXT_PUBLIC_CONTACT_PHONE || '';
 
     // Organization/LocalBusiness schema
     if (params.pageType === 'home' || params.pageType === 'location') {
@@ -247,7 +250,7 @@ class SEOEngine {
         name: config.brand.name,
         description: config.brand.tagline,
         url: 'https://dumpquote.co',
-        telephone: '(434) 207-6559',
+        telephone: envPhone || undefined,
         priceRange: '$$',
         address: {
           '@type': 'PostalAddress',
@@ -527,19 +530,18 @@ class SEOEngine {
       'Fast',
       'Professional',
       'Trusted',
-      'Local',
-      'Same-Day'
+      'Local'
     ];
     return modifiers[Math.floor(Math.random() * modifiers.length)];
   }
 
   // Helper: Get random benefit
   private getRandomBenefit(config: SEOConfig): string {
-    const benefits = config.conversion_optimization?.trust_signals || [
-      'Same-day delivery',
-      'No hidden fees',
-      'Licensed & insured',
-      'Best prices guaranteed'
+    const benefits = [
+      'Same-day availability in some areas',
+      'Transparent pricing from providers',
+      'Many providers are licensed and insured',
+      'Competitive local rates'
     ];
     return benefits[Math.floor(Math.random() * benefits.length)];
   }

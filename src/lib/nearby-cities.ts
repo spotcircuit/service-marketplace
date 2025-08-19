@@ -158,6 +158,65 @@ export function getDefaultCitiesForState(state: string): string[] {
   return defaultCities[stateKey] || ['Contact us for service in your area'];
 }
 
+// Get state slug from state code (e.g., "VA" -> "virginia")
+export function getStateSlugFromCode(stateCode: string): string {
+  const stateMapping: Record<string, string> = {
+    'VA': 'virginia',
+    'MD': 'maryland',
+    'NC': 'north-carolina',
+    'SC': 'south-carolina',
+    'PA': 'pennsylvania',
+    'NJ': 'new-jersey',
+    'NY': 'new-york',
+    'FL': 'florida',
+    'GA': 'georgia',
+    'TX': 'texas',
+    'CA': 'california',
+    'IL': 'illinois',
+    'OH': 'ohio',
+    'MI': 'michigan',
+    'AZ': 'arizona',
+    'WA': 'washington',
+    'MA': 'massachusetts',
+    'TN': 'tennessee',
+    'IN': 'indiana',
+    'MO': 'missouri',
+    'WI': 'wisconsin',
+    'MN': 'minnesota',
+    'CO': 'colorado',
+    'AL': 'alabama',
+    'LA': 'louisiana',
+    'KY': 'kentucky',
+    'OR': 'oregon',
+    'OK': 'oklahoma',
+    'CT': 'connecticut',
+    'IA': 'iowa',
+    'MS': 'mississippi',
+    'AR': 'arkansas',
+    'UT': 'utah',
+    'NV': 'nevada',
+    'KS': 'kansas',
+    'NM': 'new-mexico',
+    'NE': 'nebraska',
+    'WV': 'west-virginia',
+    'ID': 'idaho',
+    'HI': 'hawaii',
+    'NH': 'new-hampshire',
+    'ME': 'maine',
+    'RI': 'rhode-island',
+    'MT': 'montana',
+    'DE': 'delaware',
+    'SD': 'south-dakota',
+    'ND': 'north-dakota',
+    'AK': 'alaska',
+    'VT': 'vermont',
+    'WY': 'wyoming',
+    'DC': 'district-of-columbia'
+  };
+  
+  return stateMapping[stateCode.toUpperCase()] || 'locations';
+}
+
 // Get state code from state name
 export function getStateCode(stateName: string): string {
   const stateCodes: Record<string, string> = {

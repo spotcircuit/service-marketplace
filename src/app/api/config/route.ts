@@ -8,6 +8,12 @@ const defaultConfig = {
   description: "Find the top dumpster rental companies serving your hometown",
   logo: "/logo.svg",
   niche: "dumpster-rental",
+  // Ensure contact details exist even when DB is empty
+  contactEmail: "",
+  contactPhone: "",
+  contactPhoneE164: "",
+  contactPhoneDisplay: "",
+  supportHours: "",
   mainService: {
     singular: "Dumpster",
     plural: "Dumpsters",
@@ -103,6 +109,15 @@ export async function GET() {
           break;
         case 'contact_phone':
           configFromDb.contactPhone = value;
+          break;
+        case 'contact_phone_e164':
+          configFromDb.contactPhoneE164 = value;
+          break;
+        case 'contact_phone_display':
+          configFromDb.contactPhoneDisplay = value;
+          break;
+        case 'support_hours':
+          configFromDb.supportHours = value;
           break;
         case 'hero_title':
           configFromDb.heroTitle = value;
@@ -203,6 +218,9 @@ export async function POST(request: NextRequest) {
       { field: 'tagline', key: 'site_tagline', category: 'general' },
       { field: 'contactEmail', key: 'contact_email', category: 'general' },
       { field: 'contactPhone', key: 'contact_phone', category: 'general' },
+      { field: 'contactPhoneE164', key: 'contact_phone_e164', category: 'general' },
+      { field: 'contactPhoneDisplay', key: 'contact_phone_display', category: 'general' },
+      { field: 'supportHours', key: 'support_hours', category: 'general' },
       { field: 'heroTitle', key: 'hero_title', category: 'hero' },
       { field: 'heroSubtitle', key: 'hero_subtitle', category: 'hero' },
       { field: 'categories', key: 'categories', category: 'general' },

@@ -22,7 +22,9 @@ import {
   Calendar,
   Clock,
 } from 'lucide-react';
-import DumpsterQuoteModal from '@/components/DumpsterQuoteModal';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
+import SizeCalculator from '@/components/SizeCalculator';
+import DumpsterSizeComparison from '@/components/DumpsterSizeComparison';
 
 export default function HomeownersPageClient(): JSX.Element {
   // Header tone for this page
@@ -41,6 +43,8 @@ export default function HomeownersPageClient(): JSX.Element {
 
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [activeCalculator, setActiveCalculator] = useState<'size' | 'cost' | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+  const [selectedComparisonSize, setSelectedComparisonSize] = useState<string>('20-yard');
 
   // Static page data
   const residentialSizes = [
@@ -201,7 +205,10 @@ export default function HomeownersPageClient(): JSX.Element {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => setQuoteModalOpen(true)}
+                  onClick={() => {
+                    setSelectedSize('20'); // Default residential size
+                    setQuoteModalOpen(true);
+                  }}
                   className="px-8 py-4 bg-white text-primary rounded-lg font-semibold text-lg hover:bg-gray-50 transition shadow-lg"
                 >
                   Get Quote
@@ -259,7 +266,7 @@ export default function HomeownersPageClient(): JSX.Element {
               Cost Estimator
             </button>
             <Link
-              href="/resources"
+              href="/tools-guides"
               className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition flex items-center gap-2"
             >
               <BookOpen className="h-5 w-5" />
@@ -278,30 +285,14 @@ export default function HomeownersPageClient(): JSX.Element {
           {/* Calculator Dropdowns */}
           {activeCalculator === 'size' && (
             <div className="mt-6 p-6 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-bold mb-4">Quick Size Calculator</h3>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Project Type</label>
-                  <select className="w-full px-3 py-2 border rounded">
-                    <option>Home Renovation</option>
-                    <option>Spring Cleaning</option>
-                    <option>Landscaping</option>
-                    <option>Moving/Estate</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Rooms/Area</label>
-                  <select className="w-full px-3 py-2 border rounded">
-                    <option>1-2 rooms</option>
-                    <option>3-4 rooms</option>
-                    <option>Whole house</option>
-                    <option>Garage/Basement</option>
-                  </select>
-                </div>
-                <div className="flex items-end">
-                  <button className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">Recommend Size →</button>
-                </div>
-              </div>
+              <SizeCalculator 
+                embedded={true}
+                onQuoteClick={(size) => {
+                  setSelectedSize(size);
+                  setActiveCalculator(null);
+                  setQuoteModalOpen(true);
+                }}
+              />
             </div>
           )}
 
@@ -345,15 +336,6 @@ export default function HomeownersPageClient(): JSX.Element {
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             We offer the perfect size for every home project. All rentals include delivery, pickup, and 7-day rental period.
           </p>
-          <div className="flex justify-center mb-10">
-            <Image
-              src="/images/dumpstersize.png"
-              alt="Popular residential dumpster sizes: 10, 20, 30 yard comparison"
-              width={384}
-              height={250}
-              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
-            />
-          </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {residentialSizes.map((item) => (
@@ -403,7 +385,10 @@ export default function HomeownersPageClient(): JSX.Element {
                     ))}
                   </div>
                   <button
-                    onClick={() => setQuoteModalOpen(true)}
+                    onClick={() => {
+                      setSelectedSize(item.size.split(' ')[0]); // Set the specific size
+                      setQuoteModalOpen(true);
+                    }}
                     className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
                   >
                     Get Quote
@@ -422,6 +407,21 @@ export default function HomeownersPageClient(): JSX.Element {
         </div>
       </section>
 
+
+      {/* Visual Size Comparison */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            See how different dumpster sizes compare to help you choose the right one
+          </p>
+          
+          <DumpsterSizeComparison 
+            selectedSize={selectedComparisonSize}
+            onSizeSelect={setSelectedComparisonSize}
+            showImage={true}
+          />
+        </div>
+      </section>
       {/* Common Home Projects */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -602,7 +602,7 @@ export default function HomeownersPageClient(): JSX.Element {
           </div>
 
           <div className="text-center mt-8">
-            <Link href="/resources" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium">
+            <Link href="/tools-guides" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium">
               View All FAQs & Resources
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -659,7 +659,10 @@ export default function HomeownersPageClient(): JSX.Element {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => setQuoteModalOpen(true)}
+              onClick={() => {
+                setSelectedSize('20'); // Default residential size
+                setQuoteModalOpen(true);
+              }}
               className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Get Quote
@@ -677,11 +680,14 @@ export default function HomeownersPageClient(): JSX.Element {
       </section>
 
       {/* Quote Modal */}
-      <DumpsterQuoteModal
+      <DumpsterQuoteModalSimple
         isOpen={quoteModalOpen}
-        onClose={() => setQuoteModalOpen(false)}
-        initialData={{ customerType: 'residential' }}
-        startAtStep={1}
+        onClose={() => {
+          setQuoteModalOpen(false);
+          setSelectedSize(undefined);
+        }}
+        initialCustomerType="residential"
+        initialData={selectedSize ? { dumpsterSize: `${selectedSize}-yard` } : undefined}
       />
     </div>
   );

@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Script from 'next/script';
+import OrganizationSchemaClient from '@/components/OrganizationSchemaClient';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +17,8 @@ export const metadata: Metadata = {
     default: 'Dumpster Rental Near Me | Same Day Delivery | Hometown Dumpster',
     template: '%s | Hometown Dumpster Rental'
   },
-  description: 'Find affordable dumpster rental services near you. Same-day delivery, transparent pricing, no hidden fees. Sizes from 10-40 yards. Licensed & insured. Call (434) 207-6559!',
+  // Phone number removed to avoid hardcoding; dynamic phone is exposed via components
+  description: 'Find affordable dumpster rental services near you. Same-day delivery, transparent pricing, no hidden fees. Sizes from 10-40 yards. Licensed & insured.',
   keywords: 'dumpster rental, roll off dumpster, waste management, junk removal, debris removal, dumpster rental near me, same day dumpster rental, construction dumpster',
   authors: [{ name: 'Hometown Dumpster Rental' }],
   creator: 'Hometown Dumpster Rental',
@@ -77,51 +79,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Organization structured data for all pages
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": "https://dumpquote.co/#organization",
-    "name": "Hometown Dumpster Rental",
-    "url": "https://dumpquote.co",
-    "logo": "https://dumpquote.co/logo.png",
-    "description": "America's #1 source for dumpster rentals and junk removal services",
-    "telephone": "+14342076559",
-    "email": "info@dumpquote.co",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Richmond",
-      "addressRegion": "VA",
-      "postalCode": "23230",
-      "addressCountry": "US"
-    },
-    "sameAs": [
-      "https://www.facebook.com/hometowndumpster",
-      "https://twitter.com/hometowndumpster",
-      "https://www.linkedin.com/company/hometown-dumpster"
-    ],
-    "priceRange": "$$",
-    "areaServed": {
-      "@type": "Country",
-      "name": "United States"
-    }
-  };
-
   return (
     <html lang="en">
       <head>
-        <Script
-          id="organization-schema"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationSchema)
-          }}
-        />
+        {/* OrganizationSchemaClient must be rendered within providers; injected in body below */}
       </head>
       <body className={inter.className}>
         <ConfigProvider>
           <ThemeProvider>
             <AuthProvider>
+              <OrganizationSchemaClient />
               <div className="min-h-screen flex flex-col">
                 <Header />
                 <main className="flex-1">{children}</main>

@@ -7,8 +7,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, Search, Phone, Home } from 'lucide-react';
 import USStatesMap from '@/components/USStatesMap';
+import { useConfig } from '@/contexts/ConfigContext';
 
 export default function LocationsClient() {
+  const { config } = useConfig();
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -188,7 +190,7 @@ export default function LocationsClient() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search for a city..."
+                placeholder="Search for a city (e.g., Richmond, VA)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 rounded-lg text-gray-900 placeholder-gray-500 shadow-lg"
@@ -298,11 +300,11 @@ export default function LocationsClient() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="tel:+14342076559"
+              href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
               className="px-8 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
             >
               <Phone className="h-5 w-5" />
-              Call (434) 207-6559
+              {`Call ${config?.contactPhoneDisplay || config?.contactPhone || ''}`}
             </a>
             <Link
               href="/contact"

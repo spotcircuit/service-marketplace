@@ -1,443 +1,872 @@
 'use client';
 
-"use client";
-
-import { useState, useEffect, Suspense } from 'react';
-import { Business, SearchFilters } from '@/types/business';
-import { Star, MapPin, Phone, Globe, Shield, Award, Filter, X, ChevronDown, Search } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Phone, MapPin, Star, Clock, Filter, ChevronRight, Building2, Tag, Globe, Mail } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import GoogleLocationSearch from '@/components/GoogleLocationSearch';
+import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
+import { useConfig } from '@/contexts/ConfigContext';
+import { useRouter } from 'next/navigation';
 
-function DirectoryContent() {
-  const searchParams = useSearchParams();
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [categories, setCategories] = useState<Array<{category: string, count: number}>>([]);
-  const [locations, setLocations] = useState<Array<{city: string, state: string, count: number}>>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<SearchFilters>({
-    sort_by: 'featured',
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [locationQuery, setLocationQuery] = useState('');
-
-  useEffect(() => {
-    // Initialize filters from URL params
-    const category = searchParams.get('category');
-    const city = searchParams.get('city');
-    const location = searchParams.get('location');
-
-    if (category || city || location) {
-      setFilters(prev => ({
-        ...prev,
-        category: category || undefined,
-        city: city || location || undefined,
-      }));
-      if (city || location) {
-        setLocationQuery(city || location || '');
-      }
-    }
-
-    // Fetch categories and locations stats
-    fetchStats();
-  }, [searchParams]);
-
-  useEffect(() => {
-    fetchBusinesses();
-  }, [filters, searchQuery]);
-
-  // Ensure header uses primary (yellow) theme on directory page
-  useEffect(() => {
-    const root = document.documentElement;
-    root.removeAttribute('data-header-tone');
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const response = await fetch('/api/businesses/stats');
-      const data = await response.json();
-      
-      if (data.categories) {
-        setCategories(data.categories);
-      }
-      if (data.cities) {
-        setLocations(data.cities);
-      }
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
-    }
-  };
-
-  const fetchBusinesses = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-
-      if (searchQuery) params.set('search', searchQuery);
-      if (filters.category) params.set('category', filters.category);
-      if (filters.city) params.set('city', filters.city);
-      if ((filters as any).state) params.set('state', (filters as any).state);
-      if (filters.is_verified) params.set('verified', 'true');
-
-      const response = await fetch(`/api/businesses?${params.toString()}`);
-      const data = await response.json();
-
-      setBusinesses(data.businesses || []);
-    } catch (error) {
-      console.error('Failed to fetch businesses:', error);
-      setBusinesses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const BusinessCard = ({ business }: { business: Business }) => (
-    <div className={`bg-card rounded-lg border ${business.is_featured ? 'border-primary shadow-lg' : ''} hover:shadow-xl transition-all p-6`}>
-      {business.is_featured && (
-        <div className="inline-flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full mb-3">
-          <Award className="h-3 w-3" />
-          Featured
-        </div>
-      )}
-
-      <div className="flex items-start gap-4">
-        <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center shrink-0">
-          {business.logo_url ? (
-            <img src={business.logo_url} alt={business.name} className="w-full h-full object-contain rounded-lg" />
-          ) : (
-            <span className="text-2xl font-bold text-muted-foreground">
-              {business.name.charAt(0)}
-            </span>
-          )}
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <Link href={`/business/${business.id}`} className="hover:text-primary">
-                <h3 className="text-xl font-bold mb-1">{business.name}</h3>
-              </Link>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
-                <span className="text-foreground">{business.category}</span>
-                {business.is_verified && (
-                  <span className="flex items-center gap-1 text-green-600">
-                    <Shield className="h-3 w-3" />
-                    Verified
-                  </span>
-                )}
-                {business.years_in_business && (
-                  <span>{business.years_in_business} years in business</span>
-                )}
-              </div>
-            </div>
-
-            <div className="text-right">
-              <div className="flex items-center gap-1 mb-1">
-                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-bold">{business.rating}</span>
-                <span className="text-sm text-muted-foreground">({business.reviews})</span>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-muted-foreground mb-3 line-clamp-2">
-            {business.description || `Professional ${business.category.toLowerCase()} services in ${business.city}, ${business.state}`}
-          </p>
-
-          <div className="flex items-center gap-4 text-sm">
-            <a href={`tel:${business.phone}`} className="flex items-center gap-1 text-primary hover:underline">
-              <Phone className="h-4 w-4" />
-              {business.phone}
-            </a>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              {business.city}, {business.state}
-            </span>
-            {business.website && (
-              <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary hover:underline">
-                <Globe className="h-4 w-4" />
-                Website
-              </a>
-            )}
-          </div>
-
-          {business.services && business.services.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {business.services.slice(0, 3).map((service, index) => (
-                <span key={service.id || `service-${index}`} className="px-2 py-1 bg-muted text-xs rounded">
-                  {service.name}
-                </span>
-              ))}
-              {business.services.length > 3 && (
-                <span className="px-2 py-1 text-xs text-muted-foreground">
-                  +{business.services.length - 3} more
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="mt-4 flex gap-3">
-            <Link href={`/business/${business.id}`} className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm font-medium">
-              View Details
-            </Link>
-            {business.is_claimed ? (
-              business.is_verified ? (
-                <div className="px-4 py-2 bg-green-100 text-green-700 rounded-md text-sm font-medium flex items-center gap-1">
-                  <Shield className="h-4 w-4" />
-                  Verified
-                </div>
-              ) : (
-                <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-md text-sm font-medium">
-                  Claimed
-                </div>
-              )
-            ) : (
-              <Link 
-                href={`/claim?businessId=${business.id}&businessName=${encodeURIComponent(business.name)}&address=${encodeURIComponent(business.address || '')}&city=${encodeURIComponent(business.city)}&state=${encodeURIComponent(business.state)}&zipcode=${encodeURIComponent(business.zipcode || '')}&phone=${encodeURIComponent(business.phone || '')}&email=${encodeURIComponent(business.email || '')}&category=${encodeURIComponent(business.category)}&website=${encodeURIComponent(business.website || '')}`}
-                className="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary/10 text-sm font-medium"
-              >
-                Claim This Business
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const handleLocationChange = (location: { city?: string; state?: string; zipcode?: string; formatted: string }) => {
-    if (location.city || location.state) {
-      setFilters(prev => ({
-        ...prev,
-        city: location.city,
-        state: location.state
-      }));
-      setLocationQuery(location.formatted);
-    } else if (location.zipcode) {
-      // For zipcode, we'd need to geocode it to get city/state
-      setLocationQuery(location.formatted);
-      // For now, just search by the zipcode in the search query
-      setSearchQuery(location.zipcode);
-    } else {
-      setFilters(prev => {
-        const newFilters = { ...prev };
-        delete newFilters.city;
-        delete newFilters.state;
-        return newFilters;
-      });
-      setLocationQuery('');
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Search Header */}
-      <div className="bg-primary/5 border-b">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-6">Find Local Service Providers</h1>
-          
-          <div className="grid md:grid-cols-3 gap-4 mb-4">
-            {/* Location Search with Google Autocomplete (first) */}
-            <GoogleLocationSearch
-              value={locationQuery}
-              onChange={handleLocationChange}
-              placeholder="City, State or ZIP"
-              className="py-3"
-              types={['geocode']}
-            />
-
-            {/* Service Search (second) */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Category Filter (third) */}
-            <select
-              value={filters.category || ''}
-              onChange={(e) => setFilters({ ...filters, category: e.target.value || undefined })}
-              className="px-4 py-3 border rounded-lg bg-background"
-            >
-              <option value="">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat.category} value={cat.category}>
-                  {cat.category} ({cat.count})
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Additional Filters Row */}
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 border rounded-lg hover:bg-muted flex items-center gap-2 text-sm ${
-                showFilters ? 'bg-muted' : 'bg-card'
-              }`}
-            >
-              <Filter className="h-4 w-4" />
-              More Filters
-            </button>
-            
-            {filters.is_verified && (
-              <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Verified Only
-              </span>
-            )}
-            
-            {filters.rating_min && (
-              <span className="px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg text-sm flex items-center gap-2">
-                <Star className="h-4 w-4" />
-                {filters.rating_min}+ Stars
-              </span>
-            )}
-            
-            {(searchQuery || locationQuery || filters.category || filters.is_verified || filters.rating_min) && (
-              <button
-                onClick={() => {
-                  setFilters({ sort_by: 'featured' });
-                  setSearchQuery('');
-                  setLocationQuery('');
-                }}
-                className="px-4 py-2 text-primary hover:bg-primary/10 rounded-lg text-sm"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8">
-          {/* Filters Sidebar */}
-          <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 shrink-0`}>
-            <div className="bg-card rounded-lg border p-6 sticky top-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">Filters</h3>
-                <button
-                  onClick={() => setFilters({ sort_by: 'featured' })}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Clear all
-                </button>
-              </div>
-
-
-              {/* Rating Filter */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
-                <div className="space-y-2">
-                  {[4.5, 4.0, 3.5, 3.0].map(rating => (
-                    <label key={rating} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="rating"
-                        checked={filters.rating_min === rating}
-                        onChange={() => setFilters({ ...filters, rating_min: rating })}
-                        className="text-primary"
-                      />
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{rating}+</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Verified Only */}
-              <div className="mb-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.is_verified || false}
-                    onChange={(e) => setFilters({ ...filters, is_verified: e.target.checked || undefined })}
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm">Verified Businesses Only</span>
-                </label>
-              </div>
-
-              {/* Sort By */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">Sort By</label>
-                <select
-                  value={filters.sort_by}
-                  onChange={(e) => setFilters({ ...filters, sort_by: e.target.value as any })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
-                  <option value="featured">Featured First</option>
-                  <option value="rating">Highest Rated</option>
-                  <option value="reviews">Most Reviews</option>
-                  <option value="name">Name (A-Z)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Results */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-muted-foreground">
-                {loading ? 'Loading...' : `Showing ${businesses.length} businesses`}
-              </p>
-              <button className="md:hidden text-primary" onClick={() => setShowFilters(false)}>
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading businesses...</p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-4">
-                  {businesses.map(business => (
-                    <BusinessCard key={business.id} business={business} />
-                  ))}
-                </div>
-
-                {businesses.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">No businesses found matching your criteria.</p>
-                    <button
-                      onClick={() => {
-                        setFilters({ sort_by: 'featured' });
-                        setSearchQuery('');
-                      }}
-                      className="mt-4 text-primary hover:underline"
-                    >
-                      Clear filters
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+interface Service {
+  name: string;
+  price_to?: number;
+  price_from?: number;
+  price_unit?: string;
+  description?: string;
 }
 
+interface Business {
+  id: string;
+  name: string;
+  category: string;
+  phone: string;
+  email?: string;
+  website?: string;
+  address: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  rating: number;
+  reviews: number; // Changed from reviewCount to match API
+  is_verified: boolean; // Changed from verified to match API
+  is_claimed?: boolean;
+  is_featured?: boolean;
+  years_in_business?: number; // Changed from yearsInBusiness to match API
+  services?: Service[]; // Updated to match API structure
+  hours?: Record<string, { open?: string; close?: string; closed?: boolean }>; // Updated to match API structure
+  description?: string;
+}
+
+
+const categories = [
+  'All Categories',
+  'Dumpster Rental',
+  'Waste Management',
+  'Commercial Services',
+  'Recycling Services',
+  'Junk Removal',
+  'Construction Debris'
+];
+
+const sortOptions = [
+  { value: 'relevance', label: 'Most Relevant' },
+  { value: 'rating', label: 'Highest Rated' },
+  { value: 'reviews', label: 'Most Reviews' },
+  { value: 'name', label: 'Alphabetical' },
+  { value: 'distance', label: 'Distance' }
+];
+
 export default function DirectoryPageClient() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading directory...</p>
+  const { config } = useConfig();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [sortBy, setSortBy] = useState('relevance');
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [allBusinesses, setAllBusinesses] = useState<Business[]>([]); // Store all businesses for search
+  const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  // New: location filter derived from header-saved default city/state/zip
+  const [locationFilter, setLocationFilter] = useState<{ city?: string; state?: string; zipcode?: string } | null>(null);
+  
+  // Autocomplete states
+  const [suggestions, setSuggestions] = useState<Business[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isSearching, setIsSearching] = useState(false);
+  
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Location autocomplete state (independent of business/services search)
+  const [locationQuery, setLocationQuery] = useState('');
+  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ label: string; city?: string; state?: string; zipcode?: string }>>([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+
+  // Fetch businesses from API on mount
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        setLoading(true);
+        
+        // Get user's location from localStorage
+        const savedLocation = localStorage.getItem('userLocation');
+        let city = '';
+        let state = '';
+        
+        if (savedLocation) {
+          try {
+            const location = JSON.parse(savedLocation);
+            city = location.city || '';
+            state = location.state || '';
+            
+            if (city || state) {
+              setLocationFilter({ city, state });
+              setLocationQuery([city, state].filter(Boolean).join(', '));
+            }
+          } catch (e) {
+            console.error('Error parsing saved location:', e);
+          }
+        }
+        
+        // Build query params (do NOT scope by saved city/state so suggestions cover all locations)
+        const params = new URLSearchParams();
+        params.append('limit', '500');
+        
+        // Fetch businesses from API
+        const response = await fetch(`/api/businesses?${params.toString()}`);
+        const data = await response.json();
+        
+        if (data.businesses) {
+          setBusinesses(data.businesses);
+          setAllBusinesses(data.businesses); // Store all for search
+          setFilteredBusinesses(data.businesses);
+          // If we already set a locationFilter from saved location, apply it now
+          if (city || state) {
+            setTimeout(() => performSearch(), 0);
+          }
+        } else {
+          setBusinesses([]);
+          setAllBusinesses([]);
+          setFilteredBusinesses([]);
+        }
+      } catch (error) {
+        console.error('Error fetching businesses:', error);
+        setBusinesses([]);
+        setAllBusinesses([]);
+        setFilteredBusinesses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusinesses();
+  }, []);
+
+  // Run search. If a location filter is set, use service-areas API (radius/zip aware).
+  const performSearch = async (query?: string) => {
+    const searchTerm = query ?? searchQuery;
+
+    // Location-aware path: defer to API that respects service radius and zipcodes
+    if (locationFilter && (locationFilter.city || locationFilter.state || locationFilter.zipcode)) {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (locationFilter.city) params.set('city', locationFilter.city);
+        if (locationFilter.state) params.set('state', locationFilter.state);
+        if (locationFilter.zipcode) params.set('zipcode', locationFilter.zipcode);
+        if (selectedCategory && selectedCategory !== 'All Categories') params.set('category', selectedCategory);
+        if (searchTerm) params.set('search', searchTerm);
+        params.set('limit', '500');
+
+        const res = await fetch(`/api/businesses/route-service-areas?${params.toString()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Service-area search failed: ${res.status}`);
+        const data = await res.json();
+        const svcResults: any[] = Array.isArray(data.businesses) ? data.businesses : [];
+
+        // Client-side sort
+        if (sortBy === 'rating') {
+          svcResults.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        } else if (sortBy === 'reviews') {
+          svcResults.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+        } else if (sortBy === 'name') {
+          svcResults.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        }
+
+        setFilteredBusinesses(svcResults as Business[]);
+      } catch (err) {
+        console.error('Service-area API error, falling back to local filter:', err);
+        // Fallback: strict city/state/zip filter on local dataset
+        let results = [...allBusinesses];
+        const city = locationFilter?.city?.toLowerCase();
+        const state = locationFilter?.state?.toLowerCase();
+        const zip = locationFilter?.zipcode?.toLowerCase();
+        results = results.filter((b) => {
+          const bCity = (b.city || '').toLowerCase();
+          const bState = (b.state || '').toLowerCase();
+          const bZip = (b.zipcode || '').toLowerCase();
+          if (zip) return bZip === zip;
+          if (city && state) return bCity === city && bState === state;
+          if (city) return bCity === city;
+          if (state) return bState === state;
+          return true;
+        });
+        if (searchTerm) {
+          const lower = searchTerm.toLowerCase();
+          results = results.filter((biz) => {
+            const nameMatch = biz.name?.toLowerCase().includes(lower);
+            const categoryMatch = biz.category?.toLowerCase().includes(lower);
+            const descriptionMatch = biz.description?.toLowerCase().includes(lower);
+            const servicesMatch = Array.isArray(biz.services)
+              ? biz.services.some((s: any) => (typeof s === 'string' ? s.toLowerCase().includes(lower) : s?.name?.toLowerCase().includes(lower)))
+              : false;
+            return nameMatch || categoryMatch || descriptionMatch || servicesMatch;
+          });
+        }
+        if (selectedCategory && selectedCategory !== 'All Categories') {
+          results = results.filter((b) => (b.category || '').toLowerCase() === selectedCategory.toLowerCase());
+        }
+        if (sortBy === 'rating') {
+          results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        } else if (sortBy === 'reviews') {
+          results.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+        } else if (sortBy === 'name') {
+          results.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        }
+        setFilteredBusinesses(results);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // No location filter: use local dataset
+    let results = [...allBusinesses];
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      results = results.filter((biz) => {
+        const nameMatch = biz.name?.toLowerCase().includes(lower);
+        const categoryMatch = biz.category?.toLowerCase().includes(lower);
+        const descriptionMatch = biz.description?.toLowerCase().includes(lower);
+        const servicesMatch = Array.isArray(biz.services)
+          ? biz.services.some((s: any) => (typeof s === 'string' ? s.toLowerCase().includes(lower) : s?.name?.toLowerCase().includes(lower)))
+          : false;
+        return nameMatch || categoryMatch || descriptionMatch || servicesMatch;
+      });
+    }
+    if (selectedCategory && selectedCategory !== 'All Categories') {
+      results = results.filter((b) => (b.category || '').toLowerCase() === selectedCategory.toLowerCase());
+    }
+    if (sortBy === 'rating') {
+      results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sortBy === 'reviews') {
+      results.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+    } else if (sortBy === 'name') {
+      results.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+    setFilteredBusinesses(results);
+  };
+
+  // Parse free-typed location text like "City, ST" or "12345"
+  const parseLocationQuery = (q: string): { city?: string; state?: string; zipcode?: string } | null => {
+    const val = q.trim();
+    if (!val) return null;
+    // ZIP: 5 digits
+    if (/^\d{5}$/.test(val)) {
+      return { zipcode: val };
+    }
+    // City, ST (two-letter state)
+    const parts = val.split(',').map(s => s.trim()).filter(Boolean);
+    if (parts.length === 2) {
+      const city = parts[0];
+      const state = parts[1].toUpperCase();
+      if (/^[A-Z]{2}$/.test(state)) {
+        return { city, state };
+      }
+    }
+    return null;
+  };
+
+  const applyLocationFromQuery = () => {
+    const parsed = parseLocationQuery(locationQuery);
+    if (parsed) {
+      setLocationFilter(parsed);
+      // Ensure results refresh after state flush
+      setTimeout(() => performSearch(), 0);
+    }
+  };
+
+  // Build location suggestions from loaded businesses (unique City, ST and ZIP matches)
+  const updateLocationSuggestions = (q: string) => {
+    const query = q.trim().toLowerCase();
+    if (!query) {
+      setLocationSuggestions([]);
+      setShowLocationSuggestions(false);
+      return;
+    }
+
+    const seen = new Set<string>();
+    const suggestions: Array<{ label: string; city?: string; state?: string; zipcode?: string }> = [];
+
+    for (const biz of allBusinesses) {
+      const city = biz.city || '';
+      const state = biz.state || '';
+      const zip = biz.zipcode || '';
+      const cityState = [city, state].filter(Boolean).join(', ');
+
+      // Match against city/state label and zipcode
+      const matchesCityState = cityState.toLowerCase().includes(query);
+      const matchesZip = zip.toLowerCase().includes(query);
+
+      if (matchesCityState) {
+        const label = cityState;
+        if (label && !seen.has(label)) {
+          seen.add(label);
+          suggestions.push({ label, city, state });
+        }
+      }
+
+      if (matchesZip) {
+        const label = zip;
+        if (label && !seen.has(label)) {
+          seen.add(label);
+          suggestions.push({ label, zipcode: zip });
+        }
+      }
+
+      if (suggestions.length >= 8) break;
+    }
+
+    setLocationSuggestions(suggestions);
+    setShowLocationSuggestions(suggestions.length > 0);
+  };
+
+  const handleLocationSelect = (item: { label: string; city?: string; state?: string; zipcode?: string }) => {
+    setLocationQuery(item.label);
+    // Set location filter according to the selected item
+    if (item.zipcode) {
+      setLocationFilter({ zipcode: item.zipcode });
+    } else {
+      setLocationFilter({ city: item.city, state: item.state });
+    }
+    setShowLocationSuggestions(false);
+    // Refresh results after state updates flush
+    setTimeout(() => performSearch(), 0);
+  };
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      
+      searchTimeoutRef.current = setTimeout(() => {
+        fetchSuggestions(searchQuery);
+      }, 300);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+    
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  const fetchSuggestions = async (query: string) => {
+    try {
+      setIsSearching(true);
+      
+      // Use the search API endpoint
+      const response = await fetch(`/api/businesses/search?q=${encodeURIComponent(query)}&limit=8`);
+      const data = await response.json();
+      
+      if (data.businesses) {
+        setSuggestions(data.businesses);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSuggestionClick = (business: Business) => {
+    // Prefer uuid if present from API, otherwise fall back to id
+    const targetId = (business as any).uuid ?? business.id;
+    setShowSuggestions(false);
+    setSuggestions([]);
+    router.push(`/business/${targetId}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+        handleSuggestionClick(suggestions[selectedIndex]);
+      } else {
+        handleSearch(e);
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+    }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performSearch();
+  };
+
+  useEffect(() => {
+    performSearch();
+  }, [selectedCategory, sortBy]);
+
+  // Re-run search whenever the location filter changes
+  useEffect(() => {
+    performSearch();
+  }, [locationFilter]);
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`h-4 w-4 ${
+              star <= rating
+                ? 'fill-yellow-400 text-yellow-400'
+                : 'text-gray-300'
+            }`}
+          />
+        ))}
       </div>
-    }>
-      <DirectoryContent />
-    </Suspense>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-primary text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <h1 className="text-4xl font-bold mb-4">Business Directory</h1>
+          <p className="text-xl opacity-90">
+            Find and compare local dumpster rental and waste management services
+          </p>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <form onSubmit={handleSearch} className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSelectedIndex(-1);
+                }}
+                onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  if (suggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
+                }}
+                onBlur={() => {
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
+                placeholder="Search businesses or services..."
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                autoComplete="off"
+              />
+              {isSearching && (
+                <div className="absolute right-3 top-3.5">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                </div>
+              )}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute z-20 w-full mt-2 bg-white rounded-lg shadow-xl border max-h-96 overflow-y-auto">
+                  <div className="p-2">
+                    {suggestions.map((business, index) => (
+                      <div
+                        key={business.id}
+                        onClick={() => handleSuggestionClick(business)}
+                        onMouseEnter={() => setSelectedIndex(index)}
+                        className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                          index === selectedIndex ? "bg-gray-100" : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                              <div className="font-medium">{business.name}</div>
+                              {business.is_verified && (
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                  ✓ Verified
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+                              <MapPin className="h-3 w-3" />
+                              <span>
+                                {business.address}, {business.city}, {business.state} {business.zipcode}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                                {business.rating}
+                              </span>
+                              <span>{business.category}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {suggestions.length >= 8 && (
+                    <div className="p-3 border-t text-center text-sm text-gray-500">
+                      Type more to refine your search...
+                    </div>
+                  )}
+                </div>
+              )}
+              {showSuggestions && suggestions.length === 0 && searchQuery.length >= 2 && !isSearching && (
+                <div className="absolute z-20 w-full mt-2 bg-white rounded-lg shadow-xl border p-6 text-center">
+                  <Building2 className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 mb-3">
+                    No businesses found matching "{searchQuery}"
+                  </p>
+                  <Link
+                    href="/claim"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm font-medium"
+                  >
+                    Add Your Business
+                    <ChevronRight className="h-3 w-3" />
+                  </Link>
+                </div>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold"
+            >
+              Search
+            </button>
+          </form>
+
+          {/* Filters Bar */}
+          <div className="flex flex-wrap items-center gap-4 mt-4">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+            </button>
+            
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+
+            {/* Location Autocomplete: City, State or ZIP */}
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={locationQuery}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setLocationQuery(val);
+                  updateLocationSuggestions(val);
+                  if (val.trim() === '') {
+                    // If user manually clears the field, remove filter and refresh results
+                    setLocationFilter(null);
+                    setTimeout(() => performSearch(), 0);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyLocationFromQuery();
+                  }
+                }}
+                onFocus={() => {
+                  if (locationSuggestions.length > 0) setShowLocationSuggestions(true);
+                }}
+                onBlur={() => {
+                  // Hide suggestions and attempt to apply typed location
+                  setTimeout(() => setShowLocationSuggestions(false), 150);
+                  applyLocationFromQuery();
+                }}
+                placeholder="City, State or ZIP"
+                className="w-64 pl-9 pr-20 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                autoComplete="off"
+              />
+              {(locationFilter && (locationFilter.city || locationFilter.state || locationFilter.zipcode)) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocationFilter(null);
+                    setLocationQuery('');
+                    // Refresh results after state updates flush
+                    setTimeout(() => performSearch(), 0);
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs px-2 py-1 border rounded hover:bg-gray-50"
+                >
+                  Clear
+                </button>
+              )}
+              {showLocationSuggestions && locationSuggestions.length > 0 && (
+                <div className="absolute z-20 w-full mt-2 bg-white rounded-lg shadow-xl border max-h-80 overflow-y-auto">
+                  <div className="p-2">
+                    {locationSuggestions.map((item, idx) => (
+                      <div
+                        key={`${item.label}-${idx}`}
+                        className="p-2 rounded cursor-pointer hover:bg-gray-50"
+                        onMouseDown={() => handleLocationSelect(item)}
+                      >
+                        {item.label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="ml-auto text-sm text-gray-600">
+              {filteredBusinesses.length} results found
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Results & Sidebar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            {filteredBusinesses.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No businesses found</h3>
+                <p className="text-gray-600 mb-4">
+                  Try adjusting your search criteria or browse by category
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('All Categories');
+                    setSortBy('relevance');
+                    performSearch('');
+                  }}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredBusinesses.map(business => (
+                  <div key={business.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold">{business.name}</h3>
+                          {business.is_verified && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                              ✓ Verified
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Tag className="h-4 w-4" />
+                            {business.category}
+                          </span>
+                          {business.years_in_business && (
+                            <span>{business.years_in_business} years in business</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        {renderStars(business.rating)}
+                        <div className="text-sm text-gray-600 mt-1">
+                          {business.rating} ({business.reviews} reviews)
+                        </div>
+                      </div>
+                    </div>
+
+                    {business.description && (
+                      <p className="text-gray-700 mb-4">{business.description}</p>
+                    )}
+                    <div className="space-y-2 mb-4">
+
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <span>{business.address}, {business.city}, {business.state} {business.zipcode}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <a href={`tel:${business.phone}`} className="text-primary hover:underline">
+                          {business.phone}
+                        </a>
+                      </div>
+                      {business.email && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="h-4 w-4 text-gray-400" />
+                          <a href={`mailto:${business.email}`} className="text-primary hover:underline">
+                            {business.email}
+                          </a>
+                        </div>
+                      )}
+                      {business.website && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Globe className="h-4 w-4 text-gray-400" />
+                          <a href={`https://${business.website}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {business.website}
+                          </a>
+                        </div>
+                      )}
+                      {business.hours && typeof business.hours === 'object' && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span>Open Today</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {business.services && business.services.length > 0 && (
+                      <div className="mb-4">
+                        <div className="text-sm font-medium text-gray-700 mb-2">Services:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {business.services.map((service, index) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
+                            >
+                              {typeof service === 'string' ? service : service.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <Link
+                        href={`/business/${business.id}`}
+                        className="flex-1 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 transition text-center font-medium"
+                      >
+                        View Details
+                      </Link>
+                      <button
+                        onClick={() => setQuoteModalOpen(true)}
+                        className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium"
+                      >
+                        Get Quote
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="font-semibold mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setQuoteModalOpen(true)}
+                  className="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium"
+                >
+                  Get Multiple Quotes
+                </button>
+                <Link
+                  href="/claim"
+                  className="block w-full px-4 py-3 border border-gray-300 text-center rounded-lg hover:bg-gray-50 transition"
+                >
+                  Claim Your Business
+                </Link>
+                <Link
+                  href="/claim"
+                  className="block w-full px-4 py-3 border border-gray-300 text-center rounded-lg hover:bg-gray-50 transition"
+                >
+                  List Your Business
+                </Link>
+              </div>
+            </div>
+
+            {/* Popular Categories */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="font-semibold mb-4">Popular Categories</h3>
+              <div className="space-y-2">
+                {categories.slice(1, 6).map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`w-full text-left px-3 py-2 rounded-lg transition ${
+                      selectedCategory === category
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{category}</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Need Help */}
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="font-semibold mb-2">Need Help Choosing?</h3>
+              <p className="text-sm text-gray-700 mb-4">
+                Our experts can help you find the right service provider for your project.
+              </p>
+              <div className="space-y-2">
+                <a
+                  href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
+                  className="flex items-center gap-2 text-primary hover:underline"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span className="font-medium">{config?.contactPhoneDisplay || config?.contactPhone || ''}</span>
+                </a>
+                <div className="text-sm text-gray-600">
+                  {config?.supportHours || ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quote Modal */}
+      <DumpsterQuoteModalSimple
+        isOpen={quoteModalOpen}
+        onClose={() => setQuoteModalOpen(false)}
+        initialData={{ dumpsterSize: '20-yard' }}
+      />
+    </div>
   );
 }

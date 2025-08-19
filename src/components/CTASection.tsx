@@ -13,11 +13,11 @@ export default function CTASection() {
           <div className="text-center lg:text-left text-white">
             {/* Main CTA Content */}
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Are You a Professional Service Provider?
+              Are you a pro or service provider?
             </h2>
 
             <p className="text-xl mb-8 text-white/90">
-              Join our network of trusted professionals and grow your business with qualified leads
+              Join our network of pros and grow your business with customer inquiries
             </p>
 
             {/* Benefits */}
@@ -34,8 +34,8 @@ export default function CTASection() {
               </div>
               <div className="flex flex-col items-center">
                 <CheckCircle className="h-8 w-8 mb-3" />
-                <h3 className="font-semibold mb-1">Trusted Platform</h3>
-                <p className="text-sm text-white/80">Join thousands of successful professionals</p>
+                <h3 className="font-semibold mb-1">Partner-Focused Platform</h3>
+                <p className="text-sm text-white/80">Join pros growing their businesses with us</p>
               </div>
             </div>
 
@@ -56,9 +56,9 @@ export default function CTASection() {
               </Link>
             </div>
 
-            {/* Trust Indicator */}
+            {/* Disclaimer / Indicator */}
             <div className="mt-8 text-sm text-white/80">
-              More customers visit {siteConfig.businessName} to find services than any other platform
+              {siteConfig.businessName} is a marketplace that helps customers compare local providers. Availability and pricing are set by providers.
             </div>
           </div>
           {/* Right-side Illustration (desktop only) */}

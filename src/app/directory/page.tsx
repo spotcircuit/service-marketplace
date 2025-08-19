@@ -1,11 +1,14 @@
 import { generateMetadata as generateSEO } from '@/lib/seo-engine';
 import { generateStructuredData } from '@/lib/seo-engine';
+import HeaderToneSetter from '@/components/HeaderToneSetter';
 import DirectoryPageClient from './DirectoryPageClient';
 
 // Generate SEO metadata for directory page
 export async function generateMetadata() {
   return generateSEO({
-    pageType: 'guide' as any
+    pageType: 'directory' as any,
+    title: 'Service Provider Directory - Find Dumpster Rentals by State',
+    description: 'Browse our comprehensive directory of dumpster rental providers across all 50 states. Find trusted local services in your area.'
   });
 }
 
@@ -17,6 +20,7 @@ export default function DirectoryPage() {
 
   return (
     <>
+      <HeaderToneSetter tone="secondary" />
       {/* Structured Data */}
       {structuredData.map((schema, index) => (
         <script

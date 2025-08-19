@@ -141,9 +141,6 @@ export default function Header() {
               <Link href="/how-it-works" className="text-foreground/80 hover:text-foreground transition-colors">
                 How It Works
               </Link>
-              <Link href="/trust-safety" className="text-foreground/80 hover:text-foreground transition-colors">
-                Trust & Safety
-              </Link>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -374,6 +371,12 @@ export default function Header() {
               )}
             </div>
 
+            <Link
+              href="/tools-guides"
+              className="text-inherit hover:opacity-80 transition-colors"
+            >
+              Tools & Guides
+            </Link>
 
             <Link
               href="/about"
@@ -476,6 +479,13 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Locations
+              </Link>
+              <Link
+                href="/tools-guides"
+                className="block px-3 py-2 rounded-md text-inherit hover:opacity-80 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Tools & Guides
               </Link>
               <Link
                 href="/pros"

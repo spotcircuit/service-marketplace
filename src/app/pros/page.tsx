@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
     pageType: 'service',
     title: 'Join Our Network - Dumpster Rental Providers & Partners',
     description: 'Grow your dumpster rental business with our lead generation platform. Connect with customers, increase bookings, and expand your service area.',
-    keywords: ['dumpster rental providers', 'contractor network', 'waste management business', 'lead generation', 'business growth']
+    keywords: ['dumpster rental providers', 'provider network', 'waste management business', 'lead generation', 'business growth']
   });
 }
 

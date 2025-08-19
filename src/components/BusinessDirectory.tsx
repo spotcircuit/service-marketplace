@@ -345,7 +345,7 @@ export default function BusinessDirectory({
                 {business.is_verified && (
                   <span className="flex items-center gap-1 text-green-600">
                     <Shield className="h-3 w-3" />
-                    Verified
+                    Verified listing
                   </span>
                 )}
                 {business.years_in_business && (
@@ -451,7 +451,7 @@ export default function BusinessDirectory({
                 >
                   <option value="all">All Categories</option>
                   <option value="featured">Featured Only</option>
-                  <option value="verified">Verified Only</option>
+                  <option value="verified">Verified listings only</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
@@ -577,7 +577,7 @@ export default function BusinessDirectory({
                     <span className="font-medium">{stats.total}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Verified</span>
+                    <span className="text-sm text-muted-foreground">Verified listings</span>
                     <span className="font-medium">{stats.verified}</span>
                   </div>
                   <div className="flex justify-between">

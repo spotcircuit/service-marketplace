@@ -6,10 +6,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Phone, CheckCircle, ArrowRight, Calendar, MapPin, Shield, Star, Clock, DollarSign, Truck, Info, ChevronDown, Map } from 'lucide-react';
 import DumpsterQuoteModalSimple from '@/components/DumpsterQuoteModalSimple';
-import { getNearbyCities, getDefaultCitiesForState, getStateCode } from '@/lib/nearby-cities';
+import DumpsterSizeComparison from '@/components/DumpsterSizeComparison';
+import { getNearbyCities, getDefaultCitiesForState, getStateSlugFromCode } from '@/lib/nearby-cities';
+import { useConfig } from '@/contexts/ConfigContext';
 
 export default function HomePageClient() {
   const router = useRouter();
+  const { config } = useConfig();
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [customerType, setCustomerType] = useState<'residential' | 'commercial'>('residential');
@@ -18,6 +21,7 @@ export default function HomePageClient() {
   const [localProviders, setLocalProviders] = useState<any[]>([]);
   const [providersLoading, setProvidersLoading] = useState(false);
   const [nearbyAreas, setNearbyAreas] = useState<string[]>([]);
+  const [selectedComparisonSize, setSelectedComparisonSize] = useState<string>('20-yard');
   
   // Quote form state
   const [quoteForm, setQuoteForm] = useState({
@@ -428,7 +432,7 @@ export default function HomePageClient() {
     },
     {
       question: "When will my dumpster arrive?",
-      answer: "Same-day and next-day delivery available. Most orders delivered within 24 hours."
+      answer: "Same-day or next-day delivery may be available depending on location and provider availability. Many deliveries occur within 24–48 hours."
     }
   ];
 
@@ -456,14 +460,14 @@ export default function HomePageClient() {
                 </h1>
                 
                 <p className="text-xl text-hero-foreground/90 mb-6">
-                  10–40 yard roll-offs • Same-day delivery in some areas • Upfront pricing—no surprises.
+                  10–40 yard roll-offs • Same-day delivery in some areas • Transparent pricing from providers.
                 </p>
                 
                 {/* Trust Indicators */}
                 <div className="flex flex-wrap gap-4 mb-6">
                   <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5" />
-                    <span>Licensed & Insured</span>
+                    <span>Provider credentials vary</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Image
@@ -498,12 +502,12 @@ export default function HomePageClient() {
               <div className="bg-white rounded-xl shadow-2xl p-2 md:p-2.5 text-gray-900 -mt-2 md:-mt-3 lg:-mt-6 relative">
                 {/* Call button anchored to the card's top-right corner */}
                 <a
-                  href="tel:+14342076559"
+                  href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
                   className="hidden sm:inline-flex items-center gap-1.5 absolute top-2 right-2 bg-primary text-white px-2.5 py-1 rounded-md text-xs md:text-sm shadow hover:bg-primary/90"
                   aria-label="Call Now"
                 >
                   <Phone className="h-4 w-4" />
-                  (434) 207-6559
+                  {config?.contactPhoneDisplay || config?.contactPhone || 'Call'}
                 </a>
                 <h2 className="text-base md:text-lg font-semibold mb-1 pr-16">Get Quotes</h2>
 
@@ -731,22 +735,37 @@ export default function HomePageClient() {
       {/* Size Cards - Mini Configurator */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Choose Your Dumpster Size</h2>
             <p className="text-xl text-muted-foreground">
               Not sure which size? Most customers choose 20-yard for home projects.
             </p>
           </div>
 
-          {/* Illustration near the size section header */}
+          {/* Customer Type Tabs */}
           <div className="flex justify-center mb-8">
-            <Image
-              src="/images/row-2-column-2.png"
-              alt="Dumpster sizes illustration"
-              width={288}
-              height={200}
-              className="w-56 h-auto md:w-64 lg:w-72 drop-shadow"
-            />
+            <div className="inline-flex rounded-lg border p-1 bg-muted">
+              <button
+                onClick={() => setCustomerType('residential')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                  customerType === 'residential'
+                    ? 'bg-white shadow-sm text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Residential Sizes
+              </button>
+              <button
+                onClick={() => setCustomerType('commercial')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                  customerType === 'commercial'
+                    ? 'bg-white shadow-sm text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Commercial Sizes
+              </button>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -810,25 +829,28 @@ export default function HomePageClient() {
             ))}
           </div>
 
-          {/* Illustration under the size grid */}
-          <div className="flex justify-center mt-10">
-            <Image
-              src="/images/row-1-column-2.png"
-              alt="Home project with dumpster"
-              width={384}
-              height={250}
-              className="w-64 h-auto md:w-80 lg:w-96 drop-shadow"
+          {/* Visual Size Comparison Infographic */}
+          <div className="mt-16">
+            <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+              See how different dumpster sizes compare to help you choose the right one
+            </p>
+            
+            <DumpsterSizeComparison 
+              selectedSize={selectedComparisonSize}
+              onSizeSelect={setSelectedComparisonSize}
+              showImage={true}
+              className="bg-gray-50"
             />
-          </div>
 
-          <div className="text-center mt-8">
-            <button
-              onClick={() => alert('Size guide modal would open here')}
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
-            >
-              <Info className="h-4 w-4" />
-              Need help choosing? Use our size calculator
-            </button>
+            <div className="text-center mt-8">
+              <button
+                onClick={() => alert('Size guide modal would open here')}
+                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
+              >
+                <Info className="h-4 w-4" />
+                Need help choosing? Use our size calculator
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -839,7 +861,7 @@ export default function HomePageClient() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How Dumpster Rental Works</h2>
             <p className="text-xl text-muted-foreground">
-              Simple 4-step process. Most deliveries within 24 hours.
+              Simple 4-step process. Many deliveries occur within 24–48 hours.
             </p>
           </div>
 
@@ -1062,7 +1084,7 @@ export default function HomePageClient() {
               </div>
               <h3 className="text-xl font-bold mb-2">Compare Prices</h3>
               <p className="text-muted-foreground">
-                Get quotes from multiple providers. Save up to 30% vs calling one company.
+                Get quotes from multiple providers in your area. Find competitive rates.
               </p>
             </div>
             
@@ -1078,7 +1100,7 @@ export default function HomePageClient() {
               </div>
               <h3 className="text-xl font-bold mb-2">Verified Providers</h3>
               <p className="text-muted-foreground">
-                All providers are licensed, insured, and background-checked for your protection.
+                Many providers are licensed and insured. Credentials vary—please verify details with the provider.
               </p>
             </div>
             
@@ -1094,7 +1116,7 @@ export default function HomePageClient() {
               </div>
               <h3 className="text-xl font-bold mb-2">Fast Delivery</h3>
               <p className="text-muted-foreground">
-                Same-day and next-day delivery available. Most orders delivered within 24 hours.
+                Same-day or next-day delivery may be available depending on location and provider availability. Many deliveries occur within 24–48 hours.
               </p>
             </div>
           </div>
@@ -1120,6 +1142,54 @@ export default function HomePageClient() {
         </div>
       </section>
 
+      {/* Service Areas Near Winchester */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Other Service Areas Near {userLocation.city || 'Winchester'}</h2>
+            <p className="text-xl text-muted-foreground">
+              We serve {userLocation.city || 'Winchester'} and surrounding areas
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Contact us for service in your area
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+            {nearbyAreas.map((area) => {
+              const stateCode = userLocation.state || 'VA';
+              const citySlug = area.toLowerCase().replace(/\s+/g, '-');
+              const stateSlug = getStateSlugFromCode(stateCode);
+              
+              return (
+                <Link
+                  key={area}
+                  href={`/${stateSlug}/${citySlug}`}
+                  className="group flex items-center justify-between p-4 bg-white rounded-lg border hover:border-primary hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors" />
+                    <span className="font-medium text-gray-900 group-hover:text-primary transition-colors">
+                      {area}
+                    </span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="text-center">
+            <Link 
+              href="/locations" 
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold"
+            >
+              <Map className="h-5 w-5" />
+              View All Service Areas
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Sticky Mobile CTA Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 z-40 lg:hidden">
