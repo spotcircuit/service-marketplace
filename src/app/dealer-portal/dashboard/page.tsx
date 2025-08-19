@@ -21,7 +21,9 @@ import {
   Sparkles,
   Coins,
   Calendar,
-  ArrowRight
+  ArrowRight,
+  Phone,
+  Mail
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -48,6 +50,10 @@ interface RecentLead {
   zipcode: string;
   timeline: string;
   project_description: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  is_revealed?: boolean;
 }
 
 interface BusinessInfo {
@@ -279,17 +285,17 @@ export default function DealerDashboard() {
     <div className="space-y-6">
       {/* Success Message */}
       {showSuccessMessage && (
-        <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-secondary rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CheckCircle className="h-6 w-6 text-primary" />
+            <CheckCircle className="h-6 w-6 text-secondary-foreground" />
             <div>
-              <p className="font-semibold text-accent">{paymentMessage}</p>
-              <p className="text-sm text-accent/80">Your account has been updated.</p>
+              <p className="font-semibold text-secondary-foreground">{paymentMessage}</p>
+              <p className="text-sm text-secondary-foreground/80">Your account has been updated.</p>
             </div>
           </div>
           <button 
             onClick={() => setShowSuccessMessage(false)}
-            className="text-accent hover:text-accent/90"
+            className="text-secondary-foreground hover:text-secondary-foreground/80"
           >
             ✕
           </button>
@@ -297,16 +303,16 @@ export default function DealerDashboard() {
       )}
       
       {/* Welcome Section */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-primary/5 rounded-lg shadow p-6 border border-primary/10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold">
               Welcome back to your Dealer Portal
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="opacity-70 mt-1">
               {business?.name || 'Your Business'}
               {stats.new_leads > 0 && (
-                <span className="ml-3 inline-flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive rounded-full text-sm font-semibold">
+                <span className="ml-3 inline-flex items-center gap-1 px-2 py-1 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
                   <span className="animate-pulse">●</span>
                   {stats.new_leads} new {stats.new_leads === 1 ? 'lead' : 'leads'} waiting
                 </span>
@@ -315,13 +321,13 @@ export default function DealerDashboard() {
           </div>
           <div className="flex items-center gap-2">
             {business?.is_verified && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm">
                 <CheckCircle className="h-4 w-4" />
                 Verified
               </span>
             )}
             {business?.is_featured && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground rounded-full text-sm">
                 <Star className="h-4 w-4" />
                 Featured
               </span>
@@ -334,86 +340,86 @@ export default function DealerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
           href="/dealer-portal/profile"
-          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow group"
+          className="bg-secondary/10 rounded-lg shadow p-6 hover:bg-secondary/20 transition group border border-secondary/20"
         >
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-secondary/10 rounded-lg">
-                  <Building2 className="h-6 w-6 text-primary" />
+                <div className="p-2 bg-secondary rounded-lg">
+                  <Building2 className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Edit Business Profile</h3>
+                <h3 className="font-semibold">Edit Business Profile</h3>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm opacity-70">
                 Update your business information, hours, and services
               </p>
             </div>
-            <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
+            <ChevronRight className="h-5 w-5 text-secondary" />
           </div>
         </Link>
 
         <Link
           href="/dealer-portal/advertise"
-          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow group"
+          className="bg-primary/10 rounded-lg shadow p-6 hover:bg-primary/20 transition group border border-primary/20"
         >
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Megaphone className="h-6 w-6 text-primary" />
+                <div className="p-2 bg-primary rounded-lg">
+                  <Megaphone className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Advertise & Feature</h3>
+                <h3 className="font-semibold">Advertise & Feature</h3>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm opacity-70">
                 Boost visibility with featured listings and ads
               </p>
             </div>
-            <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
+            <ChevronRight className="h-5 w-5 text-primary" />
           </div>
         </Link>
 
         <Link
           href="/dealer-portal/settings"
-          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow group"
+          className="bg-secondary/10 rounded-lg shadow p-6 hover:bg-secondary/20 transition group border border-secondary/20"
         >
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-secondary/10 rounded-lg">
-                  <Edit className="h-6 w-6 text-primary" />
+                <div className="p-2 bg-secondary rounded-lg">
+                  <Edit className="h-6 w-6 text-secondary-foreground" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Account Settings</h3>
+                <h3 className="font-semibold">Account Settings</h3>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm opacity-70">
                 Manage your login credentials and preferences
               </p>
             </div>
-            <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
+            <ChevronRight className="h-5 w-5 text-secondary" />
           </div>
         </Link>
       </div>
 
       {/* Featured Status Card - Show if Featured */}
       {business?.is_featured && (
-        <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-lg shadow p-6">
+        <div className="bg-primary rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Star className="h-8 w-8 text-primary" />
+              <div className="p-3 bg-primary-foreground/10 rounded-lg">
+                <Star className="h-8 w-8 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Featured Listing Active</h3>
-                <p className="text-sm text-gray-600">Your business is currently featured with priority placement</p>
+                <h3 className="text-lg font-semibold text-primary-foreground">Featured Listing Active</h3>
+                <p className="text-sm text-primary-foreground/80">Your business is currently featured with priority placement</p>
                 {business.featured_until && (
                   <div className="mt-2">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      <p className="text-sm text-primary font-medium">
+                      <Calendar className="h-4 w-4 text-primary-foreground" />
+                      <p className="text-sm text-primary-foreground font-medium">
                         Featured until: {new Date(business.featured_until).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="mt-1">
-                      <p className="text-lg font-bold text-primary">
+                      <p className="text-lg font-bold text-primary-foreground">
                         {(() => {
                           const daysLeft = Math.ceil((new Date(business.featured_until).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                           if (daysLeft <= 0) return 'Expiring today';
@@ -427,29 +433,29 @@ export default function DealerDashboard() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500 mb-1">Your Package</p>
-              <p className="text-lg font-bold text-gray-900 mb-2">Premium Spotlight</p>
+              <p className="text-xs text-primary-foreground/60 mb-1">Your Package</p>
+              <p className="text-lg font-bold text-primary-foreground mb-2">Premium Spotlight</p>
               <Link
                 href="/dealer-portal/advertise"
-                className="text-sm text-secondary hover:text-secondary/90 underline"
+                className="text-sm text-primary-foreground underline hover:text-primary-foreground/80"
               >
                 Extend or Upgrade
               </Link>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-primary/20">
+          <div className="mt-4 pt-4 border-t border-primary-foreground/20">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-primary">3x</p>
-                <p className="text-xs text-gray-600">More Visibility</p>
+                <p className="text-2xl font-bold text-primary-foreground">3x</p>
+                <p className="text-xs text-primary-foreground/70">More Visibility</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">#1</p>
-                <p className="text-xs text-gray-600">Search Position</p>
+                <p className="text-2xl font-bold text-primary-foreground">#1</p>
+                <p className="text-xs text-primary-foreground/70">Search Position</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">20mi</p>
-                <p className="text-xs text-gray-600">Coverage Area</p>
+                <p className="text-2xl font-bold text-primary-foreground">20mi</p>
+                <p className="text-xs text-primary-foreground/70">Coverage Area</p>
               </div>
             </div>
           </div>
@@ -459,88 +465,88 @@ export default function DealerDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link href="/dealer-portal/leads" className="block">
-          <div className="bg-white rounded-lg shadow p-6 relative hover:shadow-lg transition-shadow cursor-pointer">
+          <div className="bg-primary/10 rounded-lg shadow p-6 relative hover:bg-primary/20 transition border border-primary/20 cursor-pointer">
             <div className="flex items-center justify-between mb-2">
               <Users className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-gray-900">{stats.total_leads}</span>
+              <span className="text-2xl font-bold">{stats.total_leads}</span>
             </div>
-            <p className="text-sm text-gray-600">Total Leads</p>
+            <p className="text-sm opacity-70">Total Leads</p>
             {stats.new_leads > 0 && (
-              <p className="text-xs text-accent mt-1">+{stats.new_leads} new</p>
+              <p className="text-xs text-primary mt-1">+{stats.new_leads} new</p>
             )}
             <div className="absolute bottom-2 right-2">
-              <ArrowRight className="h-4 w-4 text-gray-400" />
+              <ArrowRight className="h-4 w-4 text-primary" />
             </div>
           </div>
         </Link>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-secondary rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-2">
-            <Eye className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-gray-900">{stats.listing_views}</span>
+            <Eye className="h-8 w-8 text-secondary-foreground" />
+            <span className="text-2xl font-bold text-secondary-foreground">{stats.listing_views}</span>
           </div>
-          <p className="text-sm text-gray-600">Listing Views</p>
-          <p className="text-xs text-gray-500 mt-1">This month</p>
+          <p className="text-sm text-secondary-foreground/70">Listing Views</p>
+          <p className="text-xs text-secondary-foreground/50 mt-1">This month</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-primary/10 rounded-lg shadow p-6 border border-primary/20">
           <div className="flex items-center justify-between mb-2">
             <TrendingUp className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-gray-900">{stats.response_rate}%</span>
+            <span className="text-2xl font-bold">{stats.response_rate}%</span>
           </div>
-          <p className="text-sm text-gray-600">Response Rate</p>
-          <p className="text-xs text-gray-500 mt-1">Keep it above 80%</p>
+          <p className="text-sm opacity-70">Response Rate</p>
+          <p className="text-xs opacity-50 mt-1">Keep it above 80%</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-secondary rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-2">
-            <Star className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-gray-900">
+            <Star className="h-8 w-8 text-secondary-foreground" />
+            <span className="text-2xl font-bold text-secondary-foreground">
               {business?.rating || 0}
             </span>
           </div>
-          <p className="text-sm text-gray-600">Rating</p>
-          <p className="text-xs text-gray-500 mt-1">{business?.reviews || 0} reviews</p>
+          <p className="text-sm text-secondary-foreground/70">Rating</p>
+          <p className="text-xs text-secondary-foreground/50 mt-1">{business?.reviews || 0} reviews</p>
         </div>
       </div>
 
       {/* Lead Credits Section */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-secondary/10 rounded-lg shadow p-6 border border-secondary/20">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Coins className="h-6 w-6 text-primary" />
+            <Coins className="h-6 w-6 text-secondary" />
             <h3 className="text-lg font-semibold">Lead Credits</h3>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900">{stats.lead_credits || 10}</p>
-            <p className="text-sm text-gray-600">credits remaining</p>
+            <p className="text-2xl font-bold">{stats.lead_credits || 10}</p>
+            <p className="text-sm opacity-70">credits remaining</p>
           </div>
         </div>
         
-        <div className="border-t pt-4">
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="border-t border-secondary/20 pt-4">
+          <p className="text-sm opacity-70 mb-4">
             Each credit lets you view one customer contact information
           </p>
           
           {/* Monthly Subscription Option */}
-          <div className="mb-4 p-4 bg-primary/5 border-2 border-primary rounded-lg">
+          <div className="mb-4 p-4 bg-primary rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <div>
-                <h4 className="font-semibold text-lg flex items-center gap-2">
+                <h4 className="font-semibold text-lg text-primary-foreground flex items-center gap-2">
                   Monthly Subscription
-                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">Save 50%</span>
+                  <span className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-full">Save 50%</span>
                 </h4>
-                <p className="text-sm text-gray-600">10 credits every month, auto-renewed</p>
+                <p className="text-sm text-primary-foreground/80">10 credits every month, auto-renewed</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">$99<span className="text-sm font-normal">/mo</span></p>
-                <p className="text-xs text-gray-500 line-through">$200 value</p>
+                <p className="text-2xl font-bold text-primary-foreground">$99<span className="text-sm font-normal">/mo</span></p>
+                <p className="text-xs text-primary-foreground/60 line-through">$200 value</p>
               </div>
             </div>
             <button
               onClick={handleSubscribe}
               disabled={subscribing}
-              className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 font-semibold"
+              className="w-full px-4 py-2 bg-primary-foreground text-primary rounded-lg hover:bg-primary-foreground/90 transition-colors disabled:opacity-50 font-semibold"
             >
               {subscribing ? 'Processing...' : 'Subscribe & Save'}
             </button>
@@ -548,10 +554,10 @@ export default function DealerDashboard() {
           
           <div className="relative mb-4">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-secondary/20" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or buy one-time credits</span>
+              <span className="bg-secondary/10 px-2 opacity-60">Or buy one-time credits</span>
             </div>
           </div>
           
@@ -559,32 +565,32 @@ export default function DealerDashboard() {
             <button
               onClick={() => handleBuyCredits(10, 20000)}
               disabled={buyingCredits}
-              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-left"
+              className="p-4 border border-secondary/30 rounded-lg hover:bg-secondary/20 transition-colors disabled:opacity-50 text-left"
             >
               <p className="font-semibold">10 Credits</p>
-              <p className="text-sm text-gray-600">$200</p>
-              <p className="text-xs text-accent">$20/lead</p>
+              <p className="text-sm opacity-70">$200</p>
+              <p className="text-xs text-primary">$20/lead</p>
             </button>
             
             <button
               onClick={() => handleBuyCredits(25, 45000)}
               disabled={buyingCredits}
-              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors relative disabled:opacity-50 text-left"
+              className="p-4 border border-secondary/30 rounded-lg hover:bg-secondary/20 transition-colors relative disabled:opacity-50 text-left"
             >
-              <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs px-2 py-1 rounded-full">Save $50</span>
+              <span className="absolute -top-2 -right-2 bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-full">Save $50</span>
               <p className="font-semibold">25 Credits</p>
-              <p className="text-sm text-gray-600">$450</p>
-              <p className="text-xs text-accent">$18/lead</p>
+              <p className="text-sm opacity-70">$450</p>
+              <p className="text-xs text-primary">$18/lead</p>
             </button>
             
             <button
               onClick={() => handleBuyCredits(50, 80000)}
               disabled={buyingCredits}
-              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-left"
+              className="p-4 border border-secondary/30 rounded-lg hover:bg-secondary/20 transition-colors disabled:opacity-50 text-left"
             >
               <p className="font-semibold">50 Credits</p>
-              <p className="text-sm text-gray-600">$800</p>
-              <p className="text-xs text-accent">$16/lead</p>
+              <p className="text-sm opacity-70">$800</p>
+              <p className="text-xs text-primary">$16/lead</p>
             </button>
           </div>
         </div>
@@ -592,17 +598,17 @@ export default function DealerDashboard() {
 
       {/* Featured Listing Promotion */}
       {!business?.is_featured && (
-        <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg shadow p-6 border border-primary/20">
+        <div className="bg-secondary rounded-lg shadow p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                <Sparkles className="h-8 w-8 text-primary" />
+                <div className="p-3 bg-secondary-foreground/10 rounded-lg">
+                <Sparkles className="h-8 w-8 text-secondary-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-secondary-foreground mb-2">
                   Boost Your Business with Featured Listing
                 </h3>
-                <ul className="text-sm text-gray-700 space-y-1 mb-4">
+                <ul className="text-sm text-secondary-foreground/80 space-y-1 mb-4">
                   <li>• Get 5x more visibility in search results</li>
                   <li>• Priority placement in your category</li>
                   <li>• Featured badge on your listing</li>
@@ -624,13 +630,13 @@ export default function DealerDashboard() {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Leads */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
+        <div className="bg-primary/10 rounded-lg shadow border border-primary/20">
+          <div className="p-6 border-b border-primary/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
+                <h3 className="text-lg font-semibold">Recent Leads</h3>
                 {stats.new_leads > 0 && (
-                  <span className="bg-destructive text-destructive-foreground text-xs px-2 py-0.5 rounded-full font-semibold">
+                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full font-semibold">
                     {stats.new_leads} new
                   </span>
                 )}
@@ -648,49 +654,91 @@ export default function DealerDashboard() {
             {stats.recent_leads && stats.recent_leads.length > 0 ? (
               <div className="space-y-4">
                 {stats.recent_leads.slice(0, 3).map((lead) => (
-                  <div key={lead.id} className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">{lead.service_type}</p>
-                      <p className="text-sm text-gray-600">
-                        {lead.city ? `${lead.city}, ${lead.state}` : `ZIP: ${lead.zipcode}`} - {lead.timeline}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                        {lead.project_description}
-                      </p>
+                  <div key={lead.id} className="p-3 bg-secondary/20 rounded-lg border border-secondary/30">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">
+                            {lead.is_revealed ? lead.name : lead.name || 'Lead'}
+                          </p>
+                          {lead.status === 'new' && (
+                            <span className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-full">
+                              new
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-medium mt-1">{lead.service_type}</p>
+                      </div>
+                      <span className="text-xs text-secondary">
+                        {getTimeAgo(lead.created_at)}
+                      </span>
                     </div>
-                    <span className="text-xs text-secondary">
-                      {getTimeAgo(lead.created_at)}
-                    </span>
+                    
+                    {/* Contact info - show based on revealed status */}
+                    {lead.is_revealed ? (
+                      <div className="flex items-center gap-3 text-sm mb-2">
+                        {lead.phone && (
+                          <a href={`tel:${lead.phone}`} className="text-primary hover:text-primary/80 flex items-center gap-1">
+                            <Phone className="h-3 w-3 text-primary" />
+                            {lead.phone}
+                          </a>
+                        )}
+                        {lead.email && (
+                          <a href={`mailto:${lead.email}`} className="text-secondary hover:text-secondary/80 flex items-center gap-1">
+                            <Mail className="h-3 w-3 text-secondary" />
+                            {lead.email}
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 text-sm opacity-50 mb-2">
+                        <span className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          •••-•••-••••
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          ••••@••••
+                        </span>
+                      </div>
+                    )}
+                    
+                    <p className="text-sm opacity-70">
+                      {lead.city ? `${lead.city}, ${lead.state}` : `ZIP: ${lead.zipcode}`} - {lead.timeline}
+                    </p>
+                    <p className="text-xs opacity-50 mt-1 line-clamp-1">
+                      {lead.project_description}
+                    </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">No new leads</p>
+              <p className="opacity-50 text-center py-8">No new leads</p>
             )}
           </div>
         </div>
 
         {/* Performance Tips */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">Performance Tips</h3>
+        <div className="bg-secondary/10 rounded-lg shadow border border-secondary/20">
+          <div className="p-6 border-b border-secondary/20">
+            <h3 className="text-lg font-semibold">Performance Tips</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <p className="font-medium text-gray-900">Complete your profile</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="font-medium">Complete your profile</p>
+                  <p className="text-sm opacity-70">
                     Add photos and detailed descriptions to increase conversions
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-secondary mt-0.5" />
                 <div>
-                  <p className="font-medium text-gray-900">Great response time!</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="font-medium">Great response time!</p>
+                  <p className="text-sm opacity-70">
                     Keep responding quickly to maintain your ranking
                   </p>
                 </div>

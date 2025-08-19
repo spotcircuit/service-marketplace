@@ -390,23 +390,14 @@ export default function DumpsterQuoteModalSimple({
             </div>
 
 
-            {/* CTAs */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="py-1.5 btn-primary rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Submitting...' : 'Get Quotes →'}
-              </button>
-              <a
-                href="tel:+14342076559"
-                className="py-1.5 bg-secondary text-secondary-foreground border border-accent rounded-md flex items-center justify-center gap-1 text-xs hover:bg-secondary/90 transition"
-              >
-                <Phone className="h-3 w-3" />
-                Call Now
-              </a>
-            </div>
+            {/* CTA */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-1.5 btn-primary rounded-md text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Submitting...' : 'Get Quotes →'}
+            </button>
             
             {/* Micro-trust */}
             <div className="flex items-center justify-center gap-3 text-[10px] text-gray-600">

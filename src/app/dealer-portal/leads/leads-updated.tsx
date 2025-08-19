@@ -113,9 +113,9 @@ export default function LeadsPage() {
         setLeads(data.leads || []);
         setLeadCredits(data.leadCredits || 0);
 
-        // Calculate stats - these are now per-business from quote_business_tracking
+        // Calculate stats
         const newLeads = data.leads.filter((l: Lead) => l.status === 'new').length;
-        const contactedLeads = data.leads.filter((l: Lead) => !!l.contacted_at).length;
+        const contactedLeads = data.leads.filter((l: Lead) => l.status === 'contacted').length;
         const archivedLeads = data.leads.filter((l: Lead) => 
           l.status === 'viewed' || l.status === 'won' || l.status === 'lost'
         ).length;
@@ -136,17 +136,15 @@ export default function LeadsPage() {
 
   const filterLeads = () => {
     if (filter === 'active') {
-      // Show only new leads for this business (not contacted/archived by this business)
-      setFilteredLeads(leads.filter(lead => lead.status === 'new'));
+      // Show new and contacted leads (not archived)
+      setFilteredLeads(leads.filter(lead => 
+        lead.status === 'new' || lead.status === 'contacted'
+      ));
     } else if (filter === 'archived') {
-      // Show only leads that THIS business has archived (viewed, won, or lost status)
-      // These statuses come from quote_business_tracking table, so they're per-business
+      // Show viewed, won, lost leads
       setFilteredLeads(leads.filter(lead => 
         lead.status === 'viewed' || lead.status === 'won' || lead.status === 'lost'
       ));
-    } else if (filter === 'contacted') {
-      // Show leads that THIS business has contacted
-      setFilteredLeads(leads.filter(lead => !!lead.contacted_at));
     } else if (filter === 'all') {
       setFilteredLeads(leads);
     } else {
@@ -209,15 +207,9 @@ export default function LeadsPage() {
       });
 
       if (response.ok) {
-        // Reflect server behavior locally: 'contacted' persists as 'viewed' and sets contacted_at
-        const nowIso = new Date().toISOString();
-        setLeads(leads.map(lead => {
-          if (lead.id !== leadId) return lead;
-          if (status === 'contacted') {
-            return { ...lead, status: 'viewed', contacted_at: lead.contacted_at || nowIso };
-          }
-          return { ...lead, status };
-        }));
+        setLeads(leads.map(lead =>
+          lead.id === leadId ? { ...lead, status } : lead
+        ));
         // Refresh stats
         await fetchLeads();
       }
@@ -494,7 +486,7 @@ export default function LeadsPage() {
                     </div>
                   </div>
 
-                  {/* Quick Actions */}
+                  {/* Quick Actions - Archive buttons */}
                   {lead.is_revealed && lead.status === 'new' && (
                     <div className="flex gap-2 mt-4">
                       <button
@@ -505,6 +497,30 @@ export default function LeadsPage() {
                         className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90 transition"
                       >
                         Mark as Contacted
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateLeadStatus(lead.id, 'viewed');
+                        }}
+                        className="px-3 py-1 bg-secondary/20 border border-secondary/30 rounded text-sm hover:bg-secondary/30 transition flex items-center gap-1"
+                      >
+                        <Archive className="h-3 w-3" />
+                        Archive
+                      </button>
+                    </div>
+                  )}
+                  {lead.is_revealed && lead.status === 'contacted' && (
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateLeadStatus(lead.id, 'viewed');
+                        }}
+                        className="px-3 py-1 bg-secondary/20 border border-secondary/30 rounded text-sm hover:bg-secondary/30 transition flex items-center gap-1"
+                      >
+                        <Archive className="h-3 w-3" />
+                        Archive Lead
                       </button>
                     </div>
                   )}

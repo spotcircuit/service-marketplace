@@ -18,6 +18,7 @@ export default function Header() {
   const [quickAccessOpen, setQuickAccessOpen] = useState(false);
   const [showLocationSearch, setShowLocationSearch] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<{ city?: string; state?: string; zipcode?: string; formatted: string }>({ formatted: 'Select Location' });
+  const [headerTone, setHeaderTone] = useState<'primary' | 'secondary'>('primary');
   
   // Load saved location from localStorage on mount or detect it
   useEffect(() => {
@@ -34,6 +35,20 @@ export default function Header() {
       // No saved location, detect it
       detectUserLocation();
     }
+  }, []);
+
+  // Detect and react to per-page header tone changes via :root[data-header-tone]
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const readTone = () => (root.getAttribute('data-header-tone') as 'primary' | 'secondary') || 'primary';
+    setHeaderTone(readTone());
+
+    const observer = new MutationObserver(() => {
+      setHeaderTone(readTone());
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['data-header-tone'] });
+    return () => observer.disconnect();
   }, []);
 
   const detectUserLocation = async () => {
@@ -269,7 +284,7 @@ export default function Header() {
                 width={200}
                 height={50}
                 priority
-                className="h-12 w-auto"
+                className={`h-12 w-auto ${headerTone === 'primary' ? 'brightness-0 invert' : ''}`}
               />
             </Link>
           </div>

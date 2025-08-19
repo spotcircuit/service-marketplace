@@ -175,61 +175,61 @@ export default function SubscriptionPage() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-primary/10 rounded-lg shadow p-6 border border-primary/20">
         <h1 className="text-2xl font-bold mb-2">Subscription & Credits</h1>
-        <p className="text-gray-600">Manage your subscription and lead credits</p>
+        <p className="opacity-70">Manage your subscription and lead credits</p>
       </div>
 
       {/* Current Status */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-secondary/10 rounded-lg shadow p-6 border border-secondary/20">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold">Current Status</h2>
           <div className="flex items-center gap-2">
-            <Coins className="h-5 w-5 text-primary" />
+            <Coins className="h-5 w-5 text-secondary" />
             <span className="text-2xl font-bold">{subscription?.lead_credits || 0}</span>
-            <span className="text-gray-600">credits available</span>
+            <span className="opacity-70">credits available</span>
           </div>
         </div>
 
         {isSubscribed ? (
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+          <div className="bg-primary rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-lg flex items-center gap-2">
+                <h3 className="font-semibold text-lg text-primary-foreground flex items-center gap-2">
                   Monthly Subscription Active
-                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                  <span className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-full">
                     Active
                   </span>
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-primary-foreground/80 mt-1">
                   10 credits added automatically each month
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">$99/mo</p>
+                <p className="text-2xl font-bold text-primary-foreground">$99/mo</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-500">Next renewal</p>
-                <p className="font-medium">
+                <p className="text-primary-foreground/60">Next renewal</p>
+                <p className="font-medium text-primary-foreground">
                   {subscription.current_period_end 
                     ? new Date(subscription.current_period_end).toLocaleDateString()
                     : 'N/A'}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500">Credits this period</p>
-                <p className="font-medium">
+                <p className="text-primary-foreground/60">Credits this period</p>
+                <p className="font-medium text-primary-foreground">
                   {subscription.credits_used_this_period || 0} / {subscription.monthly_credit_allowance} used
                 </p>
               </div>
             </div>
 
             {subscription.cancel_at_period_end && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-center gap-2 text-yellow-800">
+              <div className="mt-4 p-3 bg-secondary rounded-lg">
+                <div className="flex items-center gap-2 text-secondary-foreground">
                   <AlertCircle className="h-4 w-4" />
                   <p className="text-sm">
                     Subscription will end on {new Date(subscription.current_period_end!).toLocaleDateString()}
@@ -241,7 +241,7 @@ export default function SubscriptionPage() {
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => router.push('/dealer-portal/subscription/manage')}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                className="px-4 py-2 bg-primary-foreground/10 text-primary-foreground rounded-lg hover:bg-primary-foreground/20 transition"
               >
                 Manage Billing
               </button>
@@ -249,7 +249,7 @@ export default function SubscriptionPage() {
                 <button
                   onClick={handleCancelSubscription}
                   disabled={cancelling}
-                  className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                  className="px-4 py-2 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-lg transition"
                 >
                   {cancelling ? 'Cancelling...' : 'Cancel Subscription'}
                 </button>
@@ -257,9 +257,9 @@ export default function SubscriptionPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-secondary/20 rounded-lg p-6 border border-secondary/30">
             <h3 className="font-semibold text-lg mb-2">No Active Subscription</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="opacity-70 mb-4">
               Subscribe to get 10 credits every month at 50% off the regular price
             </p>
             <button
@@ -274,43 +274,43 @@ export default function SubscriptionPage() {
       </div>
 
       {/* Subscription Plans */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-primary/5 rounded-lg shadow p-6 border border-primary/10">
         <h2 className="text-lg font-semibold mb-4">Subscription Options</h2>
         
         <div className="grid md:grid-cols-2 gap-6">
           {/* Monthly Subscription */}
-          <div className={`border-2 rounded-lg p-6 ${isSubscribed ? 'border-primary bg-primary/5' : 'border-gray-200'}`}>
+          <div className={`border-2 rounded-lg p-6 ${isSubscribed ? 'border-primary bg-primary' : 'border-primary/30 bg-primary/10'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Monthly Subscription</h3>
+              <h3 className={`text-lg font-semibold ${isSubscribed ? 'text-primary-foreground' : ''}`}>Monthly Subscription</h3>
               {isSubscribed && (
-                <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                <span className="bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-full">
                   Current Plan
                 </span>
               )}
             </div>
             
             <div className="mb-4">
-              <p className="text-3xl font-bold">
-                $99<span className="text-sm font-normal text-gray-600">/month</span>
+              <p className={`text-3xl font-bold ${isSubscribed ? 'text-primary-foreground' : ''}`}>
+                $99<span className={`text-sm font-normal ${isSubscribed ? 'text-primary-foreground/70' : 'opacity-70'}`}>/month</span>
               </p>
-              <p className="text-sm text-gray-600">Save 50% on lead credits</p>
+              <p className={`text-sm ${isSubscribed ? 'text-primary-foreground/80' : 'opacity-70'}`}>Save 50% on lead credits</p>
             </div>
 
             <ul className="space-y-2 mb-6">
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <li className={`flex items-center gap-2 text-sm ${isSubscribed ? 'text-primary-foreground' : ''}`}>
+                <Check className={`h-4 w-4 ${isSubscribed ? 'text-secondary' : 'text-secondary'}`} />
                 10 credits every month
               </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <li className={`flex items-center gap-2 text-sm ${isSubscribed ? 'text-primary-foreground' : ''}`}>
+                <Check className={`h-4 w-4 ${isSubscribed ? 'text-secondary' : 'text-secondary'}`} />
                 Automatic renewal
               </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <li className={`flex items-center gap-2 text-sm ${isSubscribed ? 'text-primary-foreground' : ''}`}>
+                <Check className={`h-4 w-4 ${isSubscribed ? 'text-secondary' : 'text-secondary'}`} />
                 Cancel anytime
               </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+              <li className={`flex items-center gap-2 text-sm ${isSubscribed ? 'text-primary-foreground' : ''}`}>
+                <Check className={`h-4 w-4 ${isSubscribed ? 'text-secondary' : 'text-secondary'}`} />
                 $9.90 per lead (50% off)
               </li>
             </ul>
@@ -319,7 +319,7 @@ export default function SubscriptionPage() {
               <button
                 onClick={handleSubscribe}
                 disabled={subscribing}
-                className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-semibold"
+                className="w-full px-4 py-2 bg-primary-foreground text-primary rounded-lg hover:bg-primary-foreground/90 transition font-semibold"
               >
                 {subscribing ? 'Processing...' : 'Subscribe Now'}
               </button>
@@ -327,31 +327,31 @@ export default function SubscriptionPage() {
           </div>
 
           {/* Pay As You Go */}
-          <div className="border-2 border-gray-200 rounded-lg p-6">
+          <div className="border-2 border-secondary/30 bg-secondary/10 rounded-lg p-6">
             <h3 className="text-lg font-semibold mb-4">Pay As You Go</h3>
             
             <div className="mb-4">
               <p className="text-3xl font-bold">
-                $20<span className="text-sm font-normal text-gray-600">/credit</span>
+                $20<span className="text-sm font-normal opacity-70">/credit</span>
               </p>
-              <p className="text-sm text-gray-600">Buy credits as needed</p>
+              <p className="text-sm opacity-70">Buy credits as needed</p>
             </div>
 
             <ul className="space-y-2 mb-6">
               <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-secondary" />
                 No commitment
               </li>
               <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-secondary" />
                 Credits never expire
               </li>
               <li className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-secondary" />
                 Buy in bulk for discounts
               </li>
-              <li className="flex items-center gap-2 text-sm">
-                <X className="h-4 w-4 text-red-500" />
+              <li className="flex items-center gap-2 text-sm opacity-70">
+                <X className="h-4 w-4" />
                 Higher per-lead cost
               </li>
             </ul>
@@ -360,28 +360,19 @@ export default function SubscriptionPage() {
               <button
                 onClick={() => handleBuyCredits(10, 200)}
                 disabled={buyingCredits}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm"
+                className="w-full px-4 py-2 border border-secondary/30 rounded-lg hover:bg-secondary/20 transition text-sm"
               >
                 Buy 10 Credits - $200
               </button>
               <button
                 onClick={() => handleBuyCredits(25, 450)}
                 disabled={buyingCredits}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm"
+                className="w-full px-4 py-2 border border-secondary/30 rounded-lg hover:bg-secondary/20 transition text-sm"
               >
                 Buy 25 Credits - $450 (Save $50)
               </button>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Usage History */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Credit Usage</h2>
-        <div className="text-center py-8 text-gray-500">
-          <TrendingUp className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-          <p>Usage history will appear here</p>
         </div>
       </div>
     </div>

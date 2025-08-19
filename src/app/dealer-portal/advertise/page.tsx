@@ -174,34 +174,34 @@ export default function AdvertisePage() {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary text-primary-foreground rounded-full mb-4">
           <Megaphone className="h-8 w-8" />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold mb-4">
           Get More Customers with Featured Listing
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p className="text-xl opacity-70 max-w-2xl mx-auto">
           Be the first business customers see when searching in {business?.city || 'your area'}
         </p>
       </div>
 
       {/* Current Status */}
       {isCurrentlyFeatured && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+        <div className="bg-secondary rounded-lg p-6 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Check className="h-6 w-6 text-green-600" />
+              <div className="p-2 bg-secondary-foreground/10 rounded-lg">
+                <Check className="h-6 w-6 text-secondary-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-green-900">
+                <h3 className="font-semibold text-secondary-foreground">
                   You're Currently Featured!
-                  {isTrial && <span className="ml-2 text-xs bg-green-200 px-2 py-1 rounded">Free Trial</span>}
+                  {isTrial && <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">Free Trial</span>}
                 </h3>
-                <p className="text-sm text-green-700">Your featured listing is active until {featuredUntil}</p>
+                <p className="text-sm text-secondary-foreground/80">Your featured listing is active until {featuredUntil}</p>
               </div>
             </div>
             <button
               onClick={handleCancel}
               disabled={cancelLoading}
-              className="text-red-600 hover:text-red-700 underline text-sm disabled:opacity-50"
+              className="text-secondary-foreground hover:text-secondary-foreground/80 underline text-sm disabled:opacity-50"
             >
               {cancelLoading ? 'Cancelling...' : 'Cancel Featured'}
             </button>
@@ -210,12 +210,12 @@ export default function AdvertisePage() {
       )}
 
       {/* Main Featured Listing Card */}
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-8">
+      <div className="bg-primary/10 rounded-2xl shadow-lg overflow-hidden mb-8 border border-primary/20">
+        <div className="bg-primary text-primary-foreground p-8">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Featured Listing</h2>
-              <p className="text-white/90">
+              <p className="text-primary-foreground/90">
                 {trialEligible ? '30-day free trial · No credit card required' : '30-day periods · Cancel anytime'}
               </p>
             </div>
@@ -223,12 +223,12 @@ export default function AdvertisePage() {
               {trialEligible ? (
                 <>
                   <p className="text-4xl font-bold">FREE</p>
-                  <p className="text-sm text-white/90">for 30 days</p>
+                  <p className="text-sm text-primary-foreground/90">for 30 days</p>
                 </>
               ) : (
                 <>
                   <p className="text-4xl font-bold">$49</p>
-                  <p className="text-sm text-white/90">per 30 days</p>
+                  <p className="text-sm text-primary-foreground/90">per 30 days</p>
                 </>
               )}
             </div>

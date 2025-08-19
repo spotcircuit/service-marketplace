@@ -194,49 +194,46 @@ export async function POST(request: NextRequest) {
 
     const quote = result[0];
 
-    // Assign quote to businesses based on service area
-    try {
-      // If a specific business was selected, assign only to them
-      if (body.businessId) {
+    // All quotes are now shared leads visible to businesses in the service area
+    // No need for explicit assignments - businesses see quotes based on their service areas
+    
+    // FUTURE FEATURE: Direct/Exclusive quotes for featured businesses
+    // When implemented, featured businesses can receive exclusive quotes that only they can see
+    // This would be a premium feature for businesses with active featured listings
+    /*
+    if (body.businessId && body.isExclusive) {
+      // Check if business is featured
+      const businessCheck = await sql`
+        SELECT is_featured, featured_until 
+        FROM businesses 
+        WHERE id = ${body.businessId}::uuid
+          AND is_featured = true 
+          AND featured_until > NOW()
+      `;
+      
+      if (businessCheck.length > 0) {
+        // Create exclusive quote assignment for featured business
         await sql`
-          INSERT INTO lead_assignments (
-            lead_id,
+          INSERT INTO quote_business_tracking (
+            quote_id,
             business_id,
             status,
-            assigned_at
+            is_exclusive,
+            created_at
           ) VALUES (
             ${quote.id}::uuid,
             ${body.businessId}::uuid,
             'new',
+            true,
             NOW()
           )
-          ON CONFLICT (lead_id, business_id) DO NOTHING
         `;
-        console.log(`Quote ${quote.id} assigned to specific business:`, body.businessId);
-      } else {
-        // Assign to all businesses that service this area
-        const assignResponse = await fetch(`${request.url.split('/api')[0]}/api/quotes/assign`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            quoteId: quote.id,
-            city: serviceCity,
-            state: serviceState,
-            zipcode: body.zipcode,
-            lat: body.lat,
-            lng: body.lng
-          })
-        });
-        
-        if (assignResponse.ok) {
-          const assignData = await assignResponse.json();
-          console.log(`Quote ${quote.id} assigned to ${assignData.assignments?.length || 0} businesses`);
-        }
+        console.log(`Exclusive quote ${quote.id} assigned to featured business:`, body.businessId);
       }
-    } catch (assignError) {
-      console.error('Error assigning quote to businesses:', assignError);
-      // Don't fail the quote creation if assignment fails
     }
+    */
+    
+    console.log(`Shared quote ${quote.id} created for ${serviceCity}, ${serviceState}`);
 
     // If user is logged in, link this quote to their account
     if (userId && !quote.customer_id) {

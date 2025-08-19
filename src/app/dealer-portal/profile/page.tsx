@@ -160,35 +160,35 @@ export default function BusinessProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-secondary/5">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Business Profile</h1>
-          <p className="text-gray-600 mt-2">Manage your business information and settings</p>
+          <h1 className="text-3xl font-bold">Business Profile</h1>
+          <p className="opacity-70 mt-2">Manage your business information and settings</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="text-sm text-red-700">{error}</div>
+          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+            <div className="text-sm text-destructive">{error}</div>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-            <div className="text-sm text-green-700">{success}</div>
+          <div className="mb-6 p-4 bg-secondary rounded-lg flex items-start gap-3">
+            <CheckCircle className="h-5 w-5 text-secondary-foreground mt-0.5" />
+            <div className="text-sm text-secondary-foreground">{success}</div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <div className="bg-primary/10 rounded-lg shadow p-6 border border-primary/20">
+            <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Business Name
                 </label>
                 <div className="relative">
@@ -197,21 +197,21 @@ export default function BusinessProfilePage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                   />
-                  <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Category
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                 >
                   <option value="">Select a category</option>
                   <option value="Dumpster Rental">Dumpster Rental</option>
@@ -223,14 +223,14 @@ export default function BusinessProfilePage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                   placeholder="Describe your business, services, and what makes you unique..."
                 />
               </div>
@@ -238,12 +238,12 @@ export default function BusinessProfilePage() {
           </div>
 
           {/* Contact Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <div className="bg-primary/10 rounded-lg shadow p-6 border border-primary/20">
+            <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Phone
                 </label>
                 <div className="relative">
@@ -252,15 +252,15 @@ export default function BusinessProfilePage() {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     required
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                     placeholder="(555) 123-4567"
                   />
-                  <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Phone className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Email
                 </label>
                 <div className="relative">
@@ -269,15 +269,15 @@ export default function BusinessProfilePage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                     placeholder="business@example.com"
                   />
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Website
                 </label>
                 <div className="relative">
@@ -285,18 +285,18 @@ export default function BusinessProfilePage() {
                     type="url"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                     placeholder="https://www.example.com"
                   />
-                  <Globe className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Globe className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Location */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Business Location</h2>
+          <div className="bg-primary/10 rounded-lg shadow p-6 border border-primary/20">
+            <h2 className="text-lg font-semibold mb-4">Business Location</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">

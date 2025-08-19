@@ -38,17 +38,17 @@ export async function PATCH(
     if (status === 'contacted') {
       updateData.contacted_at = new Date().toISOString();
 
-      // Calculate response time
-      const leadData = await sql`
-        SELECT la.assigned_at
-        FROM lead_assignments la
-        WHERE la.lead_id = ${id} AND la.business_id = ${user.business_id}
+      // Calculate response time from quote creation
+      const quoteData = await sql`
+        SELECT created_at
+        FROM quotes
+        WHERE id = ${id}::uuid
       `;
 
-      if (leadData[0]) {
-        const assignedAt = new Date(leadData[0].assigned_at);
+      if (quoteData[0]) {
+        const createdAt = new Date(quoteData[0].created_at);
         const contactedAt = new Date();
-        const responseMinutes = Math.floor((contactedAt.getTime() - assignedAt.getTime()) / 60000);
+        const responseMinutes = Math.floor((contactedAt.getTime() - createdAt.getTime()) / 60000);
         updateData.response_time_minutes = responseMinutes;
       }
     }
@@ -56,19 +56,38 @@ export async function PATCH(
     if (notes) updateData.notes = notes;
     if (quoted_amount) updateData.quoted_amount = quoted_amount;
 
-    // Build update query
-    const setClause = Object.keys(updateData)
-      .map(key => `${key} = ${typeof updateData[key] === 'string' ? `'${updateData[key]}'` : updateData[key]}`)
-      .join(', ');
+    // Persist "contacted" as archived state (viewed) but still track analytics and contacted_at
+    const persistedStatus = status === 'contacted' ? 'viewed' : status;
 
+    // Upsert into quote_business_tracking to track this business's interaction with the quote
     await sql`
-      UPDATE lead_assignments
-      SET status = ${status},
-          updated_at = NOW(),
-          contacted_at = ${status === 'contacted' ? 'NOW()' : sql`contacted_at`},
-          notes = ${notes || sql`notes`},
-          quoted_amount = ${quoted_amount || sql`quoted_amount`}
-      WHERE lead_id = ${id} AND business_id = ${user.business_id}
+      INSERT INTO quote_business_tracking (
+        quote_id,
+        business_id,
+        status,
+        updated_at,
+        contacted_at,
+        response_time_minutes,
+        notes,
+        quoted_amount
+      ) VALUES (
+        ${id}::uuid,
+        ${user.business_id}::uuid,
+        ${persistedStatus},
+        NOW(),
+        CASE WHEN ${status === 'contacted'} THEN NOW() ELSE NULL END,
+        ${status === 'contacted' ? updateData.response_time_minutes || null : null},
+        ${notes || null},
+        ${quoted_amount || null}
+      )
+      ON CONFLICT (quote_id, business_id)
+      DO UPDATE SET
+        status = EXCLUDED.status,
+        updated_at = NOW(),
+        contacted_at = COALESCE(EXCLUDED.contacted_at, quote_business_tracking.contacted_at),
+        response_time_minutes = COALESCE(EXCLUDED.response_time_minutes, quote_business_tracking.response_time_minutes),
+        notes = COALESCE(EXCLUDED.notes, quote_business_tracking.notes),
+        quoted_amount = COALESCE(EXCLUDED.quoted_amount, quote_business_tracking.quoted_amount)
     `;
 
     // Update analytics
@@ -80,6 +99,9 @@ export async function PATCH(
         ON CONFLICT (business_id, date)
         DO UPDATE SET leads_contacted = business_analytics.leads_contacted + 1
       `;
+
+      // Note: We don't update the quotes table status since that's global
+      // Each business tracks their own interaction status in quote_business_tracking
     } else if (status === 'won') {
       await sql`
         INSERT INTO business_analytics (business_id, date, leads_won, revenue_generated)

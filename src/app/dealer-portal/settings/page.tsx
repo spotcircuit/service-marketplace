@@ -146,10 +146,10 @@ export default function AccountSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-secondary/5 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
+          <p className="mt-4 opacity-70">Loading profile...</p>
         </div>
       </div>
     );
@@ -158,31 +158,31 @@ export default function AccountSettingsPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
-        <p className="text-gray-600 mt-2">Manage your account information and security</p>
+        <h1 className="text-3xl font-bold">Account Settings</h1>
+        <p className="opacity-70 mt-2">Manage your account information and security</p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-          <div className="text-sm text-red-700">{error}</div>
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+          <div className="text-sm text-destructive">{error}</div>
         </div>
       )}
 
       {success && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-          <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-          <div className="text-sm text-green-700">{success}</div>
+        <div className="mb-6 p-4 bg-secondary rounded-lg flex items-start gap-3">
+          <CheckCircle className="h-5 w-5 text-secondary-foreground mt-0.5" />
+          <div className="text-sm text-secondary-foreground">{success}</div>
         </div>
       )}
 
       {/* Profile Information */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Information</h2>
+      <div className="bg-primary/10 rounded-lg shadow p-6 mb-6 border border-primary/20">
+        <h2 className="text-lg font-semibold mb-4">Profile Information</h2>
         
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2">
               Full Name
             </label>
             <div className="relative">
@@ -191,14 +191,14 @@ export default function AccountSettingsPage() {
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                 required
-                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
               />
-              <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <User className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2">
               Email Address
             </label>
             <div className="relative">
@@ -207,14 +207,14 @@ export default function AccountSettingsPage() {
                 value={profile.email}
                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                 required
-                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
               />
-              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2">
               Phone Number
             </label>
             <div className="relative">
@@ -222,15 +222,15 @@ export default function AccountSettingsPage() {
                 type="tel"
                 value={profile.phone || ''}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                 placeholder="(555) 123-4567"
               />
-              <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Phone className="absolute left-3 top-2.5 h-4 w-4 text-primary" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2">
               Account Type
             </label>
             <input

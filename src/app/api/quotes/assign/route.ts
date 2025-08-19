@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/neon';
 
-// This function assigns quotes to businesses based on service area matching
+// DEPRECATED: Quotes are now automatically visible to businesses based on service areas
+// No explicit assignment needed - keeping this for reference for future exclusive quotes feature
 export async function POST(request: NextRequest) {
+  // This endpoint is no longer used - quotes are shared leads visible to all businesses in the service area
+  return NextResponse.json({
+    success: true,
+    message: 'Quote assignment not needed - quotes are automatically shared with businesses in the service area',
+    assigned: 0
+  });
+}
+
+// Original implementation kept for reference when implementing exclusive quotes for featured businesses
+/*
+export async function POST_ORIGINAL(request: NextRequest) {
   try {
     const body = await request.json();
     const { quoteId, city, state, zipcode, lat, lng } = body;
@@ -123,3 +135,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+*/

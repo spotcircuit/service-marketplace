@@ -58,19 +58,20 @@ export async function GET(request: NextRequest) {
         q.timeline,
         q.budget,
         q.created_at,
-        q.status,
+        -- Use quote_business_tracking for per-business status
+        COALESCE(qbt.status, 'new') as status,
+        qbt.contacted_at,
         CASE 
           WHEN lr.id IS NOT NULL THEN true
           ELSE false
         END as is_revealed,
         lr.revealed_at,
-        la.status as assignment_status,
-        la.notes
+        qbt.notes
       FROM quotes q
       LEFT JOIN lead_reveals lr ON lr.lead_id = q.id 
         AND lr.business_id = ${user.business_id}::uuid
-      LEFT JOIN lead_assignments la ON la.lead_id = q.id
-        AND la.business_id = ${user.business_id}::uuid
+      LEFT JOIN quote_business_tracking qbt ON qbt.quote_id = q.id
+        AND qbt.business_id = ${user.business_id}::uuid
       WHERE q.status != 'archived'
         AND (
           -- Match quotes in the business's city (handle state variations)
