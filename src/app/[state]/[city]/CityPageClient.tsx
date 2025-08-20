@@ -808,6 +808,8 @@ export default function CityPageClient({ stateSlug, citySlug, stateName, cityNam
           setModalInitialData(null);
           setModalStartStep(undefined);
         }}
+        businessId={selectedProvider?.id}
+        businessName={selectedProvider?.name}
         initialData={modalInitialData || { dumpsterSize: "20-yard" }}
       />
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { MapPin, Star, CheckCircle, Phone, ArrowRight, Building2, Users, AlertCircle, Home, ChevronRight, Shield, Clock, Truck } from 'lucide-react';
+import { MapPin, Star, CheckCircle, Phone, ArrowRight, Building2, Users, AlertCircle, Home, ChevronRight, Shield, Clock, Truck, Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import BusinessDirectory from '@/components/BusinessDirectory';
 import LocationMap from '@/components/LocationMap';
@@ -40,6 +40,12 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
   const [modalInitialData, setModalInitialData] = useState<any>(null);
   const [modalStartStep, setModalStartStep] = useState<number | undefined>(undefined);
   const [showAllCities, setShowAllCities] = useState(false);
+  const [citySearchQuery, setCitySearchQuery] = useState('');
+  const [businessSearchQuery, setBusinessSearchQuery] = useState('');
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [citySuggestions, setCitySuggestions] = useState<{city: string; count: number}[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [sortBy, setSortBy] = useState('rating');
   
   // Map full state names to abbreviations
   const STATE_NAME_TO_ABBR: Record<string, string> = {
@@ -269,8 +275,31 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
 
   const handleCityClick = (city: string) => {
     setSelectedCity(city);
-    // You could update map center to city coordinates here
-    // For now, we'll let the LocationMap handle filtering
+    setCitySearchQuery(city);
+    // Scroll to top of results section
+    setTimeout(() => {
+      const resultsSection = document.getElementById('business-results');
+      if (resultsSection) {
+        const yOffset = -80; // Offset for any fixed header
+        const y = resultsSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const handleCitySearch = (query: string) => {
+    setCitySearchQuery(query);
+    if (query.trim()) {
+      const filtered = cities.filter(city => 
+        city.city.toLowerCase().includes(query.toLowerCase())
+      );
+      setCitySuggestions(filtered.slice(0, 10));
+      setShowCitySuggestions(true);
+    } else {
+      setCitySuggestions([]);
+      setShowCitySuggestions(false);
+      setSelectedCity('');
+    }
   };
 
   const handleQuoteSubmit = async (e: React.FormEvent) => {
@@ -373,11 +402,11 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
         </div>
       </div>
 
-      {/* Hero Section with Quote Form */}
+      {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-primary/90 text-hero-foreground relative">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Left: Headlines */}
+          <div>
+            {/* Headlines */}
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 Dumpster Rental in {stateName}
@@ -404,7 +433,7 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl">
                 <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                   <div className="text-2xl font-bold">{stats.total}</div>
                   <div className="text-hero-foreground/80 text-sm">Service Providers</div>
@@ -413,366 +442,243 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
                   <div className="text-2xl font-bold">{stats.cities}</div>
                   <div className="text-hero-foreground/80 text-sm">Cities Covered</div>
                 </div>
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-2xl font-bold">24/7</div>
+                  <div className="text-hero-foreground/80 text-sm">Support Available</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-2xl font-bold">Free</div>
+                  <div className="text-hero-foreground/80 text-sm">Quote Service</div>
+                </div>
               </div>
-            </div>
-
-            {/* Right: Quote Form */}
-            <div className="bg-white rounded-xl shadow-2xl p-2 md:p-2.5 text-gray-900 -mt-2 md:-mt-3 lg:-mt-6 relative">
-              {/* Call button anchored to the card's top-right corner */}
-              <a
-                href={`tel:${config?.contactPhoneE164 || config?.contactPhone || ''}`}
-                className="hidden sm:inline-flex items-center gap-1.5 absolute top-2 right-2 bg-primary text-white px-2.5 py-1 rounded-md text-xs md:text-sm shadow hover:bg-primary/90"
-                aria-label="Call Now"
-              >
-                <Phone className="h-4 w-4" />
-                {config?.contactPhoneDisplay || config?.contactPhone || 'Call'}
-              </a>
-              <h2 className="text-base md:text-lg font-semibold mb-1 pr-16">Get Quotes</h2>
-
-              <form onSubmit={handleQuoteSubmit} className="space-y-1">
-                {/* Customer Type */}
-                <div>
-                  <label className="block text-xs md:text-sm font-medium mb-0.5">Customer Type</label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setCustomerType('residential')}
-                      className={`p-1.5 border rounded-lg text-sm transition-all ${
-                        customerType === 'residential' 
-                          ? 'border-primary bg-primary/10 text-primary font-semibold' 
-                          : 'border-gray-300 hover:border-primary/50'
-                      }`}
-                    >
-                      Residential
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCustomerType('commercial')}
-                      className={`p-1.5 border rounded-lg text-sm transition-all ${
-                        customerType === 'commercial' 
-                          ? 'border-primary bg-primary/10 text-primary font-semibold' 
-                          : 'border-gray-300 hover:border-primary/50'
-                      }`}
-                    >
-                      Commercial
-                    </button>
-                  </div>
-                </div>
-                {/* ZIP Code */}
-                <div>
-                  <label className="block text-xs md:text-sm font-medium mb-0.5">
-                    ZIP Code
-                    {zipcodeDisplay && (
-                      <span className="ml-2 text-xs font-normal text-green-600">
-                        {zipcodeDisplay}
-                      </span>
-                    )}
-                  </label>
-                  <input
-                    type="text"
-                    value={quoteForm.zipcode}
-                    onChange={(e) => setQuoteForm({...quoteForm, zipcode: e.target.value.replace(/\D/g, '').slice(0, 5)})}
-                    placeholder="Enter ZIP"
-                    className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                    maxLength={5}
-                    pattern="[0-9]{5}"
-                    required
-                  />
-                </div>
-
-                {/* Size Selection (filtered by customer type) */}
-                <div>
-                  <label className="block text-xs md:text-sm font-medium mb-0.5">
-                    Dumpster Size
-                    <button type="button" className="ml-2 text-primary text-xs underline">
-                      Not sure?
-                    </button>
-                  </label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {dumpsterSizes.map((size) => (
-                      <button
-                        key={size.id}
-                        type="button"
-                        onClick={() => setQuoteForm({...quoteForm, size: size.id})}
-                        className={`p-1.5 border rounded-lg text-sm transition ${
-                          quoteForm.size === size.id 
-                            ? 'border-primary bg-primary/10 font-semibold' 
-                            : 'border-gray-300 hover:border-primary'
-                        }`}
-                      >
-                        {size.size}
-                        {size.popular && <span className="text-xs text-primary ml-1">Popular</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Debris Type */}
-                <div>
-                  <label className="block text-xs md:text-sm font-medium mb-0.5">Debris Type</label>
-                  <select
-                    value={quoteForm.debrisType}
-                    onChange={(e) => setQuoteForm({...quoteForm, debrisType: e.target.value})}
-                    className="w-full px-2.5 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                  >
-                    <option value="general">General Waste</option>
-                    <option value="construction">Construction Debris</option>
-                    <option value="heavy">Heavy Materials (concrete, dirt, brick)</option>
-                  </select>
-                </div>
-
-                {/* Project Type (matches modal options) */}
-                <div>
-                  <label className="block text-xs md:text-sm font-medium mb-0.5">Project Type</label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {(customerType === 'commercial' ? projectTypesCommercial : projectTypesResidential).map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => setQuoteForm({ ...quoteForm, projectType: p.id })}
-                        className={`p-1.5 border rounded-lg text-sm ${
-                          quoteForm.projectType === p.id ? 'border-primary bg-primary/10 font-semibold' : 'border-gray-300'
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Delivery Date */}
-                <div>
-                  <label className="block text-xs md:text-sm font-medium mb-0.5">When do you need it?</label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'asap'})}
-                      className={`p-1.5 border rounded-lg text-sm ${
-                        quoteForm.deliveryDate === 'asap' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      ASAP
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'week'})}
-                      className={`p-1.5 border rounded-lg text-sm ${
-                        quoteForm.deliveryDate === 'week' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      This Week
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQuoteForm({...quoteForm, deliveryDate: 'date'})}
-                      className={`p-1.5 border rounded-lg text-sm ${
-                        quoteForm.deliveryDate === 'date' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      Pick Date
-                    </button>
-                  </div>
-                  {quoteForm.deliveryDate === 'date' && (
-                    <div className="mt-0.5">
-                      <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                        max={new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                        className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Contact */}
-                <div className="grid grid-cols-2 gap-1.5">
-                  <input
-                    type="tel"
-                    placeholder="Phone"
-                    value={quoteForm.phone}
-                    onChange={(e) => setQuoteForm({...quoteForm, phone: e.target.value})}
-                    className="px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={quoteForm.email}
-                    onChange={(e) => setQuoteForm({...quoteForm, email: e.target.value})}
-                    className="px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                    required
-                  />
-                </div>
-
-                {/* TCPA Consent */}
-                <div className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    id="consent"
-                    checked={quoteForm.consent}
-                    onChange={(e) => setQuoteForm({...quoteForm, consent: e.target.checked})}
-                    className="mt-1"
-                    required
-                  />
-                  <label htmlFor="consent" className="text-xs text-gray-600">
-                    I agree to receive quotes via phone/text about my request. Message rates may apply.
-                  </label>
-                </div>
-
-                {/* CTAs */}
-                <div className="space-y-1">
-                  <button
-                    type="submit"
-                    className="w-full py-1.5 btn-primary rounded-lg text-sm"
-                  >
-                    Get Quotes →
-                  </button>
-                </div>
-
-                {/* Micro-trust */}
-                <div className="hidden">
-                  <span>✓ Same-day in some areas</span>
-                  <span>✓ No spam</span>
-                  <span>✓ Free quotes</span>
-                </div>
-              </form>
             </div>
           </div>
         </div>
       </section>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Cities Grid with Provider Counts */}
-        {cities.length > 0 && !isVirginia && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-6">Select a City in {stateName}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              <button
-                onClick={() => setSelectedCity('')}
-                className={`p-3 rounded-lg border transition ${
-                  selectedCity === '' 
-                    ? 'border-primary bg-primary/10 font-semibold' 
-                    : 'border-gray-200 hover:border-primary bg-white'
-                }`}
-              >
-                <div className="text-sm font-medium">All Cities</div>
-                <div className="text-xs text-muted-foreground">{stats.total} providers</div>
-              </button>
-              {(showAllCities ? cities : cities.slice(0, 20)).map(cityData => (
-                <button
-                  key={cityData.city}
-                  onClick={() => handleCityClick(cityData.city)}
-                  className={`p-3 rounded-lg border transition text-left ${
-                    selectedCity === cityData.city 
-                      ? 'border-primary bg-primary/10 font-semibold' 
-                      : 'border-gray-200 hover:border-primary bg-white'
-                  }`}
-                >
-                  <div className="text-sm font-medium">{cityData.city}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {cityData.count} {cityData.count === 1 ? 'provider' : 'providers'}
-                  </div>
-                </button>
-              ))}
-            </div>
-            {cities.length > 20 && !showAllCities && (
-              <div className="text-center mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAllCities(true)}
-                  className="text-primary hover:text-primary/80 font-medium text-sm"
-                >
-                  View all {cities.length} cities →
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Cities with Provider Counts - show only for Virginia to avoid duplicate grids */}
-        {cities.length > 0 && isVirginia && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-6">Cities We Serve in {stateName}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {cities.slice(0, 20).map(cityData => (
-                <Link
-                  key={cityData.city}
-                  href={`/${stateSlug}/${cityData.city.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="bg-white rounded-lg border hover:border-primary hover:shadow-lg transition-all p-4 group"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-base group-hover:text-primary">{cityData.city}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {cityData.count} {cityData.count === 1 ? 'provider' : 'providers'}
-                      </p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary mt-1" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-            {cities.length > 20 && !showAllCities && (
-              <div className="text-center mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAllCities(true)}
-                  className="text-primary hover:text-primary/80 font-medium inline-flex items-center gap-1"
-                >
-                  View all {cities.length} cities in {stateName}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Map Section - City Clusters */}
-        <section className="mb-8">
-          <div className="mb-6">
+        {/* Map Section - City Clusters (Moved to top) */}
+        <section className="mb-6">
+          <div className="mb-4">
             <h2 className="text-2xl font-bold mb-2">
               Service Coverage in {stateName}
             </h2>
             <p className="text-muted-foreground">
-              Click on any city to view local providers and get instant quotes
+              Click on any city to filter providers or use the search below
             </p>
           </div>
-          <div className="bg-card rounded-lg border overflow-hidden" style={{ height: '600px' }}>
+          <div className="bg-card rounded-lg border overflow-hidden" style={{ height: '350px' }}>
             <CityClusterMap
               state={stateName}
               stateSlug={stateSlug}
               cities={cities}
               mapCenter={mapCenter || stateCoordinates[stateSlug] || stateCoordinates['virginia']}
               onCitySelect={(city) => {
-                const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-                // Navigate to city page instead of filtering
-                window.location.href = `/${stateSlug}/${citySlug}`;
+                setSelectedCity(city);
+                setCitySearchQuery(city);
+                // Scroll to top of results section
+                setTimeout(() => {
+                  const resultsSection = document.getElementById('business-results');
+                  if (resultsSection) {
+                    const yOffset = -80; // Offset for any fixed header
+                    const y = resultsSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                  }
+                }, 100);
               }}
             />
           </div>
         </section>
 
+        {/* City Filter and Search Controls - Compact Design */}
+        <section className="mb-8">
+          <div className="bg-white rounded-lg border p-6">
+            <div className="flex flex-wrap gap-3">
+              {/* City Search with Autocomplete */}
+              <div className="flex-1 min-w-[200px] relative">
+                <label className="block text-xs font-medium mb-1">Search City</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={citySearchQuery}
+                    onChange={(e) => handleCitySearch(e.target.value)}
+                    onFocus={() => setShowCitySuggestions(true)}
+                    placeholder="Type city name..."
+                    className="w-full px-3 py-1.5 pr-8 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  {citySearchQuery && (
+                    <button
+                      onClick={() => {
+                        setCitySearchQuery('');
+                        setSelectedCity('');
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      ×
+                    </button>
+                  )}
+                  {showCitySuggestions && citySuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-20 max-h-48 overflow-y-auto">
+                      {citySuggestions.map((city) => (
+                        <button
+                          key={city.city}
+                          onClick={() => {
+                            setCitySearchQuery(city.city);
+                            setSelectedCity(city.city);
+                            setShowCitySuggestions(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex justify-between items-center"
+                        >
+                          <span>{city.city}</span>
+                          <span className="text-xs text-gray-500">{city.count} providers</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Business Name Search */}
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-xs font-medium mb-1">Search Business</label>
+                <input
+                  type="text"
+                  value={businessSearchQuery}
+                  onChange={(e) => setBusinessSearchQuery(e.target.value)}
+                  placeholder="Business name..."
+                  className="w-full px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              {/* Category Filter - Compact */}
+              <div className="min-w-[120px]">
+                <label className="block text-xs font-medium mb-1">Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-2 py-1.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">All</option>
+                  <option value="Dumpster Rental">Dumpster</option>
+                  <option value="Waste Management">Waste</option>
+                  <option value="Junk Removal">Junk</option>
+                  <option value="Construction Debris">Construction</option>
+                </select>
+              </div>
+
+              {/* Sort By - Compact */}
+              <div className="min-w-[100px]">
+                <label className="block text-xs font-medium mb-1">Sort</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-2 py-1.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="rating">Rating</option>
+                  <option value="reviews">Reviews</option>
+                  <option value="name">A-Z</option>
+                </select>
+              </div>
+
+              {/* City Results Button */}
+              {selectedCity && (
+                <div className="flex items-end">
+                  <Link
+                    href={`/${stateSlug}/${selectedCity.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="px-3 py-1.5 text-sm bg-primary text-white rounded-md hover:bg-primary/90"
+                  >
+                    View City
+                  </Link>
+                </div>
+              )}
+
+              {/* Clear Filters */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setSelectedCity('');
+                    setCitySearchQuery('');
+                    setBusinessSearchQuery('');
+                    setSelectedCategory('');
+                    setSortBy('rating');
+                  }}
+                  className="px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            {/* City Pills - Much Larger Section */}
+            {cities.length > 0 && (
+              <div className="mt-8 pt-8 border-t-2">
+                <div className="mb-4 text-lg font-semibold">Quick City Selection:</div>
+                <div className="flex flex-wrap gap-3 max-h-64 overflow-y-auto p-3 bg-gray-50 rounded-lg border">
+                  <button
+                    onClick={() => {
+                      setSelectedCity('');
+                      setCitySearchQuery('');
+                    }}
+                    className={`px-5 py-3 rounded-lg text-base whitespace-nowrap transition shadow-sm ${
+                      selectedCity === '' 
+                        ? 'bg-primary text-white font-semibold shadow-md' 
+                        : 'bg-white hover:bg-gray-50 border border-gray-300 hover:border-primary'
+                    }`}
+                  >
+                    All Cities in {stateName} ({stats.total})
+                  </button>
+                  {cities.map(cityData => (
+                    <button
+                      key={cityData.city}
+                      onClick={() => handleCityClick(cityData.city)}
+                      className={`px-5 py-3 rounded-lg text-base whitespace-nowrap transition shadow-sm ${
+                        selectedCity === cityData.city 
+                          ? 'bg-primary text-white font-semibold shadow-md' 
+                          : 'bg-white hover:bg-gray-50 border border-gray-300 hover:border-primary'
+                      }`}
+                    >
+                      {cityData.city} ({cityData.count})
+                    </button>
+                  ))}
+                </div>
+                {showAllCities && (
+                  <div className="mt-2 text-center">
+                    <button
+                      onClick={() => setShowAllCities(false)}
+                      className="text-sm text-gray-600 hover:text-primary"
+                    >
+                      Show Less
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* Business Directory - Shows All State Providers */}
-        <section>
+        <section id="business-results">
           <h2 className="text-2xl font-bold mb-6">
             {selectedCity 
               ? `All Providers in ${selectedCity}, ${stateName}` 
+              : businessSearchQuery
+              ? `Search Results for "${businessSearchQuery}" in ${stateName}`
               : `All Service Providers in ${stateName}`}
           </h2>
           <BusinessDirectory
-            initialState={STATE_NAME_TO_ABBR[stateSlug] || stateSlug.toUpperCase()}
+            initialState={STATE_NAME_TO_ABBR[stateSlug]}
             initialCity={selectedCity}
+            initialSearchQuery={businessSearchQuery}
+            initialCategory={selectedCategory}
+            initialSortBy={sortBy}
             showLocationSearch={false}
-            showCategoryFilter={true}
+            showCategoryFilter={false}
             showSidebar={true}
+            onCityClick={(city: string) => {
+              // Navigate to city page when city/state is clicked in results
+              const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+              window.location.href = `/${stateSlug}/${citySlug}`;
+            }}
           />
         </section>
 
@@ -832,6 +738,8 @@ export default function StatePageClient({ stateSlug, stateName }: StatePageClien
           setModalInitialData(null);
           setModalStartStep(undefined);
         }}
+        businessId={selectedProvider?.id}
+        businessName={selectedProvider?.name}
         initialData={modalInitialData || { dumpsterSize: "20-yard" }}
       />
     </div>

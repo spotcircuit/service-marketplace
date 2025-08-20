@@ -73,8 +73,8 @@ export async function GET(request: NextRequest) {
     let queryText = '';
     let values: any[] = [];
     
-    // If we have a specific location (city or zipcode), find businesses that service it
-    if (city || zipcode) {
+    // If we have a specific location (city, state, or zipcode), find businesses that service it
+    if (city || zipcode || state) {
       // For now, we'll use a simplified approach
       // In the future, this could use the PostGIS extension for proper geographic queries
       
@@ -135,19 +135,24 @@ export async function GET(request: NextRequest) {
         values.push('%' + city + '%');
       }
       
-      // For businesses using radius-based service areas
-      // This is a simplified check - ideally would use PostGIS for accurate distance calculations
-      // For now, we'll include all businesses with a service_radius_miles > 0 in the same state
+      // Handle state filtering
       if (state) {
-        const stateCondition = `(
-          (state = $${values.length + 1} OR state = $${values.length + 2}) 
-          AND service_radius_miles > 0
-        )`;
-        values.push(state, ABBR_TO_NAME[state] || state);
-        serviceAreaConditions.push(stateCondition);
+        if (!city && !zipcode) {
+          // If only state is provided, filter by state directly
+          conditions.push(`(state = $${values.length + 1} OR state = $${values.length + 2})`);
+          values.push(state, ABBR_TO_NAME[state] || state);
+        } else {
+          // If city or zipcode is also provided, add state condition to service area matching
+          const stateCondition = `(
+            (state = $${values.length + 1} OR state = $${values.length + 2}) 
+            AND service_radius_miles > 0
+          )`;
+          values.push(state, ABBR_TO_NAME[state] || state);
+          serviceAreaConditions.push(stateCondition);
+        }
       }
       
-      // Combine service area conditions with OR
+      // Add service area conditions if we have them
       if (serviceAreaConditions.length > 0) {
         conditions.push(`(${serviceAreaConditions.join(' OR ')})`);
       }

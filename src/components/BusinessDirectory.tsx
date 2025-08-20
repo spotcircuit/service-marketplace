@@ -116,29 +116,36 @@ interface BusinessDirectoryProps {
   initialCity?: string;
   initialState?: string;
   initialCategory?: string;
+  initialSearchQuery?: string;
+  initialSortBy?: string;
   showLocationSearch?: boolean;
   showCategoryFilter?: boolean;
   showSidebar?: boolean;
   limit?: number;
+  onCityClick?: (city: string) => void;
 }
 
 export default function BusinessDirectory({
   initialCity,
   initialState,
   initialCategory,
+  initialSearchQuery,
+  initialSortBy,
   showLocationSearch = true,
   showCategoryFilter = true,
   showSidebar = true,
-  limit
+  limit,
+  onCityClick
 }: BusinessDirectoryProps) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState(initialCategory || 'all');
-  const [sortBy, setSortBy] = useState('featured');
+  const [sortBy, setSortBy] = useState(initialSortBy || 'featured');
   const [locationQuery, setLocationQuery] = useState('');
   const [cityFilter, setCityFilter] = useState(initialCity || '');
   const [stateFilter, setStateFilter] = useState(() => normalizeStateInput(initialState || ''));
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [modalInitialData, setModalInitialData] = useState<any>(null);
@@ -152,9 +159,30 @@ export default function BusinessDirectory({
     totalReviews: 0
   });
 
+  // Update local state when props change
+  useEffect(() => {
+    setCityFilter(initialCity || '');
+  }, [initialCity]);
+  
+  useEffect(() => {
+    setStateFilter(normalizeStateInput(initialState || ''));
+  }, [initialState]);
+  
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery || '');
+  }, [initialSearchQuery]);
+  
+  useEffect(() => {
+    setFilter(initialCategory || 'all');
+  }, [initialCategory]);
+  
+  useEffect(() => {
+    setSortBy(initialSortBy || 'featured');
+  }, [initialSortBy]);
+
   useEffect(() => {
     fetchBusinesses();
-  }, [cityFilter, stateFilter, filter, sortBy]);
+  }, [cityFilter, stateFilter, filter, sortBy, searchQuery]);
 
   const fetchBusinesses = async () => {
     setLoading(true);
@@ -169,7 +197,9 @@ export default function BusinessDirectory({
         params.set('state', normalizedState);
       }
       
-      if (filter !== 'all') {
+      if (searchQuery) params.set('search', searchQuery);
+      
+      if (filter !== 'all' && filter) {
         if (filter === 'featured') params.set('is_featured', 'true');
         else if (filter === 'verified') params.set('is_verified', 'true');
         else params.set('category', filter);
@@ -179,6 +209,7 @@ export default function BusinessDirectory({
         params.set('limit', limit.toString());
       }
 
+      // Always use the regular businesses endpoint which properly filters by state
       const url = `/api/businesses?${params.toString()}`;
       console.log('Request', {
         cityFilter,
@@ -375,10 +406,20 @@ export default function BusinessDirectory({
               <Phone className="h-4 w-4" />
               {business.phone}
             </a>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              {business.city}, {business.state}
-            </span>
+            {onCityClick ? (
+              <button
+                onClick={() => onCityClick(business.city)}
+                className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <MapPin className="h-4 w-4" />
+                {business.city}, {business.state}
+              </button>
+            ) : (
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                {business.city}, {business.state}
+              </span>
+            )}
             {business.website && (
               <a 
                 href={business.website} 
@@ -484,14 +525,6 @@ export default function BusinessDirectory({
             <p className="text-sm text-muted-foreground">
               Showing {displayedBusinesses.length} of {businesses.length} providers
             </p>
-            {businesses.length > 0 && (
-              <button
-                onClick={() => handleGetQuotes()}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90"
-              >
-                Get Quotes from All
-              </button>
-            )}
           </div>
 
           {/* Business Listings */}
