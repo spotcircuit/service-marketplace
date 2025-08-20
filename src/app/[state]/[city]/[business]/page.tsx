@@ -59,6 +59,41 @@ export default function BusinessProfileNestedPage({ params }: { params: Promise<
             console.warn('Failed to fetch similar businesses for same city/state:', e);
             setSimilarBusinesses([]);
           }
+        } else {
+          // Fallback: some businesses serve the city but have a different HQ city in DB.
+          // Try state-wide lookup and match by slug, prefer ones that list this city in service_areas.
+          try {
+            const stateOnlyRes = await fetch(`/api/businesses?state=${encodeURIComponent(stateName)}&limit=500`);
+            const stateOnlyData = await stateOnlyRes.json();
+            const stateMatches: any[] = (stateOnlyData.businesses || []).filter((b: any) => slugify(b.name) === businessSlug);
+            let picked: any | null = null;
+            if (stateMatches.length > 0) {
+              // Prefer exact city match, then service_areas mention, else first match
+              picked = stateMatches.find((b: any) => String(b.city || '').toLowerCase() === cityName.toLowerCase())
+                || stateMatches.find((b: any) =>
+                  Array.isArray(b.service_areas) && b.service_areas.some((area: any) => String(area).toLowerCase().includes(cityName.toLowerCase()))
+                )
+                || stateMatches[0];
+            }
+            if (picked) {
+              setBusiness(picked);
+              // For similar businesses, keep same-city results if available, otherwise fall back to state
+              try {
+                const simRes = await fetch(`/api/businesses?city=${encodeURIComponent(cityName)}&state=${encodeURIComponent(stateName)}&limit=50`);
+                const simData = await simRes.json();
+                const pool = (simData.businesses && simData.businesses.length > 0) ? simData.businesses : stateOnlyData.businesses || [];
+                const similar = (pool || [])
+                  .filter((b: any) => String(b.id) !== String(picked.id))
+                  .filter((b: any) => String(b.category || '').toLowerCase() === String(picked.category || '').toLowerCase());
+                setSimilarBusinesses(similar.slice(0, 3));
+              } catch (e) {
+                console.warn('Failed to fetch similar businesses for fallback:', e);
+                setSimilarBusinesses([]);
+              }
+            }
+          } catch (e) {
+            console.warn('Fallback state-only lookup failed:', e);
+          }
         }
       } catch (e) {
         console.error('Failed to fetch business:', e);

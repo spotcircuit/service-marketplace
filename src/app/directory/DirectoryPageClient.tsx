@@ -123,9 +123,10 @@ export default function DirectoryPageClient() {
           setBusinesses(data.businesses);
           setAllBusinesses(data.businesses); // Store all for search
           setFilteredBusinesses(data.businesses);
-          // If we already set a locationFilter from saved location, apply it now
+          // If we already set a locationFilter from saved location, apply it now using a location override
           if (city || state) {
-            setTimeout(() => performSearch(), 0);
+            const override = { city: city || undefined, state: state || undefined };
+            setTimeout(() => performSearch(undefined, override), 0);
           }
         } else {
           setBusinesses([]);
@@ -146,17 +147,18 @@ export default function DirectoryPageClient() {
   }, []);
 
   // Run search. If a location filter is set, use service-areas API (radius/zip aware).
-  const performSearch = async (query?: string) => {
+  const performSearch = async (query?: string, locationOverride?: { city?: string; state?: string; zipcode?: string } | null) => {
     const searchTerm = query ?? searchQuery;
+    const effectiveLocation = locationOverride ?? locationFilter;
 
     // Location-aware path: defer to API that respects service radius and zipcodes
-    if (locationFilter && (locationFilter.city || locationFilter.state || locationFilter.zipcode)) {
+    if (effectiveLocation && (effectiveLocation.city || effectiveLocation.state || effectiveLocation.zipcode)) {
       try {
         setLoading(true);
         const params = new URLSearchParams();
-        if (locationFilter.city) params.set('city', locationFilter.city);
-        if (locationFilter.state) params.set('state', locationFilter.state);
-        if (locationFilter.zipcode) params.set('zipcode', locationFilter.zipcode);
+        if (effectiveLocation.city) params.set('city', effectiveLocation.city);
+        if (effectiveLocation.state) params.set('state', effectiveLocation.state);
+        if (effectiveLocation.zipcode) params.set('zipcode', effectiveLocation.zipcode);
         if (selectedCategory && selectedCategory !== 'All Categories') params.set('category', selectedCategory);
         if (searchTerm) params.set('search', searchTerm);
         params.set('limit', '500');
