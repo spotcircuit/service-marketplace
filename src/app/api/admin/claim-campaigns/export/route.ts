@@ -151,7 +151,9 @@ export async function GET(request: NextRequest) {
     // Note: Tokens are now auto-generated when businesses are created
     // No need to generate them on export
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // Use PRODUCTION_URL from .env or fallback to NEXT_PUBLIC_BASE_URL or localhost
+    const productionUrl = process.env.PRODUCTION_URL || process.env.NEXT_PUBLIC_BASE_URL || 'localhost:3000';
+    const baseUrl = productionUrl.startsWith('http') ? productionUrl : `https://${productionUrl}`;
 
     // Create CSV content - flat file with one row per email
     const csvHeaders = [

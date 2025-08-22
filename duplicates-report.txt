@@ -1,0 +1,2285 @@
+[dotenv@17.2.1] injecting env (11) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+Finding duplicate businesses...
+
+Found 87 groups of duplicates (same email + location)
+
+================================================================================
+DUPLICATES BY EMAIL AND LOCATION
+================================================================================
+
+Group 1: ben@keydumpsters.com in Salisbury, NC 28147
+Found 8 duplicates:
+------------------------------------------------------------
+  1. Key Waste LLC
+     ID: 9fa5d849-74a1-4be5-9b2b-dca6574749d0
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Key Waste LLC
+     ID: 71622433-e42d-4db0-aa78-f68de9d4e59f
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Key Waste LLC
+     ID: 9b3ad0a4-ae31-4ad7-b93b-d77b63488925
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Key Waste LLC
+     ID: d3ff0865-fdc8-46de-9f99-b5291d866574
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Key Waste LLC
+     ID: 4a5c3998-5dfe-4afe-b50a-1e5c5e2fdf06
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Key Waste LLC
+     ID: 36c3b5b6-3a90-4720-ba07-a4084cf2e7a9
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  7. Key Waste LLC
+     ID: 3fe571fc-5c34-4810-a977-6421312fb9c7
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  8. Key Waste LLC
+     ID: bc26e0ae-18b3-4a21-a498-ec0a3e4982d0
+     Address: 7040 Long Branch Rd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 2: jb@mercadosdumpsters.com in Charlotte, NC 28269
+Found 8 duplicates:
+------------------------------------------------------------
+  1. Mercado's Dumpster Service
+     ID: 6e469758-a1fb-4124-bb06-65c78474fd0c
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Mercado's Dumpster Service
+     ID: 56e474f7-130f-433f-a0c7-ff3d163d2224
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Mercado's Dumpster Service
+     ID: 83faf994-0bd4-4a2c-8dae-faf9b3834927
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Mercado's Dumpster Service
+     ID: 37f5074e-7b6e-43a7-b7a0-753e08979d14
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Mercado's Dumpster Service
+     ID: b0c3cc55-31fa-4f08-9388-2425cd5f1f00
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Mercado's Dumpster Service
+     ID: d9abe13c-19fe-4095-9ba8-6d4593cae6cd
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  7. Mercado's Dumpster Service
+     ID: e10a6635-cce5-425f-8de3-8967ff7bd037
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+  8. Mercado's Dumpster Service
+     ID: ac4d8019-1c78-436c-bf2f-2f040501d2fc
+     Address: 9327 Old Statesville Rd
+     Phone: (704) 947-9811
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 3: miller@bintheredumpthat.com in Charlotte, NC 28213
+Found 8 duplicates:
+------------------------------------------------------------
+  1. Bin There Dump That Dumpster Rental Charlotte
+     ID: 134b9d76-4986-4132-b645-04567ecc8968
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Bin There Dump That Dumpster Rental Charlotte
+     ID: ae63245c-32bc-4139-946a-4c8e43402058
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Bin There Dump That Dumpster Rental Charlotte
+     ID: b2d47438-f6a4-412e-b573-aba88b02ca53
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Bin There Dump That Dumpster Rental Charlotte
+     ID: 75c7b54a-e19d-4545-a1fa-af741100a143
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Bin There Dump That Dumpster Rental Charlotte
+     ID: f8dbb439-5181-4c6c-943b-6959b5cc2b8a
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Bin There Dump That Dumpster Rental Charlotte
+     ID: 5f9e7043-0185-4364-9d6d-cc462769451e
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  7. Bin There Dump That Dumpster Rental Charlotte
+     ID: 41f64e07-2007-4099-9976-a8dd530dcafe
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+  8. Bin There Dump That Dumpster Rental Charlotte
+     ID: e3c075ea-da72-43af-8eb1-d6c7b7359aa9
+     Address: 5736 N Tryon St #131D
+     Phone: (704) 946-5545
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 4: ronald.mittelstaedt@wasteconnections.com in Monroe, NC 28110
+Found 8 duplicates:
+------------------------------------------------------------
+  1. WASTE CONNECTIONS OF MONROE, NC
+     ID: c1813dc7-de2c-4c66-9cd0-03fee19c1101
+     Address: 3405 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  2. MONROE TRANSFER STATION
+     ID: 6f97489d-7f8e-40a6-a88e-520fa98048fb
+     Address: 3320 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  3. WASTE CONNECTIONS OF MONROE, NC
+     ID: 8668c880-0175-4106-a209-f908eef19cec
+     Address: 3405 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  4. WASTE CONNECTIONS OF MONROE, NC
+     ID: 72b42e59-de4a-49a3-bdf1-291b577ec07a
+     Address: 3405 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  5. MONROE TRANSFER STATION
+     ID: 22895a1e-9003-447b-87a2-fec6104af293
+     Address: 3320 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  6. WASTE CONNECTIONS OF MONROE, NC
+     ID: dee8977f-b94b-48d7-bb9e-071e6ae651f0
+     Address: 3405 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  7. WASTE CONNECTIONS OF MONROE, NC
+     ID: cd4052f7-d091-4549-8d9d-72360e4874ec
+     Address: 3405 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+  8. WASTE CONNECTIONS OF MONROE, NC
+     ID: 83c4f339-7b99-4f7c-aee0-964e5318e98e
+     Address: 3405 Westwood Industrial Dr
+     Phone: (704) 708-5872
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 5: rprather@wallrecycling.com in Apex, NC 27539
+Found 8 duplicates:
+------------------------------------------------------------
+  1. Liberty Waste Solutions (Apex Transfer Station)
+     ID: 8a99d246-e2bf-40e9-8417-64ff7d9a8d91
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Liberty Waste Solutions (Apex Transfer Station)
+     ID: ed05758e-e9b2-465d-8182-f1d72e440398
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Liberty Waste Solutions (Apex Transfer Station)
+     ID: 51bab973-038d-4c60-907f-1c5aad1fa825
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Liberty Waste Solutions (Apex Transfer Station)
+     ID: 10d98791-b79e-4a86-8827-b8053b8b078a
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Liberty Waste Solutions (Apex Transfer Station)
+     ID: d04321e5-1350-476f-a3b1-90d40cdebdad
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Liberty Waste Solutions (Apex Transfer Station)
+     ID: 6c0c88f3-f59e-44d0-9824-085ed104c2b8
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  7. Liberty Waste Solutions (Apex Transfer Station)
+     ID: 5162a4d8-c8d5-4768-a8fd-76524a889de6
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  8. Liberty Waste Solutions (Apex Transfer Station)
+     ID: e4cbc617-0cfc-482b-81f8-9b942c45b870
+     Address: 520 Pristine Water Dr
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 6: robert@triplerlandscapingllc.com in Garner, NC 27529
+Found 7 duplicates:
+------------------------------------------------------------
+  1. Triple R Dumpsters
+     ID: e609145e-f716-40c1-a3b2-d357aa03ba1a
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Triple R Dumpsters
+     ID: e84ffefb-8f36-461c-8d48-3eec3e5329ec
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Triple R Dumpsters
+     ID: a1f3a0e3-d344-49da-96db-056a7fa552f4
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Triple R Dumpsters
+     ID: bfcbba5a-6801-4b8b-99f2-eeff87bb3e80
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Triple R Dumpsters
+     ID: 5a84d4d9-c0fe-485a-8e81-77ba8a950383
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Triple R Dumpsters
+     ID: 85f7f79d-1b57-42f0-9b14-cecb465206e9
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+  7. Triple R Dumpsters
+     ID: eb4a3862-7d37-466a-8e68-6b4614da9615
+     Address: 5505 Fantasy Moth Dr
+     Phone: (919) 907-2279
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 7: zack@vetseasytrash.com in Matthews, NC 28104
+Found 7 duplicates:
+------------------------------------------------------------
+  1. VETS Junk Removal and Dumpsters
+     ID: e5237a48-ca85-43a4-9e4a-8244d605451a
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+  2. VETS Junk Removal and Dumpsters
+     ID: 2756df21-1e41-42de-96a2-a193b38fa5f2
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+  3. VETS Junk Removal and Dumpsters
+     ID: e16df9c9-de23-4c1c-979f-e05e65c4a8d7
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+  4. VETS Junk Removal and Dumpsters
+     ID: 8179b304-ee08-4f37-96e5-8a6e658732ad
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+  5. VETS Junk Removal and Dumpsters
+     ID: 4e2763aa-d64d-4d98-992d-d6ab74bea5c5
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+  6. VETS Junk Removal and Dumpsters
+     ID: f285dbd2-0ca9-4fd7-9cc9-5be568596d94
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+  7. VETS Junk Removal and Dumpsters
+     ID: 958bfc31-2888-4bf2-b980-2bb9e3c8b659
+     Address: 3901 Gribble Rd
+     Phone: (980) 410-8387
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 8: chad@dumpstertoday.com in Mooresville, NC 28115
+Found 6 duplicates:
+------------------------------------------------------------
+  1. Dumpster Today
+     ID: 2c4f7fa7-e5a5-44b7-953e-d70d3f4d7011
+     Address: 710 N Broad St #20
+     Phone: (704) 885-5555
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Dumpster Today
+     ID: 6211909b-53ac-4a0b-84e3-e05f7cf5571c
+     Address: 710 N Broad St #20
+     Phone: (704) 885-5555
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Dumpster Today
+     ID: 91ebaf76-1c54-403b-935b-7d2d32dfdfb6
+     Address: 710 N Broad St #20
+     Phone: (704) 885-5555
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Dumpster Today
+     ID: f9e65ecf-ebc5-4c51-b3f9-8627c0ac7cf5
+     Address: 710 N Broad St #20
+     Phone: (704) 885-5555
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Dumpster Today
+     ID: ed5dfe2b-4f71-4f83-acad-81a77c8a744b
+     Address: 710 N Broad St #20
+     Phone: (704) 885-5555
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Dumpster Today
+     ID: 3494ec8c-79cf-4747-862e-68c66ea43cc8
+     Address: 710 N Broad St #20
+     Phone: (704) 885-5555
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 9: disenhour@republicservices.com in Concord, NC 28027
+Found 6 duplicates:
+------------------------------------------------------------
+  1. Republic Services
+     ID: 1eafcacc-a007-4a62-9128-5a9a5d7b06b0
+     Address: 5105a Morehead Rd
+     Phone: (704) 393-6900
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Republic Services
+     ID: eba28cce-83d6-416d-97d9-7fb90062709b
+     Address: 5105a Morehead Rd
+     Phone: (704) 393-6900
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Republic Services
+     ID: 15d91377-4da2-4548-ae41-10508b1624d8
+     Address: 5105a Morehead Rd
+     Phone: (704) 393-6900
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Republic Services
+     ID: be017529-62b1-4f49-962d-296eec08c4c0
+     Address: 5105a Morehead Rd
+     Phone: (704) 393-6900
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Republic Services
+     ID: 9a018662-a2b6-4dfc-adeb-999e5eb2d99e
+     Address: 5105a Morehead Rd
+     Phone: (704) 393-6900
+     Claimed: No
+     Created: 8/15/2025
+
+  6. Republic Services
+     ID: c505bbe9-8170-4409-a68a-52b3a0a6e3b4
+     Address: 5105a Morehead Rd
+     Phone: (704) 393-6900
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 10: jeff@a1dumpsterrentals.com in Charlotte, NC 28208
+Found 6 duplicates:
+------------------------------------------------------------
+  1. Bin There Dump That Dumpster Rental South Charlotte
+     ID: e7f0ce63-d0f4-466c-98e3-2f99c47a6c14
+     Address: 810 S Hoskins Rd
+     Phone: (704) 391-7030
+     Claimed: No
+     Created: 8/15/2025
+
+  2. A1 Dumpster Rentals
+     ID: 1c30feb4-066a-409f-a6d7-8fae536945cf
+     Address: 810 S Hoskins Rd
+     Phone: (704) 391-7030
+     Claimed: No
+     Created: 8/15/2025
+
+  3. A1 Dumpster Rentals
+     ID: 0230a958-74b7-4ce1-9df5-94bbd7306e85
+     Address: 810 S Hoskins Rd
+     Phone: (704) 391-7030
+     Claimed: No
+     Created: 8/15/2025
+
+  4. A1 Dumpster Rentals
+     ID: b49b89d6-bd4b-48ee-91bb-9039eab73eca
+     Address: 810 S Hoskins Rd
+     Phone: (704) 391-7030
+     Claimed: No
+     Created: 8/15/2025
+
+  5. A1 Dumpster Rentals
+     ID: 7e978c2f-6d9c-46eb-adb9-525e9f7deb4a
+     Address: 810 S Hoskins Rd
+     Phone: (704) 391-7030
+     Claimed: No
+     Created: 8/15/2025
+
+  6. A1 Dumpster Rentals
+     ID: f8a4daa5-31cf-4c98-8f0c-b05dfef370a3
+     Address: 810 S Hoskins Rd
+     Phone: (704) 391-7030
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 11: ron@charlottedumpsterservice.com in Charlotte, NC 28215
+Found 5 duplicates:
+------------------------------------------------------------
+  1. Charlotte Dumpster Service
+     ID: 79cba17f-b712-4fed-b693-23fb2f09fefc
+     Address: 10006 Arbor Dale Ave
+     Phone: (980) 428-3399
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Charlotte Dumpster Service
+     ID: 38a67a56-04d0-455d-b93c-4093c689770c
+     Address: 10006 Arbor Dale Ave
+     Phone: (980) 428-3399
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Charlotte Dumpster Service
+     ID: c777dd4d-e327-4d34-a8a8-bb885003a122
+     Address: 10006 Arbor Dale Ave
+     Phone: (980) 428-3399
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Charlotte Dumpster Service
+     ID: 6f6b95ad-2db7-4192-bbdf-55008e7d9eef
+     Address: 10006 Arbor Dale Ave
+     Phone: (980) 428-3399
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Charlotte Dumpster Service
+     ID: 341a19fd-9271-4a65-ac9c-9f0dc0c2dbe0
+     Address: 10006 Arbor Dale Ave
+     Phone: (980) 428-3399
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 12: sjennings@wasteprousa.com in Concord, NC 28025
+Found 5 duplicates:
+------------------------------------------------------------
+  1. Waste Pro
+     ID: b8e72ad5-5f7a-410d-9c78-23fdec9baf1f
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Waste Pro
+     ID: 80daa920-659f-4ca1-9920-4670ab5aeaeb
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Waste Pro
+     ID: bf20632b-a5ac-4a67-8d65-65b711b97cf9
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Waste Pro
+     ID: cee089a6-f158-4526-a756-32611272e91e
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+  5. Waste Pro
+     ID: c1a4b80b-bfbe-4d4b-bd37-a10fc7f4290a
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 13: ben@keydumpsters.com in Cleveland, NC 27013
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Key Waste llc
+     ID: b3f4aa47-fa59-4593-ad66-135b787cded0
+     Address: 11480 Statesville Blvd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Key Waste llc
+     ID: 4025b639-f0a8-433b-9f08-338eda0112ce
+     Address: 11480 Statesville Blvd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Key Waste llc
+     ID: 85485c98-d170-4ee9-a18b-84eb4e390bc6
+     Address: 11480 Statesville Blvd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Key Waste llc
+     ID: 632e7088-e7d1-4d4b-bb82-1d1989329d13
+     Address: 11480 Statesville Blvd
+     Phone: (704) 804-2388
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 14: carlos@sqsjunkremoval.com in Charlotte, NC 28273
+Found 4 duplicates:
+------------------------------------------------------------
+  1. SQS Junk Removal
+     ID: 9c9d05f7-d655-457d-8c3c-a1073a842bb3
+     Address: 8301 Arrowridge Blvd # G
+     Phone: (704) 877-3254
+     Claimed: No
+     Created: 8/15/2025
+
+  2. SQS Junk Removal
+     ID: 5680b221-66ed-4c1b-9fdb-f8c5effc152b
+     Address: 8301 Arrowridge Blvd # G
+     Phone: (704) 877-3254
+     Claimed: No
+     Created: 8/15/2025
+
+  3. SQS Junk Removal
+     ID: df640f85-13e5-4211-9cb5-d8ce18d1ea3e
+     Address: 8301 Arrowridge Blvd # G
+     Phone: (704) 877-3254
+     Claimed: No
+     Created: 8/15/2025
+
+  4. SQS Junk Removal
+     ID: 175da7a2-ecea-47b1-9596-026c4ba9cde8
+     Address: 8301 Arrowridge Blvd # G
+     Phone: (704) 877-3254
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 15: dave@backwoodsjunkremoval.com in Fuquay-Varina, NC 27526
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Backwoods Junk Removal
+     ID: 82e3f8a9-215e-44c2-be4d-45f39de548ed
+     Address: 920 Durham St
+     Phone: (919) 770-8223
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Backwoods Junk Removal
+     ID: bf1c8183-2c3d-4f01-b6cb-7f296585d080
+     Address: 920 Durham St
+     Phone: (919) 770-8223
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Backwoods Junk Removal
+     ID: 94921b11-6f7b-427e-90d4-55f77560f880
+     Address: 920 Durham St
+     Phone: (919) 770-8223
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Backwoods Junk Removal
+     ID: e710e54e-3c75-4671-be3c-6a92ed34abbb
+     Address: 920 Durham St
+     Phone: (919) 770-8223
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 16: gustavo.larotta@junk-king.com in Indian Land, SC 29707
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Junk King Rock Hill
+     ID: ffbc014b-911d-4789-b5ea-36e6763dfd48
+     Address: 845 Fort Mill Hwy Suite 101
+     Phone: (803) 902-4945
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Junk King Rock Hill
+     ID: 29d4bf77-ad53-4ff0-b97e-9c3b1c93889a
+     Address: 845 Fort Mill Hwy Suite 101
+     Phone: (803) 902-4945
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Junk King Rock Hill
+     ID: 6fa22662-ff01-492b-a518-7e75111ea7d4
+     Address: 845 Fort Mill Hwy Suite 101
+     Phone: (803) 902-4945
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Junk King Rock Hill
+     ID: b0278d22-3794-46f8-b0da-fd41c50f04f7
+     Address: 845 Fort Mill Hwy Suite 101
+     Phone: (803) 902-4945
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 17: rp@baidu.com in Greensboro, NC 27406
+Found 4 duplicates:
+------------------------------------------------------------
+  1. A-1 Service Group
+     ID: 37949778-4e0f-405c-88f8-2bda23c8a610
+     Address: 2091 Bishop Rd
+     Phone: (336) 736-2224
+     Claimed: No
+     Created: 8/15/2025
+
+  2. A-1 Service Group
+     ID: 563ea3f6-ac7d-4d04-a4d9-f40982954a73
+     Address: 2091 Bishop Rd
+     Phone: (336) 855-8195
+     Claimed: No
+     Created: 8/15/2025
+
+  3. A-1 Service Group
+     ID: 10b5b1fa-921f-4245-ad46-f43360c8445a
+     Address: 2091 Bishop Rd
+     Phone: (336) 855-8195
+     Claimed: No
+     Created: 8/15/2025
+
+  4. A-1 Service Group
+     ID: ea773169-3b52-4ce2-8844-6b0d838a4f7e
+     Address: 2091 Bishop Rd
+     Phone: (336) 855-8195
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 18: rwilliams@patriotsanitation.com in Raleigh, NC 27603
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Patriot Sanitation
+     ID: a68f3a07-0eb5-4462-bc23-3a120783b1e2
+     Address: 819-A Purser Dr
+     Phone: (919) 773-8008
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Patriot Sanitation
+     ID: 42898ad5-71a2-4504-baf8-6792d23bf4c4
+     Address: 819-A Purser Dr
+     Phone: (919) 773-8008
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Patriot Sanitation
+     ID: bf3cadf7-e9a9-4259-9b58-7e22a1688c8d
+     Address: 819-A Purser Dr
+     Phone: (919) 773-8008
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Patriot Sanitation
+     ID: 9f04849f-bb86-4046-b4d8-97a9b208599c
+     Address: 819-A Purser Dr
+     Phone: (919) 773-8008
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 19: scott@foreverclean.com in Fuquay-Varina, NC 27526
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Forever Clean
+     ID: 1e08b13d-6346-488b-9e7b-a280a7ed3018
+     Address: 122 Josh Dr
+     Phone: (919) 552-0200
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Forever Clean
+     ID: e882aef1-d1a5-47f4-a390-5c689eefe35b
+     Address: 122 Josh Dr
+     Phone: (919) 552-0200
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Forever Clean
+     ID: 8ae9da21-9262-41c5-b707-100b58ccaa53
+     Address: 122 Josh Dr
+     Phone: (919) 552-0200
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Forever Clean
+     ID: fa1a4319-34e6-46c9-89d6-24218704dde2
+     Address: 122 Josh Dr
+     Phone: (919) 552-0200
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 20: tgivan@idealtrash.com in Greensboro, NC 27408
+Found 4 duplicates:
+------------------------------------------------------------
+  1. IDEAL Trash and Recycling | Greensboro NC
+     ID: 16e7dff1-4617-4e7c-9777-ca885c45b8a3
+     Address: 2311 W Cone Blvd # 140
+     Phone: (336) 360-6363
+     Claimed: No
+     Created: 8/15/2025
+
+  2. IDEAL Trash and Recycling | Greensboro NC
+     ID: 6c615a1c-6b5e-4e57-a1db-eac479a58309
+     Address: 2311 W Cone Blvd # 140
+     Phone: (336) 360-6363
+     Claimed: No
+     Created: 8/15/2025
+
+  3. IDEAL Trash and Recycling | Greensboro NC
+     ID: a1058d46-6319-4801-afc8-d579e55ed165
+     Address: 2311 W Cone Blvd # 140
+     Phone: (336) 360-6363
+     Claimed: No
+     Created: 8/15/2025
+
+  4. IDEAL Trash and Recycling | Greensboro NC
+     ID: db363274-b2a0-4580-8268-aa368876f7ad
+     Address: 2311 W Cone Blvd # 140
+     Phone: (336) 360-6363
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 21: whall@meridianwaste.com in Morrisville, NC 27560
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Meridian Waste - Morrisville Transfer Station
+     ID: 24cba9be-402d-47f9-8716-59552b9182ca
+     Address: 230 International Dr
+     Phone: (919) 303-4723
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Meridian Waste - Morrisville Transfer Station
+     ID: 76fe8a66-612a-4bdd-85f7-1bd5a8ced9e9
+     Address: 230 International Dr
+     Phone: (919) 303-4723
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Meridian Waste - Morrisville Transfer Station
+     ID: c85e2ca7-3daa-4904-b79d-589dac65547e
+     Address: 230 International Dr
+     Phone: (919) 303-4723
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Meridian Waste - Morrisville Transfer Station
+     ID: 19e3e8b7-9e0b-41d6-89dc-132536075e8a
+     Address: 230 International Dr
+     Phone: (919) 303-4723
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 22: zach@vetseasytrash.com in Charlotte, NC 28269
+Found 4 duplicates:
+------------------------------------------------------------
+  1. Veterans Easy Trash Service (VETS)
+     ID: 7ca7a9e5-3ba4-4a2e-bd0c-216e3be98c0b
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Veterans Easy Trash Service (VETS)
+     ID: b853c314-86e7-4962-9062-88b1da1d8772
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Veterans Easy Trash Service (VETS)
+     ID: 6bf7cf46-3b64-4e3d-b6fa-520197c3e5e1
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+  4. Veterans Easy Trash Service (VETS)
+     ID: d3acaf46-2149-4396-8ced-2df6952926e5
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 23: casey@standupguys.biz in Raleigh, NC 27616
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Stand Up Guys Junk Removal Raleigh
+     ID: 3d45631d-f44f-40e1-9e1e-49f3de7c5f0f
+     Address: 4809 Hargrove Rd #121
+     Phone: (919) 719-0556
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Stand Up Guys Junk Removal Raleigh
+     ID: 540e30b6-145b-4682-8785-d1bca02dce10
+     Address: 4809 Hargrove Rd #121
+     Phone: (919) 719-0556
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Stand Up Guys Junk Removal Raleigh
+     ID: a065a0be-abcb-4974-a3be-8b1a9b0734ea
+     Address: 4809 Hargrove Rd #121
+     Phone: (919) 719-0556
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 24: kerri@anchordisposal.com in Clayton, NC 27520
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Anchor Disposal
+     ID: 66b2a65d-659d-4f3e-85f4-a8dee9989163
+     Address: 2019 Hardee Ln
+     Phone: (919) 585-2035
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Anchor Disposal
+     ID: 11d36a40-54a0-48fb-a46c-02633a6c40bd
+     Address: 2019 Hardee Ln
+     Phone: (919) 585-2035
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Anchor Disposal
+     ID: 5ea7c74c-5910-4532-a858-6fd6fc2b9a6c
+     Address: 2019 Hardee Ln
+     Phone: (919) 585-2035
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 25: lt@thumbtack.com in Charlotte, NC 28269
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Junk King Charlotte
+     ID: ad18a2d8-2db2-4614-9961-67379fe13d26
+     Address: 8425 Old Statesville Rd Unit 4
+     Phone: (704) 469-4815
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Junk King Charlotte
+     ID: 167447f4-6d99-485a-a87c-29c99e9093d8
+     Address: 8425 Old Statesville Rd Unit 4
+     Phone: (704) 469-4815
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Junk King Charlotte
+     ID: 67ff52a4-bfc4-4f67-8296-5255efd45d8d
+     Address: 8425 Old Statesville Rd Unit 4
+     Phone: (704) 469-4815
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 26: michael.locklear@allpointswasteservice.com in Indian Trail, NC 28079
+Found 3 duplicates:
+------------------------------------------------------------
+  1. All-Points Waste Service
+     ID: f4304f18-4837-418e-8161-2a4d154fe54d
+     Address: 1055 Van Buren Ave
+     Phone: (704) 821-5424
+     Claimed: No
+     Created: 8/15/2025
+
+  2. All-Points Waste Service
+     ID: 6dacc0d7-8ed0-49f6-949e-c4fb34a478a3
+     Address: 1055 Van Buren Ave
+     Phone: (704) 821-5424
+     Claimed: No
+     Created: 8/15/2025
+
+  3. All-Points Waste Service
+     ID: 74fe2ef7-82fa-4957-9621-4c1abc4165e3
+     Address: 1055 Van Buren Ave
+     Phone: (704) 821-5424
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 27: rprather@wallrecycling.com in Raleigh, NC 27615
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Liberty Waste Solutions (North Raleigh Transfer Station)
+     ID: 41727c1c-2db8-4f2c-9f20-287148706783
+     Address: 3000 Gresham Lake Rd
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Liberty Waste Solutions (North Raleigh Transfer Station)
+     ID: 4934287d-caa4-4bf3-9c7d-b3fee8a12c15
+     Address: 3000 Gresham Lake Rd
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Liberty Waste Solutions (North Raleigh Transfer Station)
+     ID: 9b7ae083-32bd-490a-bc85-0118a2cda0d0
+     Address: 3000 Gresham Lake Rd
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 28: rprather@wallrecycling.com in Durham, NC 27703
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Durham Transfer Station (Liberty Waste Solutions)
+     ID: 8b23003d-0a16-4ca7-b6eb-45f242ff0365
+     Address: 1017 S Hoover Rd
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Durham Transfer Station (Liberty Waste Solutions)
+     ID: ab6e27bd-9129-4f01-9f3d-f9e06775fa1a
+     Address: 1017 S Hoover Rd
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Durham Transfer Station (Liberty Waste Solutions)
+     ID: d9120255-c9b1-424b-8a73-16acb5fe501c
+     Address: 1017 S Hoover Rd
+     Phone: (919) 582-7777
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 29: scott.johnson@wasteconnections.com in Charlotte, NC 28214
+Found 3 duplicates:
+------------------------------------------------------------
+  1. WASTE CONNECTIONS - CHARLOTTE
+     ID: ffdc26bb-1c8a-4afd-87c2-21e8faebc256
+     Address: 5516 Rozzelles Ferry Rd
+     Phone: (704) 398-4488
+     Claimed: No
+     Created: 8/15/2025
+
+  2. WASTE CONNECTIONS - CHARLOTTE
+     ID: 3c608ce7-af68-467d-b195-d71ffe7f0163
+     Address: 5516 Rozzelles Ferry Rd
+     Phone: (704) 398-4488
+     Claimed: No
+     Created: 8/15/2025
+
+  3. WASTE CONNECTIONS - CHARLOTTE
+     ID: e377e837-89f4-4814-8070-c3dcae35918d
+     Address: 5516 Rozzelles Ferry Rd
+     Phone: (704) 398-4488
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 30: whall@meridianwaste.com in Raleigh, NC 27603
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Meridian Waste Raleigh Hauling
+     ID: 221b5626-1306-4391-ae9a-1ec729004bb0
+     Address: 110 Rupert Rd
+     Phone: (919) 832-8234
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Meridian Waste Raleigh Hauling
+     ID: c0b9fdec-6a08-4072-92d8-1eb4c6fea4ef
+     Address: 110 Rupert Rd
+     Phone: (919) 832-8234
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Meridian Waste Raleigh Hauling
+     ID: 7be10269-e6ae-452b-aab9-7b3e79d276e1
+     Address: 110 Rupert Rd
+     Phone: (919) 832-8234
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 31: zack@vetseasytrash.com in Charlotte, NC 28269
+Found 3 duplicates:
+------------------------------------------------------------
+  1. Veterans Easy Trash Service (VETS)
+     ID: a423dcb9-636b-4f22-bb37-66189e805d82
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Veterans Easy Trash Service (VETS)
+     ID: 7bccb32f-289e-4fed-9ad0-78187fc08292
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+  3. Veterans Easy Trash Service (VETS)
+     ID: 7524dec6-997c-4262-855e-0ee7ae9ae24f
+     Address: 5735 Waverly Lynn Ln
+     Phone: (980) 613-4692
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 32: blake@americandumpsterco.com in Shelby, NC 28152
+Found 2 duplicates:
+------------------------------------------------------------
+  1. American Dumpster of Shelby
+     ID: dbaa13fa-dba6-4aae-b532-1e29c75f0a08
+     Address: 218 3 Brothers Ave
+     Phone: (980) 448-8125
+     Claimed: No
+     Created: 8/15/2025
+
+  2. American Dumpster of Shelby
+     ID: dc7fb17b-e2c1-4cc2-8627-ed9ac46be2de
+     Address: 218 3 Brothers Ave
+     Phone: (980) 448-8125
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 33: blake@thedumpstersolution.com in Fayetteville, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Dumpster Solutions Inc
+     ID: e8c3dbbd-18f6-4877-b7a6-6901e40b3368
+     Address: N/A
+     Phone: (910) 551-8894
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Dumpster Solutions Inc
+     ID: f59714f7-6856-438f-ac3d-bebcb1908111
+     Address: N/A
+     Phone: (910) 551-8894
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 34: cameron.ferguson@dumpstor.com in Charlotte, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. DumpStor of Charlotte
+     ID: c4b00bb6-9932-4580-861f-ae534b4b8170
+     Address: N/A
+     Phone: (980) 393-3867
+     Claimed: No
+     Created: 8/15/2025
+
+  2. DumpStor of Charlotte
+     ID: 3caf7f7b-ce14-481e-a553-66f4da5c5b65
+     Address: N/A
+     Phone: (980) 393-3867
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 35: cameron.ferguson@dumpstor.com in Fort Mill, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. DumpStor of Charlotte
+     ID: 71ed2dea-42bd-4d65-aeb9-93c96b30396e
+     Address: N/A
+     Phone: (980) 393-3867
+     Claimed: No
+     Created: 8/15/2025
+
+  2. DumpStor of Charlotte
+     ID: ac3a0866-ef22-4da3-ac5c-3a5c98afec3e
+     Address: N/A
+     Phone: (980) 393-3867
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 36: chris@troopshauljunk.com in Statesville, NC 28625
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Troops Haul Junk
+     ID: 34c2b8ae-878c-4104-a846-7946e58b1349
+     Address: 654 Whites Farm Rd
+     Phone: (704) 800-4285
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Troops Haul Junk
+     ID: f7696141-20ca-4815-a168-9bc7f6e78462
+     Address: 654 Whites Farm Rd
+     Phone: (704) 800-4285
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 37: david@discountdumpsterco.com in Raleigh, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. GFL Environmental
+     ID: a396cd05-44de-4714-9112-af63a1cecc9e
+     Address: N/A
+     Phone: (919) 402-4088
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Discount Dumpster
+     ID: 05886d88-7dcb-428c-a0f3-696acfbeabe9
+     Address: N/A
+     Phone: (919) 402-4088
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 38: dennis@anythingwithaplugrecycling.com in Raleigh, NC 27603
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Anything With A Plug Recycling
+     ID: 7abc8b81-848d-4898-8f7b-947fb2e84c52
+     Address: 10131 Division Dr
+     Phone: (919) 610-3465
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Anything With A Plug Recycling
+     ID: 92cd39e2-934a-41c8-8b83-134a5c1ef94a
+     Address: 10131 Division Dr
+     Phone: (919) 610-3465
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 39: faye@bintheredumpthat.com in Chapel Hill, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Bin There Dump That Greensboro Dumpster Rentals
+     ID: 5eeca2e0-190a-410a-b1d1-06696a62b636
+     Address: N/A
+     Phone: (336) 891-3503
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Bin There Dump That Durham Dumpster Rentals
+     ID: 6d0eaa76-d9ae-4cfc-9b29-0d852bb7485b
+     Address: N/A
+     Phone: (984) 214-7305
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 40: helen.grigg@wasteconnections.com; specialwaste4100@wcnx.org in Austin, TX 78719
+Found 2 duplicates:
+------------------------------------------------------------
+  1. TRAVIS COUNTY LANDFILL
+     ID: 5d17f002-026e-4173-8b66-ad280cf2063b
+     Address: 9600 FM812
+     Phone: (512) 243-6300
+     Claimed: No
+     Created: 8/19/2025
+
+  2. WASTE CONNECTIONS LONE STAR - AUSTIN
+     ID: d5b926b7-43de-47e6-ba8e-51e76686c5c4
+     Address: 9904 FM812
+     Phone: (512) 282-3508
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 41: helen.grigg@wasteconnections.com; specialwaste4100@wcnx.org in Fort Myers, FL 33912
+Found 2 duplicates:
+------------------------------------------------------------
+  1. WASTE CONNECTIONS OF FLORIDA - FORT MYERS/NAPLES
+     ID: f371daf5-5217-4d27-83b3-4a5807c5fb60
+     Address: 2289 Bruner Ln
+     Phone: (239) 489-1716
+     Claimed: No
+     Created: 8/19/2025
+
+  2. FORT MYERS TRANSFER STATION
+     ID: dc542552-0f25-47ad-8c96-f7874a5c33e0
+     Address: 16711 Gator Rd
+     Phone: (239) 489-1716
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 42: info@mellodisposal.com; ncamuso@mellodisposal.com in Georgetown, MA 01833
+Found 2 duplicates:
+------------------------------------------------------------
+  1. G Mello Disposal Corp (business office)
+     ID: 6a83efcd-791d-466e-8052-980885e1a8e2
+     Address: 95 Tenney St
+     Phone: (978) 352-8581
+     Claimed: No
+     Created: 8/19/2025
+
+  2. G. Mello Disposal Transfer Station
+     ID: cacb66a4-32c4-447c-bcaf-d7c7bea1c47e
+     Address: 203 E Main St
+     Phone: (978) 352-9948
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 43: info@novajunk.com in Alexandria, VA 22314
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Nova Junk
+     ID: 37f29155-4dc3-4925-bebe-6a347127f5e1
+     Address: 2000 Duke St Suite 356
+     Phone: (877) 211-6682
+     Claimed: No
+     Created: 8/19/2025
+
+  2. Nova Junk
+     ID: 16be0221-7f14-45c1-8e1d-9bc94cfffa74
+     Address: 2000 Duke St Suite 356
+     Phone: (877) 211-6682
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 44: info@paramountva.com; info@paramountva.com.com in Warrenton, VA 20187
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Paramount Dumpster Rentals
+     ID: de215d55-cb24-48ec-8af8-b0dcccf080ad
+     Address: 7081 Lineweaver Rd
+     Phone: (540) 216-3885
+     Claimed: No
+     Created: 8/19/2025
+
+  2. Paramount Property Services LLC
+     ID: b817c855-5d3d-4f4b-859a-1af0129cd1d5
+     Address: 7081 Lineweaver Rd
+     Phone: (703) 932-3590
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 45: info@rts.com in McLean, VA 22102
+Found 2 duplicates:
+------------------------------------------------------------
+  1. RTS – Washington DC Waste Management
+     ID: cb7e2c24-a240-400d-8e33-ab4c5174fa1e
+     Address: 1775 Tysons Blvd 6th floor
+     Phone: (833) 787-4636
+     Claimed: No
+     Created: 8/19/2025
+
+  2. RTS – Washington DC Waste Management
+     ID: 7ff7f59a-cf06-44ab-9a38-f7576cd2665d
+     Address: 1775 Tysons Blvd 6th floor
+     Phone: (833) 787-4636
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 46: j.nash@bintheredumpthat.com in Statesville, NC 28625
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Bin There Dump That Dumpster Rentals Statesville
+     ID: e5decb72-0bb0-477f-8aa9-9002b77af06a
+     Address: 1025 Tomlin Mill Rd
+     Phone: (704) 486-1881
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Bin There Dump That Dumpster Rentals Statesville
+     ID: 47acab5d-a4d0-4523-815c-dacb6174287c
+     Address: 1025 Tomlin Mill Rd
+     Phone: (704) 486-1881
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 47: j.nash@bintheredumpthat.com in Mooresville, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Bin There Dump That Dumpster Rentals Denver
+     ID: 69fefe8b-6099-468c-ab32-31be71ef6562
+     Address: N/A
+     Phone: (704) 360-4010
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Bin There Dump That Dumpster Rentals Mooresville
+     ID: 349bc461-923a-4b1f-8a3d-7f271ff941d8
+     Address: N/A
+     Phone: (704) 360-4010
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 48: j.nash@bintheredumpthat.com in Raleigh, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Bin There Dump That Dumpster Rental Clayton & Surrounding
+     ID: c89ef673-ef94-4096-b286-906dd8c81f08
+     Address: N/A
+     Phone: (984) 207-3189
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Bin There Dump That Dumpster Rental Clayton & Surrounding
+     ID: 1231d4c2-d276-48d2-b173-6c85eb07ea5d
+     Address: N/A
+     Phone: (984) 207-3189
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 49: jed@oldsargesjunkremoval.com in Kernersville, NC 27284
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Old Sarge's Junk Removal LLC
+     ID: 08686801-98bf-4544-b4ca-f801f2db264c
+     Address: 1100 La Plata Dr
+     Phone: (336) 306-3461
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Old Sarge's Junk Removal LLC
+     ID: d435e4eb-9ec8-4f24-b6e2-ed9614fdbf83
+     Address: 1100 La Plata Dr
+     Phone: (336) 306-3461
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 50: jeff@charlottewaste.com in Charlotte, NC 28269
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Carolina Container Services
+     ID: 3b13447f-2dfc-491a-a53a-4d195c48582a
+     Address: 8636 Hankins Rd
+     Phone: (704) 663-6888
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Carolina Container Services
+     ID: 7e3213c4-d807-4c3b-8ba6-6261f4d58381
+     Address: 8636 Hankins Rd
+     Phone: (704) 663-6888
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 51: jglauda@activewastesolutions.com in Monroe, NC 28110
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Active Waste Solutions
+     ID: dac3a09c-a2bb-4f6f-8151-85816b65b6fa
+     Address: 2512 Ashcraft Ave
+     Phone: (704) 626-7400
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Active Waste Solutions
+     ID: 2540d4e0-30c7-401a-b44e-1077f98045a1
+     Address: 2512 Ashcraft Ave
+     Phone: (704) 626-7400
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 52: jim@discountdumpsterco.com in Cary, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Discount Dumpster
+     ID: 97050061-8fee-422e-a927-ed97bb2007f2
+     Address: N/A
+     Phone: (919) 439-5066
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Discount Dumpster
+     ID: a4ee3f6a-0456-4eb9-a45a-b3bf97c45171
+     Address: N/A
+     Phone: (919) 402-4088
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 53: jjennings@wasteprousa.com in Concord, NC 28025
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Waste Pro
+     ID: 6668f885-f20e-4654-9db5-c527b023be65
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Waste Pro
+     ID: f183565f-b0c6-43cf-bc70-df44264759d0
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 54: jmoody@greenlifewaste.com in Burlington, NC 27217
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Green Life Waste Solutions - Roll Off Dumpster Rentals
+     ID: b7193be4-0983-4b48-ae35-f6fa4d64ca73
+     Address: 673 Gilmer St
+     Phone: (336) 270-5397
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Green Life Waste Solutions - Roll Off Dumpster Rentals
+     ID: dbec9b8e-5c63-4379-afa5-f20696ac070d
+     Address: 673 Gilmer St
+     Phone: (336) 270-5397
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 55: joe@wasteawaynow.com in Monroe, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Waste Away Now Inc.
+     ID: 5fc42596-b557-49be-9861-4ecfb67203f5
+     Address: N/A
+     Phone: (855) 927-8329
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Waste Away Now Inc.
+     ID: a6e5d259-2b9d-4fcc-abc0-abb27dc45c7a
+     Address: N/A
+     Phone: (855) 927-8329
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 56: john@budgetdumpster.com in Cary, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Budget Dumpster
+     ID: 3bcef72c-0ed7-48f3-aed2-0a276bdb0d14
+     Address: N/A
+     Phone: (919) 213-4001
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Budget Dumpster
+     ID: 224689d5-1121-41a9-a4b0-cbfb58e36b38
+     Address: N/A
+     Phone: (919) 424-0671
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 57: john@budgetdumpster.com in Raleigh, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Budget Dumpster
+     ID: ea6288db-efb7-4d27-9305-d94b64e14089
+     Address: N/A
+     Phone: (919) 424-0671
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Budget Dumpster
+     ID: 4f3882c8-4304-4fce-a75d-0f7def817c74
+     Address: N/A
+     Phone: (919) 424-0671
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 58: justin@discountdumpsterco.com in Huntersville, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Discount Dumpster
+     ID: 8fb4471b-3c0b-42ac-b777-83691f810e3f
+     Address: N/A
+     Phone: (704) 709-1888
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Discount Dumpster
+     ID: b9df5e6a-665e-4552-96a8-e0b01b6a3504
+     Address: N/A
+     Phone: (704) 709-1888
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 59: kgrant@cabarruscounty.us in Concord, NC 28025
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Cabarrus County Solid Waste Management Landfill
+     ID: 8d47faa0-96e5-43f6-afae-a83854fa93c0
+     Address: 4441 Irish Potato Rd
+     Phone: (704) 920-2950
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Cabarrus County Solid Waste Management Landfill
+     ID: b3a59582-07c4-4473-8834-326904fb0caf
+     Address: 4441 Irish Potato Rd
+     Phone: (704) 920-2950
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 60: lee@junkdrs.com in Apex, NC 27502
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Junk Doctors
+     ID: c5ef9175-7534-4662-a6ce-96dc5599f28d
+     Address: 950 Windy Rd Suite 200
+     Phone: (919) 466-9322
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Junk Doctors
+     ID: 6a16e1bf-1e90-4b31-851d-16074ce4cabb
+     Address: 950 Windy Rd Suite 200
+     Phone: (919) 466-9322
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 61: leo@junkpunk.com in Huntersville, NC 28078
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Junk Punk - Junk Removal
+     ID: b3c8ac94-c265-48a2-8602-c3df9334496d
+     Address: 14936 Brown Mill Rd
+     Phone: (980) 980-2217
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Junk Punk - Junk Removal
+     ID: 0bb10169-6a0a-4fe5-a5d1-99f7719c6d33
+     Address: 14936 Brown Mill Rd
+     Phone: (980) 980-2217
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 62: mack@piedmontdisposal.com in Winston-Salem, NC 27106
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Piedmont Disposal
+     ID: 5a3391d0-9179-4f17-b9af-89e106e05510
+     Address: 4420 Providence Ln
+     Phone: (336) 777-8805
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Piedmont Disposal
+     ID: 2b860ec5-9882-44d5-923f-cbf79eef90f5
+     Address: 4420 Providence Ln
+     Phone: (336) 777-8805
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 63: mark@budgetdumpster.com in Durham, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Durham Transfer Station (Liberty Waste Solutions)
+     ID: cc113d1f-4c79-463f-9882-93c39565a83b
+     Address: N/A
+     Phone: (919) 213-4001
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Budget Dumpster
+     ID: 559418a4-9385-441a-916f-64483f8f92e9
+     Address: N/A
+     Phone: (919) 213-4001
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 64: mark@budgetdumpster.com in Charlotte, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Budget Dumpster
+     ID: 2b2fab0b-9884-4dfe-ba79-851c13770307
+     Address: N/A
+     Phone: (980) 233-6271
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Budget Dumpster
+     ID: 82fea1f5-47fa-4409-bcaf-d8eb26d9e346
+     Address: N/A
+     Phone: (980) 233-6271
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 65: matthew@vetseasytrash.com in Wilmington, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. VETS Junk Removal and Dumpsters
+     ID: d48bb073-0601-4355-91db-3dd8398116b6
+     Address: N/A
+     Phone: (910) 367-5033
+     Claimed: No
+     Created: 8/15/2025
+
+  2. VETS Junk Removal and Dumpsters
+     ID: da88b1d9-5d2d-45f5-9fb4-85911ca89a52
+     Address: N/A
+     Phone: (910) 367-5033
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 66: mattowings@nextdaydumpsters.com in Raleigh, NC 27605
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Next Day Dumpsters
+     ID: e93e5167-3a93-45b3-acc2-fe9c30085ff0
+     Address: 512 St Marys St Suite 5
+     Phone: (919) 268-8479
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Next Day Dumpsters
+     ID: a9f9d170-0f55-4796-9035-088a77b26f48
+     Address: 512 St Marys St Suite 5
+     Phone: (919) 268-8479
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 67: michael.andreacchi@junk-king.com in Durham, NC 27705
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Junk King Durham
+     ID: a1de6726-db84-4056-90fc-16b946a3a1d3
+     Address: 4122 Bennett Memorial Rd Ste 110
+     Phone: (919) 343-5740
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Junk King Durham
+     ID: 49d6e28f-ad83-4c01-9e3d-b61a47166cfa
+     Address: 4122 Bennett Memorial Rd Ste 110
+     Phone: (919) 343-5740
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 68: mike@griffinwaste.com in Asheville, NC 28806
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Griffin Waste
+     ID: 998175ad-d87f-4582-a309-b6cf57540d7a
+     Address: 432 Old Leicester Hwy
+     Phone: (828) 281-4549
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Griffin Waste
+     ID: 2c1f40b5-d2fe-4296-a8c7-6bec1360afe1
+     Address: 432 Old Leicester Hwy
+     Phone: (828) 281-4549
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 69: mmcdonald@liftwaste.com in Greensboro, NC 27406
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Lift Waste & Recycling
+     ID: 1a8c8571-3c74-4500-912d-33caf07896ec
+     Address: 2820 S Elm-Eugene St
+     Phone: (888) 336-5438
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Lift Waste & Recycling
+     ID: aaf40656-2e4d-4d8a-bec3-6c331c7e96d8
+     Address: 2820 S Elm-Eugene St
+     Phone: (888) 336-5438
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 70: neohio@bintheredumpthat.com in Alexandria, VA 22314
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Capital Area Bin There Dump That Dumpster Rentals
+     ID: dbb0baf6-246f-4ea5-924d-9aa56f672786
+     Address: 2859 Duke St
+     Phone: (703) 213-3939
+     Claimed: No
+     Created: 8/19/2025
+
+  2. Capital Area Bin There Dump That Dumpster Rentals
+     ID: 9383512e-9599-4cfc-aeb9-88537b021877
+     Address: 2859 Duke St
+     Phone: (703) 213-3939
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 71: patrick@ncjunk.com in Gastonia, NC 28054
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Junk Trunk: Western Carolina Junk Removal, Disposal, Demolition
+     ID: 654b5335-b32b-4f98-b3bd-1c49a1510fd0
+     Address: 133 N New Hope Rd
+     Phone: (704) 923-5532
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Junk Trunk: Western Carolina Junk Removal, Disposal, Demolition
+     ID: 1560f305-4dae-4c3b-9eab-6394958b3f35
+     Address: 133 N New Hope Rd
+     Phone: (704) 923-5532
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 72: pdovigi@gflenv.com in Garner, NC 27529
+Found 2 duplicates:
+------------------------------------------------------------
+  1. GFL Environmental
+     ID: 2ffb50e4-bd59-4e58-9589-a6bd14c97fef
+     Address: 3741 Conquest Dr
+     Phone: (919) 662-7100
+     Claimed: No
+     Created: 8/15/2025
+
+  2. GFL Environmental
+     ID: 47de9d5e-b4d4-470c-9873-62b315d6a07a
+     Address: 3741 Conquest Dr
+     Phone: (919) 662-7100
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 73: pdovigi@gflenv.com in Wilson, NC 27893
+Found 2 duplicates:
+------------------------------------------------------------
+  1. GFL Environmental
+     ID: ee3e4f18-6d82-4d17-a336-ba315e5f5193
+     Address: 3031 Black Creek Rd SE
+     Phone: (252) 291-6635
+     Claimed: No
+     Created: 8/15/2025
+
+  2. GFL Environmental
+     ID: a150c94c-ac85-4a46-9b4b-1ca06ee2d4af
+     Address: 2810 Contentnea Rd S
+     Phone: (252) 291-6635
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 74: pdovigi@gflenv.com in Raleigh, NC 27610
+Found 2 duplicates:
+------------------------------------------------------------
+  1. GFL Wake Reclamation Landfill
+     ID: a65dec56-473c-4364-b706-c537a5a56961
+     Address: 2600 Brown Field Rd
+     Phone: (919) 779-3339
+     Claimed: No
+     Created: 8/15/2025
+
+  2. GFL Environmental
+     ID: 37d32cd0-bd4c-400f-92ec-ea9f98a9b4d6
+     Address: 421 Raleigh View Rd
+     Phone: (919) 835-2776
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 75: pdovigi@gflenv.com in Raleigh, NC 27609
+Found 2 duplicates:
+------------------------------------------------------------
+  1. GFL Environmental
+     ID: 2e573620-3b13-4081-b4e0-25d97d42fff5
+     Address: 3301 Benson Dr #601
+     Phone: (919) 325-4000
+     Claimed: No
+     Created: 8/15/2025
+
+  2. GFL Environmental
+     ID: 12c2e2a3-2de7-4103-a05d-2efca728cbfd
+     Address: 3301 Benson Dr #601
+     Phone: (919) 325-4000
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 76: phillip@govavia.com in Fort Mill, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. VaVia Dumpster Rental of Charlotte
+     ID: 7baed19a-1177-44f6-b28b-8f5788277662
+     Address: N/A
+     Phone: (704) 593-6113
+     Claimed: No
+     Created: 8/15/2025
+
+  2. VaVia Dumpster Rental of Charlotte
+     ID: c8e7d9b3-d615-49ad-a7e5-699a30bd0dea
+     Address: N/A
+     Phone: (704) 593-6113
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 77: pmarsden@redboxplus.com in Winston-Salem, NC 27101
+Found 2 duplicates:
+------------------------------------------------------------
+  1. redbox+ Dumpsters
+     ID: a518786a-23ea-4176-a315-8b3f517dbcdb
+     Address: 500 W 5th St Ste 800 PMB1153
+     Phone: (336) 344-7575
+     Claimed: No
+     Created: 8/15/2025
+
+  2. redbox+ Dumpsters
+     ID: 0a284897-b36e-461f-951d-e3f3026b1bc4
+     Address: 500 W 5th St Ste 800 PMB1153
+     Phone: (336) 344-7575
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 78: public.works@westjordan.utah.gov; info@westjordan.utah.gov; utility.billing@westjordan.utah.gov; publicworks@westjordan.utah.gov in West Jordan, UT 84088
+Found 2 duplicates:
+------------------------------------------------------------
+  1. West Jordan Public Works Department
+     ID: 17e9e89e-3b14-4dd3-8bf9-26209bd87492
+     Address: 7960 4000 W
+     Phone: (801) 569-5700
+     Claimed: No
+     Created: 8/19/2025
+
+  2. West Jordan Garbage Collection
+     ID: 3288fbcb-d6f1-4566-866a-f24ed1c5c57f
+     Address: 8030 4000 W
+     Phone: (801) 569-5760
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 79: rmiller@pagecounty.virginia.gov; tclatterbuck@pagecounty.virginia.gov in Luray, VA 22835
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Page Compactor/Recycling Site - Springfield
+     ID: e928465d-b2e5-405d-839f-f898a8756ed8
+     Address: 340 North Alley
+     Phone: (540) 742-9110
+     Claimed: No
+     Created: 8/19/2025
+
+  2. Battle Creek Landfill
+     ID: 899476eb-071f-4cb4-a43b-0a371756acee
+     Address: 219 Landfill Dr
+     Phone: (540) 743-3854
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 80: ryan.barclay@junkluggers.com in Concord, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. The Junkluggers of Charlotte
+     ID: 85d3d495-23b2-4fe6-94ee-301c1100fdd6
+     Address: N/A
+     Phone: (704) 251-0900
+     Claimed: No
+     Created: 8/15/2025
+
+  2. The Junkluggers of Charlotte
+     ID: 66af2bf8-5d75-444d-83df-79273e8e95c7
+     Address: N/A
+     Phone: (704) 251-0900
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 81: seanwood@biglickdumpsters.com in Monroe, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Big Lick Dumpster Rentals
+     ID: 10002318-b72e-48f1-b251-6a2c829fb16c
+     Address: N/A
+     Phone: (704) 650-5429
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Big Lick Dumpster Rentals
+     ID: 1084c352-6723-4fc8-827f-ff25b0a073fd
+     Address: N/A
+     Phone: (704) 650-5429
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 82: seanwood@biglickdumpsters.com in Indian Trail, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Big Lick Dumpster Rentals
+     ID: af7ced36-7d88-4061-b2a3-f0a3f2483723
+     Address: N/A
+     Phone: (704) 650-5429
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Big Lick Dumpster Rentals
+     ID: 6d0fcc87-0a1a-4538-afd4-ad6781c73e89
+     Address: N/A
+     Phone: (704) 650-5429
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 83: thejunktycoons@gmail.com in Lawrenceville, GA 30044
+Found 2 duplicates:
+------------------------------------------------------------
+  1. The Junk Tycoons
+     ID: 72d7cda8-339a-431d-be74-e1ad3b675347
+     Address: 1111 Hampton Hill Ct
+     Phone: (404) 913-1811
+     Claimed: No
+     Created: 8/19/2025
+
+  2. The Junk Tycoons
+     ID: 880a00ed-e62c-4a7f-b22f-a33e30212262
+     Address: 1111 Hampton Hill Ct
+     Phone: (404) 913-1811
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 84: transtechtowing@yahoo.com in Broadway, VA 22815
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Trans Tech Towing & Repair
+     ID: 388c61a4-1d76-45b5-b2c9-4f735299665a
+     Address: 419 Trumbo Ct
+     Phone: (540) 896-9644
+     Claimed: No
+     Created: 8/19/2025
+
+  2. Trans Tech Dumpsters LLC
+     ID: cb72ace1-ffd8-4941-8014-2193b0766027
+     Address: 419 Trumbo Ct Suite D
+     Phone: (540) 896-9644
+     Claimed: No
+     Created: 8/19/2025
+
+
+Group 85: vcrisp@wasteprousa.com in Concord, NC 28025
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Waste Pro
+     ID: 7dd92c31-6175-46b8-bf63-d91e0319e6ff
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Waste Pro
+     ID: 798e8b05-3a1d-4d5f-a759-98c78b01a502
+     Address: 185 Manor Ave SW
+     Phone: (704) 792-0800
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 86: ven.poole@gflenv.com in Jacksonville, NC 28540
+Found 2 duplicates:
+------------------------------------------------------------
+  1. Waste Industries
+     ID: 18fee413-2f12-4250-b3b4-6c1084019215
+     Address: 21 E Thompson St
+     Phone: (252) 223-4176
+     Claimed: No
+     Created: 8/15/2025
+
+  2. Waste Industries
+     ID: 9aca2123-df50-49c7-b257-0efe3b3a1f98
+     Address: 21 E Thompson St
+     Phone: (252) 223-4176
+     Claimed: No
+     Created: 8/15/2025
+
+
+Group 87: zack@vetseasytrash.com in Cary, NC 
+Found 2 duplicates:
+------------------------------------------------------------
+  1. VETS Junk Removal and Dumpsters
+     ID: 4cdc2505-483d-4c4e-8fb2-a2743d2b6949
+     Address: N/A
+     Phone: (919) 578-2784
+     Claimed: No
+     Created: 8/15/2025
+
+  2. VETS Junk Removal and Dumpsters
+     ID: f44be28e-bdac-4d0f-83d2-5d40b10ef739
+     Address: N/A
+     Phone: (919) 578-2784
+     Claimed: No
+     Created: 8/15/2025
+
+
+================================================================================
+TOP 20 DUPLICATE EMAILS (regardless of location)
+================================================================================
+
+1. neohio@bintheredumpthat.com
+   Count: 33 businesses
+   Unique Locations: 32
+
+2. rprather@wallrecycling.com
+   Count: 17 businesses
+   Unique Locations: 6
+
+3. helen.grigg@wasteconnections.com; specialwaste4100@wcnx.org
+   Count: 16 businesses
+   Unique Locations: 14
+
+4. miller@bintheredumpthat.com
+   Count: 13 businesses
+   Unique Locations: 6
+
+5. j.nash@bintheredumpthat.com
+   Count: 13 businesses
+   Unique Locations: 10
+
+6. ben@keydumpsters.com
+   Count: 12 businesses
+   Unique Locations: 2
+   Locations: Cleveland, NC 27013 | Salisbury, NC 28147
+
+7. zack@vetseasytrash.com
+   Count: 12 businesses
+   Unique Locations: 3
+   Locations: Cary, NC  | Charlotte, NC 28269 | Matthews, NC 28104
+
+8. ronald.mittelstaedt@wasteconnections.com
+   Count: 10 businesses
+   Unique Locations: 3
+   Locations: Charlotte, NC 28206 | Charlotte, NC 28214 | Monroe, NC 28110
+
+9. pdovigi@gflenv.com
+   Count: 10 businesses
+   Unique Locations: 6
+
+10. john@budgetdumpster.com
+   Count: 9 businesses
+   Unique Locations: 7
+
+11. whall@meridianwaste.com
+   Count: 9 businesses
+   Unique Locations: 4
+   Locations: Morrisville, NC 27560 | Raleigh, NC 27603 | Raleigh, NC 27610 | Wendell, NC 27591
+
+12. jb@mercadosdumpsters.com
+   Count: 8 businesses
+   Unique Locations: 1
+   Locations: Charlotte, NC 28269
+
+13. reid@willowdumpsters.com
+   Count: 7 businesses
+   Unique Locations: 7
+
+14. tgivan@idealtrash.com
+   Count: 7 businesses
+   Unique Locations: 4
+   Locations: Cary, NC  | Garner, NC  | Greensboro, NC 27408 | Raleigh, NC 
+
+15. blake@americandumpsterco.com
+   Count: 7 businesses
+   Unique Locations: 6
+
+16. robert@triplerlandscapingllc.com
+   Count: 7 businesses
+   Unique Locations: 1
+   Locations: Garner, NC 27529
+
+17. media@wasteprousa.com; managermedia@wasteprousa.com
+   Count: 7 businesses
+   Unique Locations: 7
+
+18. sjennings@wasteprousa.com
+   Count: 7 businesses
+   Unique Locations: 3
+   Locations: Concord, NC 28025 | Monroe, NC 28110 | Mt Holly, NC 28120
+
+19. chad@dumpstertoday.com
+   Count: 6 businesses
+   Unique Locations: 1
+   Locations: Mooresville, NC 28115
+
+20. jeff@a1dumpsterrentals.com
+   Count: 6 businesses
+   Unique Locations: 1
+   Locations: Charlotte, NC 28208
+
+================================================================================
+DATABASE STATISTICS
+================================================================================
+Total Businesses: 2720
+Unique Emails: 649
+Businesses with Email: 1022
+Claimed Businesses: 1
